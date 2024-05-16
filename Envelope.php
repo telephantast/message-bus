@@ -81,7 +81,6 @@ final readonly class Envelope
             $stampsByClass[$stamp::class] = $stamp;
         }
 
-        /** @phpstan-ignore return.type */
         return new self($this->message, $stampsByClass);
     }
 
@@ -101,7 +100,6 @@ final readonly class Envelope
             unset($stampsByClass[$class]);
         }
 
-        /** @phpstan-ignore return.type */
         return new self($this->message, $stampsByClass);
     }
 }

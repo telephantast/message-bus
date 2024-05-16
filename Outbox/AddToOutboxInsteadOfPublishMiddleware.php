@@ -28,7 +28,6 @@ final readonly class AddToOutboxInsteadOfPublishMiddleware implements Middleware
 
         $this->repository->add($outboxId, messageId($messageContext), $messageContext->envelope);
 
-        /** @phpstan-ignore return.type */
         return null;
     }
 }

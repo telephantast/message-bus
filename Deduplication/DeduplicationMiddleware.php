@@ -21,7 +21,6 @@ final readonly class DeduplicationMiddleware implements Middleware
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if ($this->deduplicator->isHandled($pipeline->id(), messageId($messageContext))) {
-            /** @phpstan-ignore return.type */
             return null;
         }
 

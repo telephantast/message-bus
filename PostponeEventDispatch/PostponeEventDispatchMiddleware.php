@@ -25,7 +25,6 @@ final readonly class PostponeEventDispatchMiddleware implements Middleware
 
             $eventPipelines->add($pipeline);
 
-            /** @phpstan-ignore return.type */
             return null;
         }
 

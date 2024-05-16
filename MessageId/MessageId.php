@@ -39,7 +39,6 @@ final readonly class MessageId implements Stamp
         return new self(
             messageId: $messageId,
             causationId: $cause?->messageId,
-            /** @phpstan-ignore nullsafe.neverNull */
             correlationId: $cause?->correlationId ?? $messageId,
         );
     }

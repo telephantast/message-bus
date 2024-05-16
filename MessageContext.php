@@ -36,7 +36,6 @@ final class MessageContext extends ReadonlyMessageContext
 
     public function setStamp(Stamp ...$stamps): void
     {
-        /** @phpstan-ignore property.readOnlyByPhpDocAssignOutOfClass */
         $this->envelope = $this->envelope->withStamp(...$stamps);
     }
 
@@ -45,7 +44,6 @@ final class MessageContext extends ReadonlyMessageContext
      */
     public function removeStamp(string ...$classes): void
     {
-        /** @phpstan-ignore property.readOnlyByPhpDocAssignOutOfClass */
         $this->envelope = $this->envelope->withoutStamp(...$classes);
     }
 
