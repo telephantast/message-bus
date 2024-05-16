@@ -7,7 +7,6 @@ namespace Telephantast\MessageBus;
 use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
-use Telephantast\MessageBus\HandlerRegistry\EnsureNonEventMessageHasHandler;
 
 /**
  * @api
@@ -18,7 +17,7 @@ final readonly class MessageBus
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        private HandlerRegistry $handlerRegistry = new EnsureNonEventMessageHasHandler(new ArrayHandlerRegistry()),
+        private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
         private iterable $middlewares = [],
     ) {}
 
@@ -54,7 +53,7 @@ final readonly class MessageBus
     {
         return Pipeline::handle(
             messageContext: $messageContext,
-            handlerOrRegistry: $this->handlerRegistry,
+            handler: $this->handlerRegistry->get($messageContext->getMessageClass()),
             middlewares: $this->middlewares,
         );
     }

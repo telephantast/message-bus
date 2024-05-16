@@ -7,7 +7,6 @@ namespace Telephantast\MessageBus\Handler;
 use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler;
 use Telephantast\MessageBus\MessageContext;
-use Telephantast\MessageBus\Middleware;
 
 /**
  * @api
@@ -15,28 +14,24 @@ use Telephantast\MessageBus\Middleware;
  * @template TMessage of Message<TResult>
  * @implements Handler<TResult, TMessage>
  */
-final readonly class PipelineHandler implements Handler
+final readonly class DeterministicHandler implements Handler
 {
     /**
-     * @param Handler<TResult, TMessage> $handler
-     * @param iterable<Middleware> $middlewares
+     * @param non-empty-string $id
+     * @param TResult $result
      */
     public function __construct(
-        private Handler $handler,
-        private iterable $middlewares,
+        private string $id,
+        private mixed $result,
     ) {}
 
     public function id(): string
     {
-        return $this->handler->id();
+        return $this->id;
     }
 
     public function handle(MessageContext $messageContext): mixed
     {
-        return Pipeline::handle(
-            messageContext: $messageContext,
-            handler: $this->handler,
-            middlewares: $this->middlewares,
-        );
+        return $this->result;
     }
 }

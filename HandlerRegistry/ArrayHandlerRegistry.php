@@ -11,13 +11,13 @@ use Telephantast\MessageBus\HandlerRegistry;
 /**
  * @api
  */
-final readonly class ArrayHandlerRegistry implements HandlerRegistry
+final class ArrayHandlerRegistry extends HandlerRegistry
 {
     /**
      * @param array<class-string<Message>, Handler> $messageClassToHandlerMap
      */
     public function __construct(
-        private array $messageClassToHandlerMap = [],
+        private readonly array $messageClassToHandlerMap = [],
     ) {}
 
     /**
@@ -26,7 +26,7 @@ final readonly class ArrayHandlerRegistry implements HandlerRegistry
      * @param class-string<TMessage> $messageClass
      * @return ?Handler<TResult, TMessage>
      */
-    public function get(string $messageClass): ?Handler
+    public function find(string $messageClass): ?Handler
     {
         /** @var ?Handler<TResult, TMessage> */
         return $this->messageClassToHandlerMap[$messageClass] ?? null;

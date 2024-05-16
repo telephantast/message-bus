@@ -6,7 +6,6 @@ namespace Telephantast\MessageBus\Handler;
 
 use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler;
-use Telephantast\MessageBus\HandlerRegistry;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;
 
@@ -22,42 +21,36 @@ final class Pipeline
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Handler<TResult, TMessage> $handler
-     * @param array<Middleware> $middlewares
+     * @param \SplQueue<Middleware> $middlewares
      */
     private function __construct(
         private readonly MessageContext $messageContext,
         private readonly Handler $handler,
-        private array $middlewares,
+        private \SplQueue $middlewares,
     ) {}
 
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
-     * @param Handler<TTResult, TTMessage>|HandlerRegistry $handlerOrRegistry
-     * @param iterable<Middleware> $middlewares
+     * @param Handler<TTResult, TTMessage> $handler
      * @param MessageContext<TTResult, TTMessage> $messageContext
+     * @param iterable<Middleware> $middlewares
      * @return TTResult
      */
-    public static function handle(MessageContext $messageContext, Handler|HandlerRegistry $handlerOrRegistry, iterable $middlewares = []): mixed
+    public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
-        if (!\is_array($middlewares)) {
-            $middlewares = iterator_to_array($middlewares, preserve_keys: false);
+        /** @var \SplQueue<Middleware> */
+        $middlewareQueue = new \SplQueue();
+
+        foreach ($middlewares as $middleware) {
+            $middlewareQueue->enqueue($middleware);
         }
 
-        if ($handlerOrRegistry instanceof HandlerRegistry) {
-            $handlerOrRegistry = $handlerOrRegistry->get($messageContext->getMessageClass());
-
-            if ($handlerOrRegistry === null) {
-                /** @phpstan-ignore return.type */
-                return null;
-            }
+        if ($middlewareQueue->isEmpty()) {
+            return $handler->handle($messageContext);
         }
 
-        if ($middlewares === []) {
-            return $handlerOrRegistry->handle($messageContext);
-        }
-
-        return (new self($messageContext, $handlerOrRegistry, $middlewares))->continue();
+        return (new self($messageContext, $handler, $middlewareQueue))->continue();
     }
 
     /**
@@ -74,13 +67,11 @@ final class Pipeline
     public function continue(): mixed
     {
         if ($this->handled) {
-            throw new \LogicException('Pipeline fully handled.');
+            throw new \LogicException('Pipeline fully handled');
         }
 
-        $nextMiddleware = array_shift($this->middlewares);
-
-        if ($nextMiddleware !== null) {
-            return $nextMiddleware->handle($this->messageContext, $this);
+        if (!$this->middlewares->isEmpty()) {
+            return $this->middlewares->dequeue()->handle($this->messageContext, $this);
         }
 
         $this->handled = true;

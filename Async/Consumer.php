@@ -8,7 +8,6 @@ use Telephantast\MessageBus\Envelope;
 use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\HandlerRegistry;
 use Telephantast\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
-use Telephantast\MessageBus\HandlerRegistry\EnsureNonEventMessageHasHandler;
 use Telephantast\MessageBus\MessageBus;
 use Telephantast\MessageBus\Middleware;
 
@@ -22,7 +21,7 @@ final readonly class Consumer
      */
     public function __construct(
         private MessageBus $messageBus,
-        private HandlerRegistry $handlerRegistry = new EnsureNonEventMessageHasHandler(new ArrayHandlerRegistry()),
+        private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
         private iterable $middlewares = [],
     ) {}
 
@@ -30,7 +29,7 @@ final readonly class Consumer
     {
         Pipeline::handle(
             messageContext: $this->messageBus->startContext($envelope),
-            handlerOrRegistry: $this->handlerRegistry,
+            handler: $this->handlerRegistry->get($envelope->getMessageClass()),
             middlewares: $this->middlewares,
         );
     }
