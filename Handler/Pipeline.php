@@ -16,17 +16,19 @@ use Telephantast\MessageBus\Middleware;
  */
 final class Pipeline
 {
+    private bool $middlewareIterationStarted = false;
+
     private bool $handled = false;
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Handler<TResult, TMessage> $handler
-     * @param \SplQueue<Middleware> $middlewares
+     * @param \Generator<Middleware> $middlewares
      */
     private function __construct(
         private readonly MessageContext $messageContext,
         private readonly Handler $handler,
-        private \SplQueue $middlewares,
+        private \Generator $middlewares,
     ) {}
 
     /**
@@ -39,18 +41,13 @@ final class Pipeline
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
-        /** @var \SplQueue<Middleware> */
-        $middlewareQueue = new \SplQueue();
-
-        foreach ($middlewares as $middleware) {
-            $middlewareQueue->enqueue($middleware);
-        }
-
-        if ($middlewareQueue->isEmpty()) {
+        if ($middlewares === []) {
             return $handler->handle($messageContext);
         }
 
-        return (new self($messageContext, $handler, $middlewareQueue))->continue();
+        $middlewares = (static fn(): \Generator => yield from $middlewares)();
+
+        return (new self($messageContext, $handler, $middlewares))->continue();
     }
 
     /**
@@ -70,8 +67,14 @@ final class Pipeline
             throw new \LogicException('Pipeline fully handled');
         }
 
-        if (!$this->middlewares->isEmpty()) {
-            return $this->middlewares->dequeue()->handle($this->messageContext, $this);
+        if ($this->middlewareIterationStarted) {
+            $this->middlewares->next();
+        } else {
+            $this->middlewareIterationStarted = true;
+        }
+
+        if ($this->middlewares->valid()) {
+            return $this->middlewares->current()->handle($this->messageContext, $this);
         }
 
         $this->handled = true;
