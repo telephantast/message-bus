@@ -14,6 +14,8 @@ use function Telephantast\MessageBus\MessageId\messageId;
  */
 final readonly class DeduplicationMiddleware implements Middleware
 {
+    public const int RECOMMENDED_PRIORITY = 400;
+
     public function __construct(
         private Deduplicator $deduplicator,
     ) {}

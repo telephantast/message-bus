@@ -14,6 +14,8 @@ use Telephantast\MessageBus\Middleware;
  */
 final readonly class PreHandleLoggingMiddleware implements Middleware
 {
+    public const int RECOMMENDED_PRIORITY = 100;
+
     public function __construct(
         private LoggerInterface $logger,
     ) {}

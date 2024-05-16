@@ -18,6 +18,8 @@ use function Telephantast\MessageBus\MessageId\messageId;
  */
 final readonly class SetupAndPublishOutboxMiddleware implements Middleware
 {
+    public const int RECOMMENDED_PRIORITY = 600;
+
     public function __construct(
         private OutboxRepository $repository,
         private TransportPublish $publish,

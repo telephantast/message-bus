@@ -13,6 +13,8 @@ use Telephantast\MessageBus\Middleware;
  */
 final readonly class MessageIdMiddleware implements Middleware
 {
+    public const int RECOMMENDED_PRIORITY = 1000;
+
     public function __construct(
         private MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
     ) {}
