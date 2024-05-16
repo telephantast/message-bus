@@ -14,11 +14,11 @@ use Telephantast\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 final readonly class MessageBus
 {
     /**
-     * @param iterable<Middleware> $middlewares
+     * @param iterable<Middleware> $dispatchMiddlewares
      */
     public function __construct(
         private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
-        private iterable $middlewares = [],
+        private iterable $dispatchMiddlewares = [],
     ) {}
 
     /**
@@ -54,7 +54,7 @@ final readonly class MessageBus
         return Pipeline::handle(
             messageContext: $messageContext,
             handler: $this->handlerRegistry->get($messageContext->getMessageClass()),
-            middlewares: $this->middlewares,
+            middlewares: $this->dispatchMiddlewares,
         );
     }
 }
