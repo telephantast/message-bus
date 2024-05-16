@@ -16,11 +16,11 @@ final readonly class Envelope
 {
     /**
      * @param TMessage $message
-     * @param array<class-string<Stamp>, Stamp> $stampsByClass
+     * @param array<class-string<Stamp>, Stamp> $stamps
      */
     private function __construct(
         public Message $message,
-        public array $stampsByClass = [],
+        public array $stamps = [],
     ) {}
 
     /**
@@ -35,21 +35,14 @@ final readonly class Envelope
             $messageOrEnvelope = new self($messageOrEnvelope);
         }
 
-        /**
-         * @psalm-var self<TWrappedResult, TWrappedMessage> $messageOrEnvelope
-         * @phpstan-ignore varTag.differentVariable
-         */
-        foreach ($stamps as $stamp) {
-            $messageOrEnvelope = $messageOrEnvelope->withStamp($stamp);
-        }
-
-        return $messageOrEnvelope;
+        /** @psalm-var self<TWrappedResult, TWrappedMessage> $messageOrEnvelope */
+        return $messageOrEnvelope->withStamp(...$stamps);
     }
 
     /**
      * @return class-string<TMessage>
      */
-    public function messageClass(): string
+    public function getMessageClass(): string
     {
         return $this->message::class;
     }
@@ -59,7 +52,7 @@ final readonly class Envelope
      */
     public function hasStamp(string $class): bool
     {
-        return isset($this->stampsByClass[$class]);
+        return isset($this->stamps[$class]);
     }
 
     /**
@@ -67,32 +60,46 @@ final readonly class Envelope
      * @param class-string<TStamp> $class
      * @return ?TStamp
      */
-    public function stamp(string $class): ?Stamp
+    public function getStamp(string $class): ?Stamp
     {
         /** @var ?TStamp */
-        return $this->stampsByClass[$class] ?? null;
+        return $this->stamps[$class] ?? null;
     }
 
     /**
      * @return self<TResult, TMessage>
      */
-    public function withStamp(Stamp $stamp): self
+    public function withStamp(Stamp ...$stamps): self
     {
-        $stampsByClass = $this->stampsByClass;
-        $stampsByClass[$stamp::class] = $stamp;
+        if ($stamps === []) {
+            return $this;
+        }
+
+        $stampsByClass = $this->stamps;
+
+        foreach ($stamps as $stamp) {
+            $stampsByClass[$stamp::class] = $stamp;
+        }
 
         /** @phpstan-ignore return.type */
         return new self($this->message, $stampsByClass);
     }
 
     /**
-     * @param class-string<Stamp> $class
+     * @param class-string<Stamp> $classes
      * @return self<TResult, TMessage>
      */
-    public function withoutStamp(string $class): self
+    public function withoutStamp(string ...$classes): self
     {
-        $stampsByClass = $this->stampsByClass;
-        unset($stampsByClass[$class]);
+        if ($classes === []) {
+            return $this;
+        }
+
+        $stampsByClass = $this->stamps;
+
+        foreach ($classes as $class) {
+            unset($stampsByClass[$class]);
+        }
 
         /** @phpstan-ignore return.type */
         return new self($this->message, $stampsByClass);

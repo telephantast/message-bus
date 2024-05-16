@@ -14,20 +14,25 @@ use Telephantast\Message\Message;
 abstract class ReadonlyMessageContext
 {
     /**
+     * @psalm-readonly-allow-private-mutation
+     * @var Envelope<TResult, TMessage>
+     */
+    public Envelope $envelope;
+
+    /**
      * @var array<class-string<ContextAttribute>, ContextAttribute>
      */
     protected array $attributesByClass = [];
 
     /**
-     * @param Envelope<TResult, TMessage> $envelope
+     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
      */
     public function __construct(
-        /**
-         * @psalm-readonly-allow-private-mutation
-         */
-        public Envelope $envelope,
+        Envelope|Message $messageOrEnvelope,
         public readonly ?self $parent = null,
-    ) {}
+    ) {
+        $this->envelope = Envelope::wrap($messageOrEnvelope);
+    }
 
     final public function root(): self
     {
@@ -53,7 +58,7 @@ abstract class ReadonlyMessageContext
      * @param class-string<TAttribute> $class
      * @return ?TAttribute
      */
-    final public function attribute(string $class): ?ContextAttribute
+    final public function getAttribute(string $class): ?ContextAttribute
     {
         /** @var ?TAttribute */
         return $this->attributesByClass[$class] ?? null;
@@ -62,7 +67,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return TMessage
      */
-    final public function message(): Message
+    final public function getMessage(): Message
     {
         return $this->envelope->message;
     }
@@ -70,9 +75,9 @@ abstract class ReadonlyMessageContext
     /**
      * @return class-string<TMessage>
      */
-    final public function messageClass(): string
+    final public function getMessageClass(): string
     {
-        return $this->envelope->messageClass();
+        return $this->envelope->getMessageClass();
     }
 
     /**
@@ -88,8 +93,8 @@ abstract class ReadonlyMessageContext
      * @param class-string<TStamp> $class
      * @return ?TStamp
      */
-    final public function stamp(string $class): ?Stamp
+    final public function getStamp(string $class): ?Stamp
     {
-        return $this->envelope->stamp($class);
+        return $this->envelope->getStamp($class);
     }
 }

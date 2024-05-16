@@ -24,25 +24,29 @@ final class MessageContext extends ReadonlyMessageContext
         Envelope|Message $messageOrEnvelope,
         ?ReadonlyMessageContext $parent = null,
     ) {
-        parent::__construct(Envelope::wrap($messageOrEnvelope), $parent);
+        parent::__construct($messageOrEnvelope, $parent);
     }
 
-    public function setAttribute(ContextAttribute $attribute): void
+    public function setAttribute(ContextAttribute ...$attributes): void
     {
-        $this->attributesByClass[$attribute::class] = $attribute;
+        foreach ($attributes as $attribute) {
+            $this->attributesByClass[$attribute::class] = $attribute;
+        }
     }
 
-    public function setStamp(Stamp $stamp): void
+    public function setStamp(Stamp ...$stamps): void
     {
-        $this->envelope = $this->envelope->withStamp($stamp);
+        /** @phpstan-ignore property.readOnlyByPhpDocAssignOutOfClass */
+        $this->envelope = $this->envelope->withStamp(...$stamps);
     }
 
     /**
-     * @param class-string<Stamp> $class
+     * @param class-string<Stamp> ...$classes
      */
-    public function removeStamp(string $class): void
+    public function removeStamp(string ...$classes): void
     {
-        $this->envelope = $this->envelope->withoutStamp($class);
+        /** @phpstan-ignore property.readOnlyByPhpDocAssignOutOfClass */
+        $this->envelope = $this->envelope->withoutStamp(...$classes);
     }
 
     /**

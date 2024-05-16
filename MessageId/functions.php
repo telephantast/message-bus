@@ -14,6 +14,6 @@ use Telephantast\MessageBus\MessageContext;
 function messageId(Envelope|MessageContext $envelopeOrMessageContext): string
 {
     /** @phpstan-ignore nullsafe.neverNull */
-    return $envelopeOrMessageContext->stamp(MessageId::class)?->messageId
-        ?? throw new NoMessageId($envelopeOrMessageContext->messageClass());
+    return $envelopeOrMessageContext->getStamp(MessageId::class)?->messageId
+        ?? throw new NoMessageId($envelopeOrMessageContext->getMessageClass());
 }

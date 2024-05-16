@@ -45,7 +45,7 @@ final class Pipeline
         }
 
         if ($handlerOrRegistry instanceof HandlerRegistry) {
-            $handlerOrRegistry = $handlerOrRegistry->get($messageContext->messageClass());
+            $handlerOrRegistry = $handlerOrRegistry->get($messageContext->getMessageClass());
 
             if ($handlerOrRegistry === null) {
                 /** @phpstan-ignore return.type */

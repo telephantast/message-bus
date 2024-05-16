@@ -25,7 +25,7 @@ final readonly class MessageIdMiddleware implements Middleware
 
         $messageContext->setStamp(MessageId::fromCause(
             messageId: $this->messageIdGenerator->generate(),
-            cause: $messageContext->parent?->stamp(MessageId::class),
+            cause: $messageContext->parent?->getStamp(MessageId::class),
         ));
 
         return $pipeline->continue();

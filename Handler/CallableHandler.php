@@ -32,6 +32,6 @@ final class CallableHandler implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        return ($this->callable)($messageContext->message(), $messageContext);
+        return ($this->callable)($messageContext->getMessage(), $messageContext);
     }
 }

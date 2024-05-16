@@ -16,8 +16,8 @@ final readonly class PostponeEventDispatchMiddleware implements Middleware
 {
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
-        if ($messageContext->message() instanceof Event) {
-            $eventPipelines = $messageContext->root()->attribute(PostponedEventPipelines::class);
+        if ($messageContext->getMessage() instanceof Event) {
+            $eventPipelines = $messageContext->root()->getAttribute(PostponedEventPipelines::class);
 
             if ($eventPipelines === null) {
                 return $pipeline->continue();
