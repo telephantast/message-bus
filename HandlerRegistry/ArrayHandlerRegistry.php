@@ -14,10 +14,10 @@ use Telephantast\MessageBus\HandlerRegistry;
 final class ArrayHandlerRegistry extends HandlerRegistry
 {
     /**
-     * @param array<class-string<Message>, Handler> $messageClassToHandlerMap
+     * @param array<class-string<Message>, Handler|callable(): Handler> $messageClassToHandlerMap
      */
     public function __construct(
-        private readonly array $messageClassToHandlerMap = [],
+        private array $messageClassToHandlerMap = [],
     ) {}
 
     /**
@@ -28,7 +28,14 @@ final class ArrayHandlerRegistry extends HandlerRegistry
      */
     public function find(string $messageClass): ?Handler
     {
+        $handler = $this->messageClassToHandlerMap[$messageClass] ?? null;
+
+        if ($handler instanceof \Closure) {
+            /** @psalm-suppress MixedPropertyTypeCoercion */
+            $handler = $this->messageClassToHandlerMap[$messageClass] = $handler();
+        }
+
         /** @var ?Handler<TResult, TMessage> */
-        return $this->messageClassToHandlerMap[$messageClass] ?? null;
+        return $handler;
     }
 }
