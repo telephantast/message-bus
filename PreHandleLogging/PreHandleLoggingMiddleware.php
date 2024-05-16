@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Telephantast\MessageBus\Logging;
+namespace Telephantast\MessageBus\PreHandleLogging;
 
 use Psr\Log\LoggerInterface;
 use Telephantast\MessageBus\Handler\Pipeline;
@@ -12,7 +12,7 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class LoggingMiddleware implements Middleware
+final readonly class PreHandleLoggingMiddleware implements Middleware
 {
     public function __construct(
         private LoggerInterface $logger,
