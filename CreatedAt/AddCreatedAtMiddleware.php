@@ -12,10 +12,8 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class CreatedAtMiddleware implements Middleware
+final readonly class AddCreatedAtMiddleware implements Middleware
 {
-    public const int RECOMMENDED_PRIORITY = 1000;
-
     public function __construct(
         private ?ClockInterface $clock = null,
     ) {}

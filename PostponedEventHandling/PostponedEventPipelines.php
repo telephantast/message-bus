@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Telephantast\MessageBus\PostponeEventDispatch;
+namespace Telephantast\MessageBus\PostponedEventHandling;
 
-use Telephantast\MessageBus\ContextAttribute;
 use Telephantast\MessageBus\Handler\Pipeline;
+use Telephantast\MessageBus\InheritableContextAttribute;
 
 /**
  * @internal
- * @psalm-internal Telephantast\MessageBus\PostponeEventDispatch
+ * @psalm-internal Telephantast\MessageBus\PostponedEventHandling
  */
-final class PostponedEventPipelines implements ContextAttribute
+final class PostponedEventPipelines implements InheritableContextAttribute
 {
     /**
      * @var \SplQueue<Pipeline>

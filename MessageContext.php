@@ -15,22 +15,33 @@ use Telephantast\Message\Message;
 final class MessageContext extends ReadonlyMessageContext
 {
     /**
-     * @internal
-     * @psalm-internal Telephantast\MessageBus
-     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
+     * @param Envelope<TResult, TMessage> $envelope
      */
-    public function __construct(
+    protected function __construct(
         private readonly MessageBus $messageBus,
-        Envelope|Message $messageOrEnvelope,
+        Envelope $envelope,
         ?ReadonlyMessageContext $parent = null,
     ) {
-        parent::__construct($messageOrEnvelope, $parent);
+        parent::__construct($envelope, $parent);
+    }
+
+    /**
+     * @internal
+     * @psalm-internal Telephantast\MessageBus
+     * @template TTResult
+     * @template TTMessage of Message<TTResult>
+     * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelope
+     * @return self<TTResult, TTMessage>
+     */
+    public static function start(MessageBus $messageBus, Envelope|Message $messageOrEnvelope): self
+    {
+        return new self($messageBus, Envelope::wrap($messageOrEnvelope));
     }
 
     public function setAttribute(ContextAttribute ...$attributes): void
     {
         foreach ($attributes as $attribute) {
-            $this->attributesByClass[$attribute::class] = $attribute;
+            $this->attributes[$attribute::class] = $attribute;
         }
     }
 
@@ -53,14 +64,16 @@ final class MessageContext extends ReadonlyMessageContext
      * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelope
      * @return TTResult
      */
-    public function dispatch(Envelope|Message $messageOrEnvelope, ContextAttribute ...$attributes): mixed
+    public function dispatch(Envelope|Message $messageOrEnvelope): mixed
     {
-        $childContext = new self($this->messageBus, $messageOrEnvelope, clone $this);
+        $child = new self($this->messageBus, Envelope::wrap($messageOrEnvelope), clone $this);
 
-        foreach ($attributes as $attribute) {
-            $childContext->setAttribute($attribute);
+        foreach ($this->attributes as $attribute) {
+            if ($attribute instanceof InheritableContextAttribute) {
+                $child->setAttribute($attribute);
+            }
         }
 
-        return $this->messageBus->handleContext($childContext);
+        return $this->messageBus->handleContext($child);
     }
 }

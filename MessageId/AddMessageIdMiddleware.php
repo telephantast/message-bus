@@ -11,24 +11,17 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class MessageIdMiddleware implements Middleware
+final readonly class AddMessageIdMiddleware implements Middleware
 {
-    public const int RECOMMENDED_PRIORITY = 1000;
-
     public function __construct(
         private MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
-        if ($messageContext->hasStamp(MessageId::class)) {
-            return $pipeline->continue();
+        if (!$messageContext->hasStamp(MessageId::class)) {
+            $messageContext->setStamp(new MessageId($this->messageIdGenerator->generate()));
         }
-
-        $messageContext->setStamp(MessageId::fromCause(
-            messageId: $this->messageIdGenerator->generate(),
-            cause: $messageContext->parent?->getStamp(MessageId::class),
-        ));
 
         return $pipeline->continue();
     }

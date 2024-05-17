@@ -10,8 +10,8 @@ namespace Telephantast\MessageBus\Deduplication;
 interface Deduplicator
 {
     /**
-     * @param non-empty-string $handlerId
+     * @param non-empty-string $queue
      * @param non-empty-string $messageId
      */
-    public function isHandled(string $handlerId, string $messageId): bool;
+    public function isHandled(string $queue, string $messageId): bool;
 }

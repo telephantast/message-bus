@@ -6,7 +6,7 @@ namespace Telephantast\MessageBus;
 
 use Telephantast\Message\Event;
 use Telephantast\Message\Message;
-use Telephantast\MessageBus\Handler\DeterministicHandler;
+use Telephantast\MessageBus\Handler\CallableHandler;
 
 /**
  * @api
@@ -28,8 +28,8 @@ abstract class HandlerRegistry
         }
 
         if (is_subclass_of($messageClass, Event::class)) {
-            /** @var DeterministicHandler<TResult, TMessage> */
-            return new DeterministicHandler('null event handler', null);
+            /** @var CallableHandler<TResult, TMessage> */
+            return new CallableHandler('null event handler', static fn(): null => null);
         }
 
         throw new \RuntimeException(sprintf('No handler for non-event message %s', $messageClass));

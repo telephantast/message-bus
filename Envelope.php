@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Telephantast\MessageBus;
 
 use Telephantast\Message\Message;
+use Telephantast\MessageBus\MessageId\MessageId;
 
 /**
  * @api
@@ -16,11 +17,11 @@ final readonly class Envelope
 {
     /**
      * @param TMessage $message
-     * @param array<class-string<Stamp>, Stamp> $stamps
+     * @param array<class-string<Stamp>, Stamp> $classToStamp
      */
     private function __construct(
         public Message $message,
-        public array $stamps = [],
+        public array $classToStamp = [],
     ) {}
 
     /**
@@ -40,6 +41,14 @@ final readonly class Envelope
     }
 
     /**
+     * @return non-empty-string
+     */
+    public function getMessageId(): string
+    {
+        return $this->getStamp(MessageId::class)?->messageId ?? throw new \RuntimeException('No message id');
+    }
+
+    /**
      * @return class-string<TMessage>
      */
     public function getMessageClass(): string
@@ -52,7 +61,7 @@ final readonly class Envelope
      */
     public function hasStamp(string $class): bool
     {
-        return isset($this->stamps[$class]);
+        return isset($this->classToStamp[$class]);
     }
 
     /**
@@ -63,7 +72,7 @@ final readonly class Envelope
     public function getStamp(string $class): ?Stamp
     {
         /** @var ?TStamp */
-        return $this->stamps[$class] ?? null;
+        return $this->classToStamp[$class] ?? null;
     }
 
     /**
@@ -75,13 +84,13 @@ final readonly class Envelope
             return $this;
         }
 
-        $stampsByClass = $this->stamps;
+        $classToStamp = $this->classToStamp;
 
         foreach ($stamps as $stamp) {
-            $stampsByClass[$stamp::class] = $stamp;
+            $classToStamp[$stamp::class] = $stamp;
         }
 
-        return new self($this->message, $stampsByClass);
+        return new self($this->message, $classToStamp);
     }
 
     /**
@@ -94,12 +103,12 @@ final readonly class Envelope
             return $this;
         }
 
-        $stampsByClass = $this->stamps;
+        $classToStamp = $this->classToStamp;
 
         foreach ($classes as $class) {
-            unset($stampsByClass[$class]);
+            unset($classToStamp[$class]);
         }
 
-        return new self($this->message, $stampsByClass);
+        return new self($this->message, $classToStamp);
     }
 }

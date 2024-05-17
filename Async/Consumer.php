@@ -17,18 +17,23 @@ use Telephantast\MessageBus\Middleware;
 final readonly class Consumer
 {
     /**
+     * @param non-empty-string $queue
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        private MessageBus $messageBus,
+        public string $queue,
         private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
         private iterable $middlewares = [],
+        private MessageBus $messageBus = new MessageBus(),
     ) {}
 
-    public function consume(Envelope $envelope): void
+    public function handle(Envelope $envelope): void
     {
+        $context = $this->messageBus->startContext($envelope);
+        $context->setAttribute(new ConsumerQueue($this->queue));
+
         Pipeline::handle(
-            messageContext: $this->messageBus->startContext($envelope),
+            messageContext: $context,
             handler: $this->handlerRegistry->get($envelope->getMessageClass()),
             middlewares: $this->middlewares,
         );

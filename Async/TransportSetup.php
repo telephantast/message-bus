@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\Async;
 
-use Telephantast\Message\Message;
-
 /**
  * @api
  */
 interface TransportSetup
 {
     /**
-     * @param array<non-empty-string, list<class-string<Message>>> $queueToMessageClassesMap
+     * @param array<non-empty-string, list<non-empty-string>> $exchangeToQueues
      */
-    public function setup(array $queueToMessageClassesMap): void;
+    public function setup(array $exchangeToQueues): void;
 }

@@ -14,13 +14,13 @@ final class InMemoryDeduplicator implements Deduplicator
      */
     private array $handled = [];
 
-    public function isHandled(string $handlerId, string $messageId): bool
+    public function isHandled(string $queue, string $messageId): bool
     {
-        if (isset($this->handled[$handlerId][$messageId])) {
+        if (isset($this->handled[$queue][$messageId])) {
             return true;
         }
 
-        $this->handled[$handlerId][$messageId] = true;
+        $this->handled[$queue][$messageId] = true;
 
         return false;
     }

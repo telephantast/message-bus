@@ -19,8 +19,7 @@ final readonly class PublishHandler implements Handler
      * @param non-empty-string $id
      */
     public function __construct(
-        private TransportPublish $publish,
-        private string $id = 'publish',
+        private string $id = 'publisher',
     ) {}
 
     public function id(): string
@@ -30,7 +29,8 @@ final readonly class PublishHandler implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        $this->publish->publish($messageContext->envelope)->await();
+        $outbox = $messageContext->getAttribute(OutboxAttribute::class)?->outbox ?? throw new \LogicException();
+        $outbox->add($messageContext->envelope);
 
         return null;
     }

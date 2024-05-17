@@ -14,55 +14,18 @@ use Telephantast\Message\Message;
 abstract class ReadonlyMessageContext
 {
     /**
-     * @psalm-readonly-allow-private-mutation
-     * @var Envelope<TResult, TMessage>
-     */
-    public Envelope $envelope;
-
-    /**
      * @var array<class-string<ContextAttribute>, ContextAttribute>
      */
-    protected array $attributesByClass = [];
+    protected array $attributes = [];
 
-    /**
-     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
-     */
-    public function __construct(
-        Envelope|Message $messageOrEnvelope,
+    protected function __construct(
+        /**
+         * @psalm-readonly-allow-private-mutation
+         * @var Envelope<TResult, TMessage>
+         */
+        public Envelope $envelope,
         public readonly ?self $parent = null,
-    ) {
-        $this->envelope = Envelope::wrap($messageOrEnvelope);
-    }
-
-    final public function root(): self
-    {
-        $messageContext = $this;
-
-        while ($messageContext->parent !== null) {
-            $messageContext = $messageContext->parent;
-        }
-
-        return $messageContext;
-    }
-
-    /**
-     * @param class-string<ContextAttribute> $class
-     */
-    final public function hasAttribute(string $class): bool
-    {
-        return isset($this->attributesByClass[$class]);
-    }
-
-    /**
-     * @template TAttribute of ContextAttribute
-     * @param class-string<TAttribute> $class
-     * @return ?TAttribute
-     */
-    final public function getAttribute(string $class): ?ContextAttribute
-    {
-        /** @var ?TAttribute */
-        return $this->attributesByClass[$class] ?? null;
-    }
+    ) {}
 
     /**
      * @return TMessage
@@ -73,11 +36,38 @@ abstract class ReadonlyMessageContext
     }
 
     /**
+     * @return non-empty-string
+     */
+    final public function getMessageId(): string
+    {
+        return $this->envelope->getMessageId();
+    }
+
+    /**
      * @return class-string<TMessage>
      */
     final public function getMessageClass(): string
     {
         return $this->envelope->getMessageClass();
+    }
+
+    /**
+     * @param class-string<ContextAttribute> $class
+     */
+    final public function hasAttribute(string $class): bool
+    {
+        return isset($this->attributes[$class]);
+    }
+
+    /**
+     * @template TAttribute of ContextAttribute
+     * @param class-string<TAttribute> $class
+     * @return ?TAttribute
+     */
+    final public function getAttribute(string $class): ?ContextAttribute
+    {
+        /** @var ?TAttribute */
+        return $this->attributes[$class] ?? null;
     }
 
     /**
