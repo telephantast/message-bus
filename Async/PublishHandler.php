@@ -10,8 +10,9 @@ use Telephantast\MessageBus\MessageContext;
 
 /**
  * @api
- * @template TMessage of Message<null>
- * @implements Handler<null, TMessage>
+ * @template TResult
+ * @template TMessage of Message<TResult>
+ * @implements Handler<TResult, TMessage>
  */
 final readonly class PublishHandler implements Handler
 {

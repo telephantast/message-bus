@@ -59,7 +59,7 @@ final class Pipeline
     }
 
     /**
-     * @return TResult
+     * @return (TResult is void ? null : TResult)
      */
     public function continue(): mixed
     {

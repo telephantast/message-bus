@@ -25,7 +25,7 @@ final readonly class MessageBus
      * @template TResult
      * @template TMessage of Message<TResult>
      * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
-     * @return TResult
+     * @return (TResult is void ? null : TResult)
      */
     public function dispatch(Envelope|Message $messageOrEnvelope): mixed
     {
@@ -47,7 +47,7 @@ final readonly class MessageBus
      * @template TResult
      * @template TMessage of Message<TResult>
      * @param MessageContext<TResult, TMessage> $messageContext
-     * @return TResult
+     * @return (TResult is void ? null : TResult)
      */
     public function handleContext(MessageContext $messageContext): mixed
     {

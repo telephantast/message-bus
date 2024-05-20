@@ -20,7 +20,7 @@ interface Handler
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
-     * @return TResult
+     * @return (TResult is void ? null : TResult)
      */
     public function handle(MessageContext $messageContext): mixed;
 }

@@ -12,7 +12,7 @@ interface TransactionProvider
     /**
      * @template TResult
      * @param callable(): TResult $operation
-     * @return TResult
+     * @return (TResult is void ? null : TResult)
      */
     public function wrapInTransaction(callable $operation): mixed;
 }

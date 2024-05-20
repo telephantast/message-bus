@@ -11,12 +11,12 @@ use Telephantast\MessageBus\MessageContext;
 /**
  * @api
  * @template TEvent of Event
- * @implements Handler<null, TEvent>
+ * @implements Handler<void, TEvent>
  */
 final readonly class EventHandlers implements Handler
 {
     /**
-     * @param iterable<Handler<null, TEvent>> $handlers
+     * @param iterable<Handler<void, TEvent>> $handlers
      */
     public function __construct(
         private iterable $handlers,
