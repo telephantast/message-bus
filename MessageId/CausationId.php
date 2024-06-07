@@ -13,9 +13,9 @@ use Telephantast\MessageBus\Stamp;
 final readonly class CausationId implements Stamp
 {
     /**
-     * @param non-empty-string $causationId
+     * @param ?non-empty-string $causationId
      */
     public function __construct(
-        public string $causationId,
+        public ?string $causationId,
     ) {}
 }

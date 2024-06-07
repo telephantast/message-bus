@@ -17,10 +17,7 @@ final readonly class AddCausationIdMiddleware implements Middleware
     {
         if (!$messageContext->hasStamp(CausationId::class)) {
             $causationId = $messageContext->parent?->getStamp(MessageId::class)?->messageId;
-
-            if ($causationId !== null) {
-                $messageContext->setStamp(new CausationId($causationId));
-            }
+            $messageContext->setStamp(new CausationId($causationId));
         }
 
         return $pipeline->continue();
