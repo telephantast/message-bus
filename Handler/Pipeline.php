@@ -16,7 +16,7 @@ use Telephantast\MessageBus\Middleware;
  */
 final class Pipeline
 {
-    private bool $middlewareIterationStarted = false;
+    private bool $started = false;
 
     private bool $handled = false;
 
@@ -28,7 +28,7 @@ final class Pipeline
     private function __construct(
         private readonly MessageContext $messageContext,
         private readonly Handler $handler,
-        private \Generator $middlewares,
+        private readonly \Generator $middlewares,
     ) {}
 
     /**
@@ -67,10 +67,10 @@ final class Pipeline
             throw new \LogicException('Pipeline fully handled');
         }
 
-        if ($this->middlewareIterationStarted) {
+        if ($this->started) {
             $this->middlewares->next();
         } else {
-            $this->middlewareIterationStarted = true;
+            $this->started = true;
         }
 
         if ($this->middlewares->valid()) {

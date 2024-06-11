@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\Async;
 
-use Telephantast\MessageBus\InheritableContextAttribute;
+use Telephantast\MessageBus\ContextAttribute;
 
 /**
  * @api
  */
-final readonly class ConsumerQueue implements InheritableContextAttribute
+final readonly class Queue implements ContextAttribute
 {
     /**
      * @param non-empty-string $queue

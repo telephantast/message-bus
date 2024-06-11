@@ -10,7 +10,7 @@ namespace Telephantast\MessageBus\Async;
 interface TransportPublish
 {
     /**
-     * @param non-empty-list<PublishableEnvelope> $envelopes
+     * @param non-empty-list<OutgoingEnvelope> $outgoingEnvelopes
      */
-    public function publish(array $envelopes): void;
+    public function publish(array $outgoingEnvelopes): void;
 }

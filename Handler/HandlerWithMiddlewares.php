@@ -15,7 +15,7 @@ use Telephantast\MessageBus\Middleware;
  * @template TMessage of Message<TResult>
  * @implements Handler<TResult, TMessage>
  */
-final readonly class PipelineHandler implements Handler
+final readonly class HandlerWithMiddlewares implements Handler
 {
     /**
      * @param Handler<TResult, TMessage> $handler

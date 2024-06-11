@@ -30,7 +30,7 @@ final readonly class Consumer
     public function handle(Envelope $envelope): void
     {
         $context = $this->messageBus->startContext($envelope);
-        $context->setAttribute(new ConsumerQueue($this->queue));
+        $context->setAttribute(new Queue($this->queue));
 
         Pipeline::handle(
             messageContext: $context,
