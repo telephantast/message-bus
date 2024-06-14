@@ -9,7 +9,10 @@ namespace Telephantast\MessageBus\Async;
  */
 interface TransportConsume
 {
-    public function runConsumer(Consumer $consumer): void;
+    /**
+     * @return \Closure(): void the cancel function
+     */
+    public function runConsumer(Consumer $consumer): \Closure;
 
-    public function stopConsumer(Consumer $consumer): void;
+    public function disconnect(): void;
 }
