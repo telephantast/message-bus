@@ -34,10 +34,10 @@ final class Pipeline
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
-     * @param Handler<TTResult, TTMessage> $handler
      * @param MessageContext<TTResult, TTMessage> $messageContext
+     * @param Handler<TTResult, TTMessage> $handler
      * @param iterable<Middleware> $middlewares
-     * @return TTResult
+     * @return (TTResult is void ? null : TTResult)
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
