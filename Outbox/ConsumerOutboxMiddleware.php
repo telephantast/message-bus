@@ -36,15 +36,20 @@ final readonly class ConsumerOutboxMiddleware implements Middleware
         if ($outbox === null) {
             $outbox = new Outbox();
             $messageContext->setAttribute($outbox);
-            $this->transactionProvider->wrapInTransaction(function () use ($pipeline, $queue, $messageId, $outbox): void {
-                $pipeline->continue();
-                $this->outboxStorage->save($queue, $messageId, $outbox);
-            });
+
+            try {
+                $this->transactionProvider->wrapInTransaction(function () use ($pipeline, $queue, $messageId, $outbox): void {
+                    $pipeline->continue();
+                    $this->outboxStorage->create($queue, $messageId, $outbox);
+                });
+            } catch (OutboxAlreadyExists) {
+                $outbox = $this->outboxStorage->get($queue, $messageId);
+            }
         }
 
-        if ($outbox->envelopes !== []) {
+        if ($outbox !== null && $outbox->envelopes !== []) {
             $this->publish->publish($outbox->envelopes);
-            $this->outboxStorage->save($queue, $messageId, new Outbox());
+            $this->outboxStorage->empty($queue, $messageId);
         }
 
         return null;

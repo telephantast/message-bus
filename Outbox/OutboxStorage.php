@@ -18,6 +18,13 @@ interface OutboxStorage
     /**
      * @param ?non-empty-string $queue
      * @param non-empty-string $messageId
+     * @throws OutboxAlreadyExists
      */
-    public function save(?string $queue, string $messageId, Outbox $outbox): void;
+    public function create(?string $queue, string $messageId, Outbox $outbox): void;
+
+    /**
+     * @param ?non-empty-string $queue
+     * @param non-empty-string $messageId
+     */
+    public function empty(?string $queue, string $messageId): void;
 }

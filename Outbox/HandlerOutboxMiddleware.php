@@ -35,7 +35,7 @@ final readonly class HandlerOutboxMiddleware implements Middleware
             $result = $pipeline->continue();
 
             if ($outbox->envelopes !== []) {
-                $this->outboxStorage->save(null, $messageId, $outbox);
+                $this->outboxStorage->create(null, $messageId, $outbox);
             }
 
             return $result;
@@ -43,7 +43,7 @@ final readonly class HandlerOutboxMiddleware implements Middleware
 
         if ($outbox->envelopes !== []) {
             $this->publish->publish($outbox->envelopes);
-            $this->outboxStorage->save(null, $messageId, new Outbox());
+            $this->outboxStorage->empty(null, $messageId);
         }
 
         return $result;

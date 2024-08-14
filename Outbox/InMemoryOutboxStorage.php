@@ -19,8 +19,19 @@ final class InMemoryOutboxStorage implements OutboxStorage
         return $this->queueToMessageIdToOutbox[$queue ?? ''][$messageId] ?? null;
     }
 
-    public function save(?string $queue, string $messageId, Outbox $outbox): void
+    public function create(?string $queue, string $messageId, Outbox $outbox): void
     {
-        $this->queueToMessageIdToOutbox[$queue ?? ''][$messageId] = $outbox;
+        $queue ??= '';
+
+        if (isset($this->queueToMessageIdToOutbox[$queue][$messageId])) {
+            throw new OutboxAlreadyExists();
+        }
+
+        $this->queueToMessageIdToOutbox[$queue][$messageId] = $outbox;
+    }
+
+    public function empty(?string $queue, string $messageId): void
+    {
+        $this->queueToMessageIdToOutbox[$queue ?? ''][$messageId] = new Outbox();
     }
 }

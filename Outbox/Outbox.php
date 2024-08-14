@@ -8,8 +8,7 @@ use Telephantast\MessageBus\Envelope;
 use Telephantast\MessageBus\InheritableContextAttribute;
 
 /**
- * @internal
- * @psalm-internal Telephantast\MessageBus\Outbox
+ * @api
  */
 final class Outbox implements InheritableContextAttribute
 {
