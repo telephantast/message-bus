@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\Outbox;
 
-use Telephantast\MessageBus\Async\Publish;
 use Telephantast\MessageBus\Async\Queue;
+use Telephantast\MessageBus\Async\TransportPublish;
 use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;
@@ -19,7 +19,7 @@ final readonly class ConsumerOutboxMiddleware implements Middleware
     public function __construct(
         private OutboxStorage $outboxStorage,
         private TransactionProvider $transactionProvider,
-        private Publish $publish,
+        private TransportPublish $publish,
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed

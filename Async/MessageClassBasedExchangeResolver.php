@@ -7,7 +7,7 @@ namespace Telephantast\MessageBus\Async;
 /**
  * @api
  */
-final readonly class ClassBasedExchangeResolver implements ExchangeResolver
+final readonly class MessageClassBasedExchangeResolver implements ExchangeResolver
 {
     public function resolve(string $messageClass): string
     {

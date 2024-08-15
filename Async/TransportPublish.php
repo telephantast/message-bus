@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\Async;
 
+use Telephantast\MessageBus\Envelope;
+
 /**
  * @api
  */
 interface TransportPublish
 {
     /**
-     * @param non-empty-list<OutgoingEnvelope> $outgoingEnvelopes
+     * @param non-empty-list<Envelope> $envelopes
      */
-    public function publish(array $outgoingEnvelopes): void;
+    public function publish(array $envelopes): void;
 }

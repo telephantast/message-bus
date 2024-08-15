@@ -12,7 +12,7 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class LogMiddleware implements Middleware
+final readonly class LogPublisherMiddleware implements Middleware
 {
     public function __construct(
         private LoggerInterface $logger,
