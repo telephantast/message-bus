@@ -23,30 +23,26 @@ final readonly class LogPublisherMiddleware implements Middleware
      */
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
-        $this->logger->info('About to handle message {message_class}.', [
+        $this->logger->info('About to publish message {message_class}.', [
             'message_class' => $messageContext->getMessageClass(),
-            'handler_id' => $pipeline->id(),
             'envelope' => $messageContext->envelope,
         ]);
 
         try {
             $result = $pipeline->continue();
         } catch (\Throwable $exception) {
-            $this->logger->critical('Failed to handle message {message_class}.', [
+            $this->logger->critical('Failed to publish message {message_class}.', [
                 'exception' => $exception,
                 'message_class' => $messageContext->getMessageClass(),
-                'handler_id' => $pipeline->id(),
                 'envelope' => $messageContext->envelope,
             ]);
 
             throw $exception;
         }
 
-        $this->logger->debug('Successfully handled message {message_class}.', [
+        $this->logger->debug('Successfully published message {message_class}.', [
             'message_class' => $messageContext->getMessageClass(),
-            'handler_id' => $pipeline->id(),
             'envelope' => $messageContext->envelope,
-            'result' => $result,
         ]);
 
         return $result;
