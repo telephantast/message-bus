@@ -17,11 +17,11 @@ final readonly class Envelope
 {
     /**
      * @param TMessage $message
-     * @param array<class-string<Stamp>, Stamp> $classToStamp
+     * @param array<class-string<Stamp>, Stamp> $stamps
      */
     private function __construct(
         public Message $message,
-        public array $classToStamp = [],
+        public array $stamps = [],
     ) {}
 
     /**
@@ -61,7 +61,7 @@ final readonly class Envelope
      */
     public function hasStamp(string $class): bool
     {
-        return isset($this->classToStamp[$class]);
+        return isset($this->stamps[$class]);
     }
 
     /**
@@ -72,7 +72,20 @@ final readonly class Envelope
     public function getStamp(string $class): ?Stamp
     {
         /** @var ?TStamp */
-        return $this->classToStamp[$class] ?? null;
+        return $this->stamps[$class] ?? null;
+    }
+
+    /**
+     * @param TMessage $message
+     * @return self<TResult, TMessage>
+     */
+    public function withMessage(Message $message): self
+    {
+        if ($message::class !== $this->getMessageClass()) {
+            throw new \InvalidArgumentException();
+        }
+
+        return new self($message, $this->stamps);
     }
 
     /**
@@ -84,13 +97,13 @@ final readonly class Envelope
             return $this;
         }
 
-        $classToStamp = $this->classToStamp;
+        $newStamps = $this->stamps;
 
         foreach ($stamps as $stamp) {
-            $classToStamp[$stamp::class] = $stamp;
+            $newStamps[$stamp::class] = $stamp;
         }
 
-        return new self($this->message, $classToStamp);
+        return new self($this->message, $newStamps);
     }
 
     /**
@@ -103,12 +116,12 @@ final readonly class Envelope
             return $this;
         }
 
-        $classToStamp = $this->classToStamp;
+        $newStamps = $this->stamps;
 
         foreach ($classes as $class) {
-            unset($classToStamp[$class]);
+            unset($newStamps[$class]);
         }
 
-        return new self($this->message, $classToStamp);
+        return new self($this->message, $newStamps);
     }
 }

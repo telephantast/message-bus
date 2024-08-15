@@ -45,6 +45,14 @@ final class MessageContext extends ReadonlyMessageContext
         }
     }
 
+    /**
+     * @param TMessage $message
+     */
+    public function setMessage(Message $message): void
+    {
+        $this->envelope = $this->envelope->withMessage($message);
+    }
+
     public function setStamp(Stamp ...$stamps): void
     {
         $this->envelope = $this->envelope->withStamp(...$stamps);
