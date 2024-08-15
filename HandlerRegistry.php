@@ -32,7 +32,7 @@ abstract class HandlerRegistry
             return new CallableHandler('null event handler', static fn(): null => null);
         }
 
-        throw new \RuntimeException(sprintf('No handler for non-event message %s', $messageClass));
+        throw new \RuntimeException(\sprintf('No handler for non-event message %s', $messageClass));
     }
 
     /**
