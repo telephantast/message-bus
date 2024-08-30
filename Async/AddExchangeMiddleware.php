@@ -11,10 +11,10 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class AddExchangeMiddleware implements Middleware
+final class AddExchangeMiddleware implements Middleware
 {
     public function __construct(
-        private ExchangeResolver $exchangeResolver = new MessageClassBasedExchangeResolver(),
+        private readonly ExchangeResolver $exchangeResolver = new MessageClassBasedExchangeResolver(),
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed

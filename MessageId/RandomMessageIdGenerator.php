@@ -7,13 +7,13 @@ namespace Telephantast\MessageBus\MessageId;
 /**
  * @api
  */
-final readonly class RandomMessageIdGenerator implements MessageIdGenerator
+final class RandomMessageIdGenerator implements MessageIdGenerator
 {
     /**
      * @param positive-int $bytes
      */
     public function __construct(
-        private int $bytes = 16,
+        private readonly int $bytes = 16,
     ) {}
 
     public function generate(): string

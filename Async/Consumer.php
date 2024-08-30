@@ -14,17 +14,17 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class Consumer
+final class Consumer
 {
     /**
      * @param non-empty-string $queue
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        public string $queue,
-        private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
-        private iterable $middlewares = [],
-        private MessageBus $messageBus = new MessageBus(),
+        public readonly string $queue,
+        private readonly HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
+        private readonly iterable $middlewares = [],
+        private readonly MessageBus $messageBus = new MessageBus(),
     ) {}
 
     public function handle(Envelope $envelope): void

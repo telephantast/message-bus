@@ -13,12 +13,12 @@ use Telephantast\MessageBus\Transaction\TransactionProvider;
 /**
  * @api
  */
-final readonly class HandlerOutboxMiddleware implements Middleware
+final class HandlerOutboxMiddleware implements Middleware
 {
     public function __construct(
-        private OutboxStorage $outboxStorage,
-        private TransactionProvider $transactionProvider,
-        private TransportPublish $publish,
+        private readonly OutboxStorage $outboxStorage,
+        private readonly TransactionProvider $transactionProvider,
+        private readonly TransportPublish $publish,
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed

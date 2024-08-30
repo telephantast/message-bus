@@ -12,10 +12,10 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class AddCreatedAtMiddleware implements Middleware
+final class AddCreatedAtMiddleware implements Middleware
 {
     public function __construct(
-        private ?ClockInterface $clock = null,
+        private readonly ?ClockInterface $clock = null,
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed

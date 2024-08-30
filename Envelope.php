@@ -13,15 +13,15 @@ use Telephantast\MessageBus\MessageId\MessageId;
  * @template-covariant TResult
  * @template-covariant TMessage of Message<TResult>
  */
-final readonly class Envelope
+final class Envelope
 {
     /**
      * @param TMessage $message
      * @param array<class-string<Stamp>, Stamp> $stamps
      */
     private function __construct(
-        public Message $message,
-        public array $stamps = [],
+        public readonly Message $message,
+        public readonly array $stamps = [],
     ) {}
 
     /**

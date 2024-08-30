@@ -10,9 +10,9 @@ use Telephantast\MessageBus\Stamp;
  * @api
  * @psalm-immutable
  */
-final readonly class CreatedAt implements Stamp
+final class CreatedAt implements Stamp
 {
     public function __construct(
-        public \DateTimeImmutable $time = new \DateTimeImmutable(),
+        public readonly \DateTimeImmutable $time = new \DateTimeImmutable(),
     ) {}
 }

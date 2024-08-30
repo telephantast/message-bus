@@ -15,15 +15,15 @@ use Telephantast\MessageBus\Middleware;
  * @template TMessage of Message<TResult>
  * @implements Handler<TResult, TMessage>
  */
-final readonly class HandlerWithMiddlewares implements Handler
+final class HandlerWithMiddlewares implements Handler
 {
     /**
      * @param Handler<TResult, TMessage> $handler
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        private Handler $handler,
-        private iterable $middlewares,
+        private readonly Handler $handler,
+        private readonly iterable $middlewares,
     ) {}
 
     public function id(): string

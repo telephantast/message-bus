@@ -11,7 +11,7 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class AddCorrelationIdMiddleware implements Middleware
+final class AddCorrelationIdMiddleware implements Middleware
 {
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

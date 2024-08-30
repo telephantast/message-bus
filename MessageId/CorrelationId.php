@@ -10,12 +10,12 @@ use Telephantast\MessageBus\Stamp;
  * @api
  * @psalm-immutable
  */
-final readonly class CorrelationId implements Stamp
+final class CorrelationId implements Stamp
 {
     /**
      * @param non-empty-string $correlationId
      */
     public function __construct(
-        public string $correlationId,
+        public readonly string $correlationId,
     ) {}
 }

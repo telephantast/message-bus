@@ -13,13 +13,13 @@ use Telephantast\MessageBus\MessageContext;
  * @template TEvent of Event
  * @implements Handler<void, TEvent>
  */
-final readonly class EventHandlers implements Handler
+final class EventHandlers implements Handler
 {
     /**
      * @param iterable<Handler<void, TEvent>> $handlers
      */
     public function __construct(
-        private iterable $handlers,
+        private readonly iterable $handlers,
     ) {}
 
     public function id(): string

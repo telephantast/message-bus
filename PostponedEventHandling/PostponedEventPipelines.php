@@ -16,7 +16,7 @@ final class PostponedEventPipelines implements InheritableContextAttribute
     /**
      * @var \SplQueue<Pipeline>
      */
-    private \SplQueue $pipelines;
+    private readonly \SplQueue $pipelines;
 
     public function __construct()
     {

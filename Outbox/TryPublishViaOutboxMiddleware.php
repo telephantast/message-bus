@@ -11,7 +11,7 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class TryPublishViaOutboxMiddleware implements Middleware
+final class TryPublishViaOutboxMiddleware implements Middleware
 {
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

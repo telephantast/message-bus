@@ -14,14 +14,14 @@ use Telephantast\MessageBus\MessageContext;
  * @template TMessage of Message<TResult>
  * @implements Handler<TResult, TMessage>
  */
-final readonly class Publisher implements Handler
+final class Publisher implements Handler
 {
     /**
      * @param non-empty-string $id
      */
     public function __construct(
-        private TransportPublish $publish,
-        private string $id = self::class,
+        private readonly TransportPublish $publish,
+        private readonly string $id = self::class,
     ) {}
 
     public function id(): string

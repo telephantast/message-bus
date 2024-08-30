@@ -11,14 +11,14 @@ use Telephantast\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 /**
  * @api
  */
-final readonly class MessageBus
+final class MessageBus
 {
     /**
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
-        private iterable $middlewares = [],
+        private readonly HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
+        private readonly iterable $middlewares = [],
     ) {}
 
     /**

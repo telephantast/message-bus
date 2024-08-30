@@ -10,7 +10,7 @@ use Telephantast\MessageBus\Stamp;
  * @api
  * @psalm-immutable
  */
-final readonly class Delay implements Stamp
+final class Delay implements Stamp
 {
     private const SECONDS_MULTIPLIER = 1000;
     private const MINUTES_MULTIPLIER = self::SECONDS_MULTIPLIER * 60;
@@ -18,7 +18,7 @@ final readonly class Delay implements Stamp
     private const DAYS_MULTIPLIER = self::HOURS_MULTIPLIER * 24;
 
     public function __construct(
-        public int $milliseconds,
+        public readonly int $milliseconds,
     ) {}
 
     public static function till(\DateTimeImmutable $time, \DateTimeImmutable $now = new \DateTimeImmutable()): self

@@ -10,9 +10,9 @@ use Telephantast\MessageBus\Stamp;
  * @api
  * @psalm-immutable
  */
-final readonly class Exchange implements Stamp
+final class Exchange implements Stamp
 {
     public function __construct(
-        public string $exchange,
+        public readonly string $exchange,
     ) {}
 }

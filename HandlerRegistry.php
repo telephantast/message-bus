@@ -29,7 +29,7 @@ abstract class HandlerRegistry
 
         if (is_subclass_of($messageClass, Event::class)) {
             /** @var CallableHandler<TResult, TMessage> */
-            return new CallableHandler('null event handler', static fn(): null => null);
+            return new CallableHandler('null event handler', static fn(): mixed => null);
         }
 
         throw new \RuntimeException(\sprintf('No handler for non-event message %s', $messageClass));

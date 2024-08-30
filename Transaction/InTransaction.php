@@ -9,4 +9,4 @@ use Telephantast\MessageBus\InheritableContextAttribute;
 /**
  * @api
  */
-final readonly class InTransaction implements InheritableContextAttribute {}
+final class InTransaction implements InheritableContextAttribute {}

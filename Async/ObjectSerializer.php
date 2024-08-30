@@ -7,7 +7,7 @@ namespace Telephantast\MessageBus\Async;
 /**
  * @api
  */
-final readonly class ObjectSerializer implements ObjectNormalizer, ObjectDenormalizer
+final class ObjectSerializer implements ObjectNormalizer, ObjectDenormalizer
 {
     public function normalize(object $object): mixed
     {

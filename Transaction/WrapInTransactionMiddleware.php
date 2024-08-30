@@ -11,10 +11,10 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class WrapInTransactionMiddleware implements Middleware
+final class WrapInTransactionMiddleware implements Middleware
 {
     public function __construct(
-        private TransactionProvider $transactionProvider,
+        private readonly TransactionProvider $transactionProvider,
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed

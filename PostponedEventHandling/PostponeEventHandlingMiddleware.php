@@ -12,7 +12,7 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class PostponeEventHandlingMiddleware implements Middleware
+final class PostponeEventHandlingMiddleware implements Middleware
 {
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

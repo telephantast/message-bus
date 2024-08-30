@@ -7,7 +7,7 @@ namespace Telephantast\MessageBus\Transaction;
 /**
  * @api
  */
-final readonly class FakeTransactionProvider implements TransactionProvider
+final class FakeTransactionProvider implements TransactionProvider
 {
     public function wrapInTransaction(callable $operation): mixed
     {

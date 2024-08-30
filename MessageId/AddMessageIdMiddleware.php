@@ -11,10 +11,10 @@ use Telephantast\MessageBus\Middleware;
 /**
  * @api
  */
-final readonly class AddMessageIdMiddleware implements Middleware
+final class AddMessageIdMiddleware implements Middleware
 {
     public function __construct(
-        private MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
+        private readonly MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
     ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
