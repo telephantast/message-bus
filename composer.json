@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.1",
         "psr/container": "^2",
         "psr/log": "^3",
         "telephantast/message": "^0.1@dev"
