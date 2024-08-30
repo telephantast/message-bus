@@ -6,7 +6,6 @@ namespace Telephantast\MessageBus\Authorization\Mapping;
 
 use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler\Mapping\MessageClasses;
-use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Reflection\AttributeReader;
 use Telephantast\MessageBus\Reflection\ReflectionStringifier;
 
@@ -93,7 +92,7 @@ final class AuthorizerDescriptor
             throw new \LogicException(\sprintf(
                 '%s must have type ?%s, got %s',
                 ReflectionStringifier::parameter($parameter),
-                MessageContext::class,
+                $class,
                 ReflectionStringifier::type($type),
             ));
         }
