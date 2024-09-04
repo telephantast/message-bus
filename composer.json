@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^8.1",
-        "psr/container": "^2",
+        "psr/container": "^1.1 || ^2",
         "psr/log": "^3",
         "telephantast/message": "^0.1@dev"
     },
