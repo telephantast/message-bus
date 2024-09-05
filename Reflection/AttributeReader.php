@@ -6,7 +6,7 @@ namespace Telephantast\MessageBus\Reflection;
 
 /**
  * @internal
- * @psalm-internal Telephantast\MessageBus
+ * @psalm-internal Telephantast
  */
 enum AttributeReader
 {
