@@ -13,7 +13,7 @@ use Telephantast\MessageBus\Transaction\TransactionProvider;
 /**
  * @api
  */
-final class HandlerOutboxMiddleware implements Middleware
+final class OutboxHandlerMiddleware implements Middleware
 {
     public function __construct(
         private readonly OutboxStorage $outboxStorage,

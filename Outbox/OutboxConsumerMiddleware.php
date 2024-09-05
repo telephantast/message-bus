@@ -14,7 +14,7 @@ use Telephantast\MessageBus\Transaction\TransactionProvider;
 /**
  * @api
  */
-final class ConsumerOutboxMiddleware implements Middleware
+final class OutboxConsumerMiddleware implements Middleware
 {
     public function __construct(
         private readonly OutboxStorage $outboxStorage,
