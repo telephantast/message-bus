@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\Authorization;
 
-use Telephantast\MessageBus\Authentication\Authentication;
-use Telephantast\MessageBus\Authentication\PassportValidator;
 use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;

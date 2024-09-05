@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Telephantast\MessageBus\Authentication;
+namespace Telephantast\MessageBus\Authorization;
 
 use Telephantast\MessageBus\Stamp;
 
