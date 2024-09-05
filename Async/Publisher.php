@@ -20,7 +20,7 @@ final class Publisher implements Handler
      * @param non-empty-string $id
      */
     public function __construct(
-        private readonly TransportPublish $publish,
+        private readonly TransportPublish $transportPublish,
         private readonly string $id = self::class,
     ) {}
 
@@ -31,7 +31,7 @@ final class Publisher implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        $this->publish->publish([$messageContext->envelope]);
+        $this->transportPublish->publish([$messageContext->envelope]);
 
         return null;
     }
