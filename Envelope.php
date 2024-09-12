@@ -9,7 +9,6 @@ use Telephantast\MessageBus\MessageId\MessageId;
 
 /**
  * @api
- * @psalm-immutable
  * @template-covariant TResult
  * @template-covariant TMessage of Message<TResult>
  */
@@ -76,6 +75,7 @@ final class Envelope
     }
 
     /**
+     * @psalm-suppress InvalidTemplateParam
      * @param TMessage $message
      * @return self<TResult, TMessage>
      */

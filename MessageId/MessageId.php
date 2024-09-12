@@ -8,7 +8,6 @@ use Telephantast\MessageBus\Stamp;
 
 /**
  * @api
- * @psalm-immutable
  */
 final class MessageId implements Stamp
 {

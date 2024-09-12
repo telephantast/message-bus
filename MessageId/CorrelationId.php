@@ -8,7 +8,6 @@ use Telephantast\MessageBus\Stamp;
 
 /**
  * @api
- * @psalm-immutable
  */
 final class CorrelationId implements Stamp
 {

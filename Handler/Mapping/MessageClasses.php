@@ -9,7 +9,6 @@ use Telephantast\MessageBus\Reflection\ReflectionStringifier;
 
 /**
  * @api
- * @psalm-immutable
  */
 enum MessageClasses
 {

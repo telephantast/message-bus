@@ -6,6 +6,5 @@ namespace Telephantast\MessageBus;
 
 /**
  * @api
- * @psalm-immutable
  */
 interface Stamp {}
