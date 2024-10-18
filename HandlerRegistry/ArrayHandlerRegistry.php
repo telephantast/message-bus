@@ -10,13 +10,11 @@ use Telephantast\MessageBus\HandlerRegistry;
 
 /**
  * @api
- * @template TResult
- * @template TMessage of Message<TResult>
  */
 final class ArrayHandlerRegistry extends HandlerRegistry
 {
     /**
-     * @param array<class-string<TMessage>, Handler<TResult, TMessage>> $messageClassToHandler
+     * @param array<class-string<Message>, Handler> $messageClassToHandler
      */
     public function __construct(
         private readonly array $messageClassToHandler = [],
