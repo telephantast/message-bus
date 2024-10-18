@@ -14,7 +14,7 @@ use Telephantast\MessageBus\HandlerRegistry;
 /**
  * @api
  */
-final class ContainerHandlerRegistry extends HandlerRegistry
+final class PsrContainerHandlerRegistry extends HandlerRegistry
 {
     /**
      * @param ContainerInterface<Handler> $handlers
