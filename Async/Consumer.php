@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Telephantast\MessageBus\Async;
 
 use Telephantast\MessageBus\Envelope;
-use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\HandlerRegistry;
 use Telephantast\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 use Telephantast\MessageBus\MessageBus;
 use Telephantast\MessageBus\Middleware;
+use Telephantast\MessageBus\Pipeline;
 
 /**
  * @api

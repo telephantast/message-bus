@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Telephantast\MessageBus\CreatedAt;
 
 use Psr\Clock\ClockInterface;
-use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;
+use Telephantast\MessageBus\Pipeline;
 
 /**
  * @api

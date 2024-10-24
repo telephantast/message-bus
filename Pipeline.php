@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Telephantast\MessageBus\Handler;
+namespace Telephantast\MessageBus;
 
 use Telephantast\Message\Message;
-use Telephantast\MessageBus\Handler;
-use Telephantast\MessageBus\MessageContext;
-use Telephantast\MessageBus\Middleware;
 
 /**
  * @api

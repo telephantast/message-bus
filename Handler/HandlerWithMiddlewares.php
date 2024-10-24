@@ -8,6 +8,7 @@ use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;
+use Telephantast\MessageBus\Pipeline;
 
 /**
  * @api

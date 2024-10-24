@@ -7,9 +7,9 @@ namespace Telephantast\MessageBus\Outbox;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Telephantast\MessageBus\Async\TransportPublish;
-use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\MessageContext;
 use Telephantast\MessageBus\Middleware;
+use Telephantast\MessageBus\Pipeline;
 use Telephantast\MessageBus\Transaction\TransactionProvider;
 
 /**

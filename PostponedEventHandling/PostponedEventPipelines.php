@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Telephantast\MessageBus\PostponedEventHandling;
 
-use Telephantast\MessageBus\Handler\Pipeline;
 use Telephantast\MessageBus\InheritableContextAttribute;
+use Telephantast\MessageBus\Pipeline;
 
 /**
  * @internal

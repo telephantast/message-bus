@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Telephantast\MessageBus;
 
 use Telephantast\Message\Message;
-use Telephantast\MessageBus\Handler\Pipeline;
 
 /**
  * @api
