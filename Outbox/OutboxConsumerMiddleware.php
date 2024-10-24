@@ -47,7 +47,7 @@ final class OutboxConsumerMiddleware implements Middleware
             }
         }
 
-        if ($outbox !== null && $outbox->envelopes !== []) {
+        if ($outbox->envelopes !== []) {
             $this->transportPublish->publish($outbox->envelopes);
             $this->outboxStorage->empty($queue, $messageId);
         }
