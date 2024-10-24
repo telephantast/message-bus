@@ -22,7 +22,7 @@ final class CallableHandler implements Handler
      */
     public function __construct(
         private readonly string $id,
-        private $callable,
+        private readonly mixed $callable,
     ) {}
 
     public function id(): string
