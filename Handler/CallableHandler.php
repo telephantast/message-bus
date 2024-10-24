@@ -18,7 +18,7 @@ final class CallableHandler implements Handler
 {
     /**
      * @param non-empty-string $id
-     * @param callable(TMessage, MessageContext): TResult $callable
+     * @param callable(TMessage, MessageContext<TResult, TMessage>): TResult $callable
      */
     public function __construct(
         private readonly string $id,
