@@ -43,7 +43,7 @@ final class OutboxConsumerMiddleware implements Middleware
                     $this->outboxStorage->create($queue, $messageId, $outbox);
                 });
             } catch (OutboxAlreadyExists) {
-                $outbox = $this->outboxStorage->get($queue, $messageId);
+                return null;
             }
         }
 
