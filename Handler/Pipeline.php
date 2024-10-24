@@ -16,19 +16,17 @@ use Telephantast\MessageBus\Middleware;
  */
 final class Pipeline
 {
-    private bool $started = false;
-
     private bool $handled = false;
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Handler<TResult, TMessage> $handler
-     * @param \Generator<Middleware> $middlewares
+     * @param array<int, Middleware> $middlewares
      */
     private function __construct(
         private readonly MessageContext $messageContext,
         private readonly Handler $handler,
-        private readonly \Generator $middlewares,
+        private array $middlewares,
     ) {}
 
     /**
@@ -41,11 +39,15 @@ final class Pipeline
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
+        /**
+         * @psalm-suppress InvalidArgument
+         * @var list<Middleware>
+         */
+        $middlewares = iterator_to_array($middlewares, preserve_keys: false);
+
         if ($middlewares === []) {
             return $handler->handle($messageContext);
         }
-
-        $middlewares = (static fn(): \Generator => yield from $middlewares)();
 
         return (new self($messageContext, $handler, $middlewares))->continue();
     }
@@ -67,14 +69,10 @@ final class Pipeline
             throw new \LogicException('Pipeline fully handled');
         }
 
-        if ($this->started) {
-            $this->middlewares->next();
-        } else {
-            $this->started = true;
-        }
+        $middleware = array_shift($this->middlewares);
 
-        if ($this->middlewares->valid()) {
-            return $this->middlewares->current()->handle($this->messageContext, $this);
+        if ($middleware !== null) {
+            return $middleware->handle($this->messageContext, $this);
         }
 
         $this->handled = true;
