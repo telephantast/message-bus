@@ -36,11 +36,7 @@ final class Pipeline
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
-        /**
-         * @psalm-suppress InvalidArgument
-         * @var list<Middleware>
-         */
-        $middlewares = iterator_to_array($middlewares, preserve_keys: false);
+        $middlewares = $middlewares instanceof \Traversable ? iterator_to_array($middlewares, preserve_keys: false) : array_values($middlewares);
 
         if ($middlewares === []) {
             return $handler->handle($messageContext);
