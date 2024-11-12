@@ -14,7 +14,9 @@ use Telephantast\MessageBus\HandlerRegistry;
 final class ArrayHandlerRegistry extends HandlerRegistry
 {
     /**
-     * @param array<class-string<Message>, Handler> $messageClassToHandler
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     * @param array<class-string<TMessage>, Handler<TResult, TMessage>> $messageClassToHandler
      */
     public function __construct(
         private readonly array $messageClassToHandler = [],
@@ -22,7 +24,6 @@ final class ArrayHandlerRegistry extends HandlerRegistry
 
     public function find(string $messageClass): ?Handler
     {
-        /** @psalm-suppress InvalidReturnStatement */
         return $this->messageClassToHandler[$messageClass] ?? null;
     }
 }
