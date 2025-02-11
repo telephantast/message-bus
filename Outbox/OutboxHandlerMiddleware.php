@@ -44,19 +44,30 @@ final class OutboxHandlerMiddleware implements Middleware
             return $result;
         });
 
-        if ($outbox->envelopes !== []) {
-            try {
-                $this->transportPublish->publish($outbox->envelopes);
-            } catch (\Throwable $exception) {
-                $this->logger->error('Failed to publish outboxed messages.', [
-                    'exception' => $exception,
-                    'message_class' => $messageContext->getMessageClass(),
-                    'handler_id' => $pipeline->id(),
-                    'envelope' => $messageContext->envelope,
-                ]);
-            }
+        if ($outbox->envelopes === []) {
+            return $result;
+        }
 
+        try {
+            $this->transportPublish->publish($outbox->envelopes);
+        } catch (\Throwable $exception) {
+            $this->logger->error('Failed to publish outboxed messages.', [
+                'exception' => $exception,
+                'message_class' => $messageContext->getMessageClass(),
+                'handler_id' => $pipeline->id(),
+                'envelope' => $messageContext->envelope,
+            ]);
+
+            return $result;
+        }
+
+        try {
             $this->outboxStorage->empty(null, $messageId);
+        } catch (\Throwable $exception) {
+            $this->logger->error('Failed to empty outbox.', [
+                'exception' => $exception,
+                'message_id' => $messageId,
+            ]);
         }
 
         return $result;
