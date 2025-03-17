@@ -7,6 +7,7 @@ namespace Telephantast\MessageBus;
 use Telephantast\Message\Event;
 use Telephantast\Message\Message;
 use Telephantast\MessageBus\Handler\CallableHandler;
+use Telephantast\MessageBus\HandlerRegistry\HandlerNotFound;
 
 /**
  * @api
@@ -18,6 +19,7 @@ abstract class HandlerRegistry
      * @template TMessage of Message<TResult>
      * @param class-string<TMessage> $messageClass
      * @return Handler<TResult, TMessage>
+     * @throws HandlerNotFound
      */
     final public function get(string $messageClass): Handler
     {
@@ -32,7 +34,7 @@ abstract class HandlerRegistry
             return new CallableHandler('null event handler', static fn(): mixed => null);
         }
 
-        throw new \RuntimeException(\sprintf('No handler for non-event message %s', $messageClass));
+        throw new HandlerNotFound(\sprintf('No handler for non-event message %s', $messageClass));
     }
 
     /**
