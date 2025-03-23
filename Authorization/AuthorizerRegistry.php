@@ -15,7 +15,7 @@ use Telephantast\Message\Message;
 final class AuthorizerRegistry
 {
     /**
-     * @param ContainerInterface<callable(?TPassport, Message): (bool|Message)> $authorizersByMessageClass
+     * @param ContainerInterface<callable(Message, ?TPassport): (bool|Message)> $authorizersByMessageClass
      */
     public function __construct(
         private readonly ContainerInterface $authorizersByMessageClass,
@@ -25,12 +25,12 @@ final class AuthorizerRegistry
      * @template TResult
      * @template TMessage of Message<TResult>
      * @param class-string<TMessage> $messageClass
-     * @return ?callable(?TPassport, Message): (bool|Message)
+     * @return ?callable(Message, ?TPassport): (bool|Message)
      */
     public function get(string $messageClass): ?callable
     {
         try {
-            /** @var callable(?TPassport, Message): bool */
+            /** @var callable(Message, ?TPassport): bool */
             return $this->authorizersByMessageClass->get($messageClass);
         } catch (NotFoundExceptionInterface) {
             return null;

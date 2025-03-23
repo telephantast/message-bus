@@ -44,7 +44,7 @@ final class AuthorizeMiddleware implements Middleware
             throw new MessageAuthorizationFailed(\sprintf('No authorizer for message %s.', $messageClass));
         }
 
-        $result = $authorizer($passport, $messageContext->getMessage());
+        $result = $authorizer($messageContext->getMessage(), $passport);
 
         if ($result === false) {
             throw new MessageAuthorizationFailed(\sprintf('Failed to authorize message %s.', $messageClass));
