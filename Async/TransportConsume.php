@@ -13,6 +13,4 @@ interface TransportConsume
      * @return \Closure(): void the cancel function
      */
     public function runConsumer(Consumer $consumer): \Closure;
-
-    public function disconnect(): void;
 }
