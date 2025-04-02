@@ -1,27 +1,70 @@
 {
-    "name": "telephantast/message-bus",
-    "description": "Telephantast Message Bus",
+    "name": "thesis/message-bus",
+    "description": "Thesis Message Bus",
     "license": "MIT",
     "type": "library",
     "authors": [
         {
             "name": "Valentin Udaltsov",
             "email": "udaltsov.valentin@gmail.com"
+        },
+        {
+            "name": "Thesis Team",
+            "homepage": "https://github.com/orgs/thesisphp/people"
         }
     ],
     "require": {
-        "php": "^8.1",
-        "psr/container": "^1.1 || ^2",
+        "php": "^8.3",
+        "psr/clock": "^1.0",
+        "psr/container": "^2",
         "psr/log": "^3",
-        "telephantast/message": "^0.1@dev"
+        "thesis/message": "^0.2.0",
+        "typhoon/describe": "^0.1@dev"
+    },
+    "require-dev": {
+        "bamarni/composer-bin-plugin": "^1.8.2",
+        "phpunit/phpunit": "^12.0.10",
+        "symfony/var-dumper": "^6.4.15 || ^7.2.3"
     },
     "autoload": {
         "psr-4": {
-            "Telephantast\\MessageBus\\": ""
+            "Thesis\\MessageBus\\": "src/"
+        },
+        "files": [
+            "src/Reflection/firstFunctionAttribute.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Thesis\\MessageBus\\": "tests/"
         }
     },
     "config": {
-        "lock": false,
-        "vendor-dir": "../../var/MessageBus/vendor"
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        },
+        "bump-after-update": "dev",
+        "platform": {
+            "php": "8.3"
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": false,
+            "forward-command": true,
+            "target-directory": "tools"
+        }
+    },
+    "scripts": {
+        "check-require": "tools/composer-require-checker/vendor/bin/composer-require-checker",
+        "check-unused": "tools/composer-unused/vendor/bin/composer-unused",
+        "fixcs": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --diff --verbose",
+        "infection": "tools/infection/vendor/bin/infection --show-mutations",
+        "normalize": "@composer bin composer-normalize normalize --diff ../../composer.json",
+        "phpstan": "tools/phpstan/vendor/bin/phpstan analyze",
+        "pre-command-run": "mkdir -p var",
+        "psalm": "tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache",
+        "test": "phpunit"
     }
 }
