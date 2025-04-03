@@ -8,8 +8,8 @@ use Thesis\Message\Message;
 
 /**
  * @api
- * @template TResult
- * @template TMessage of Message<TResult>
+ * @template TResult = mixed
+ * @template TMessage of Message<TResult> = Message<mixed>
  */
 interface Handler
 {
@@ -19,8 +19,8 @@ interface Handler
     public function id(): string;
 
     /**
-     * @param MessageContext<TResult, TMessage> $messageContext
+     * @param Context<TResult, TMessage> $context
      * @return TResult
      */
-    public function handle(MessageContext $messageContext): mixed;
+    public function handle(Context $context): mixed;
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handler\Mapping;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\MessageContext;
-use function Thesis\MessageBus\Reflection\firstFunctionAttribute;
+use Thesis\MessageBus\Context;
+use function Thesis\MessageBus\Internal\firstFunctionAttribute;
 use function Typhoon\Describe\describeReflectedDeclaration;
 use function Typhoon\Describe\describeReflectedType;
 
@@ -16,17 +16,6 @@ use function Typhoon\Describe\describeReflectedType;
  */
 final readonly class HandlerDescriptor
 {
-    /**
-     * @param ?non-empty-string $id
-     * @param TReflection $function
-     * @param non-empty-list<class-string<Message>> $messageClasses
-     */
-    private function __construct(
-        public ?string $id,
-        public \ReflectionFunctionAbstract $function,
-        public array $messageClasses,
-    ) {}
-
     /**
      * @param \ReflectionClass<object> $class
      * @return list<self<\ReflectionMethod>>
@@ -71,7 +60,7 @@ final readonly class HandlerDescriptor
 
         return new self(
             id: firstFunctionAttribute($function, Handler::class)?->newInstance()->id,
-            function: $function,
+            reflection: $function,
             messageClasses: MessageClasses::fromParameter($parameters[0]),
         );
     }
@@ -88,13 +77,24 @@ final readonly class HandlerDescriptor
 
         $type = $parameter->getType();
 
-        if (!$type instanceof \ReflectionNamedType || $type->getName() !== MessageContext::class) {
+        if (!$type instanceof \ReflectionNamedType || $type->getName() !== Context::class) {
             throw new \LogicException(\sprintf(
                 '%s must have type %s, got %s',
                 describeReflectedDeclaration($parameter),
-                MessageContext::class,
+                Context::class,
                 describeReflectedType($type),
             ));
         }
     }
+
+    /**
+     * @param ?non-empty-string $id
+     * @param TReflection $reflection
+     * @param non-empty-list<class-string<Message>> $messageClasses
+     */
+    private function __construct(
+        public ?string $id,
+        public \ReflectionFunctionAbstract $reflection,
+        public array $messageClasses,
+    ) {}
 }

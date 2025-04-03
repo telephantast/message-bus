@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Async;
 
-use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -13,9 +12,7 @@ use Thesis\MessageBus\Envelope;
 interface TransportPublish
 {
     /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param non-empty-list<Envelope<TResult, TMessage>> $envelopes
+     * @param non-empty-list<Envelope> $envelopes
      */
     public function publish(array $envelopes): void;
 }

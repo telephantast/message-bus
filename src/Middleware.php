@@ -14,9 +14,9 @@ interface Middleware
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param MessageContext<TResult, TMessage> $messageContext
+     * @param Context<TResult, TMessage> $context
      * @param Pipeline<TResult, TMessage> $pipeline
      * @return TResult
      */
-    public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed;
+    public function handle(Context $context, Pipeline $pipeline): mixed;
 }

@@ -4,56 +4,54 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Psr\Clock\ClockInterface;
 use Thesis\Message\Message;
 use Thesis\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Thesis\MessageBus\MessageId\MessageIdGenerator;
+use Thesis\MessageBus\MessageId\RandomMessageIdGenerator;
+use Thesis\MessageBus\Time\WallClock;
 
 /**
  * @api
  */
 final readonly class MessageBus
 {
-    /**
-     * @param iterable<Middleware> $middlewares
-     */
     public function __construct(
         private HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
-        private iterable $middlewares = [],
+        private MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
+        private ClockInterface $clock = new WallClock(),
     ) {}
 
     /**
      * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
+     * @param Message<TResult> $message
+     * @param list<ContextAttribute> $attributes
      * @return TResult
      */
-    public function dispatch(Envelope|Message $messageOrEnvelope): mixed
-    {
-        return $this->handleContext($this->startContext($messageOrEnvelope));
-    }
+    public function dispatch(
+        Message $message,
+        PublishOptions $options = new PublishOptions(),
+        ?Envelope $causation = null,
+        array $attributes = [],
+    ): mixed {
+        $messageId = $options->messageId ?? $this->messageIdGenerator->generateMessageId();
 
-    /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelope
-     * @return MessageContext<TResult, TMessage>
-     */
-    public function startContext(Envelope|Message $messageOrEnvelope): MessageContext
-    {
-        return MessageContext::start($this, $messageOrEnvelope);
-    }
-
-    /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param MessageContext<TResult, TMessage> $messageContext
-     * @return TResult
-     */
-    public function handleContext(MessageContext $messageContext): mixed
-    {
-        return Pipeline::handle(
-            messageContext: $messageContext,
-            handler: $this->handlerRegistry->get($messageContext->getMessageClass()),
-            middlewares: $this->middlewares,
+        $envelope = new Envelope(
+            message: $message,
+            messageId: $messageId,
+            causationId: $causation?->messageId,
+            correlationId: $causation->correlationId ?? $causation->messageId ?? $messageId,
+            timestamp: $this->clock->now(),
+            headers: $options->headers,
+            transportOptions: $options->transportOptions,
         );
+
+        $context = new Context(
+            messageBus: $this,
+            envelope: $envelope,
+            attributes: $attributes,
+        );
+
+        return $this->handlerRegistry->get($message::class)->handle($context);
     }
 }

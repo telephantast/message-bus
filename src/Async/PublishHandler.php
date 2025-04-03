@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Async;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Async\Outbox\OutboxCollector;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Handler;
-use Thesis\MessageBus\MessageContext;
 
 /**
  * @api
- * @template TMessage of Message<null>
- * @implements Handler<null, TMessage>
+ * @implements Handler<null, Message<null>>
  */
 final readonly class PublishHandler implements Handler
 {
@@ -28,9 +28,17 @@ final readonly class PublishHandler implements Handler
         return $this->id;
     }
 
-    public function handle(MessageContext $messageContext): mixed
+    public function handle(Context $context): mixed
     {
-        $this->transportPublish->publish([$messageContext->getEnvelope()]);
+        $outbox = $context->getAttribute(OutboxCollector::class);
+
+        if ($outbox !== null) {
+            $outbox->add($context->envelope);
+
+            return null;
+        }
+
+        $this->transportPublish->publish([$context->envelope]);
 
         return null;
     }

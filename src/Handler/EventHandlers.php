@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handler;
 
 use Thesis\Message\Event;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Handler;
-use Thesis\MessageBus\MessageContext;
 
 /**
  * @api
@@ -33,13 +33,13 @@ final readonly class EventHandlers implements Handler
         sort($handlerIds);
 
         /** @var non-empty-string */
-        return json_encode($handlerIds);
+        return json_encode($handlerIds, JSON_THROW_ON_ERROR);
     }
 
-    public function handle(MessageContext $messageContext): mixed
+    public function handle(Context $context): mixed
     {
         foreach ($this->handlers as $handler) {
-            $handler->handle($messageContext);
+            $handler->handle($context);
         }
 
         return null;

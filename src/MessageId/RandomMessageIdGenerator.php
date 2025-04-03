@@ -16,7 +16,7 @@ final readonly class RandomMessageIdGenerator implements MessageIdGenerator
         private int $bytes = 16,
     ) {}
 
-    public function generate(): string
+    public function generateMessageId(): string
     {
         return bin2hex(random_bytes($this->bytes));
     }

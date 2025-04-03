@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Async;
 
+use Thesis\Message\Message;
+
 /**
  * @api
  */
 interface TransportSetup
 {
     /**
-     * @param array<non-empty-string, list<non-empty-string>> $exchangeToQueues
+     * @param array<class-string<Message>, list<non-empty-string>> $messageClassToQueues
      */
-    public function setup(array $exchangeToQueues): void;
+    public function setup(array $messageClassToQueues): void;
 }

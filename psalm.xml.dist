@@ -55,6 +55,11 @@
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
+        <MissingThrowsDocblock>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </MissingThrowsDocblock>
     </issueHandlers>
 
     <forbiddenFunctions>

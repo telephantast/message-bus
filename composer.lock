@@ -4,8 +4,1008 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d095c105f22c1b4ddb2cc8896c5d8ff2",
+    "content-hash": "4246a36b62cf8b500db7b78ed3988682",
     "packages": [
+        {
+            "name": "amphp/amp",
+            "version": "v3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/amp.git",
+                "reference": "7cf7fef3d667bfe4b2560bc87e67d5387a7bcde9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/amp/zipball/7cf7fef3d667bfe4b2560bc87e67d5387a7bcde9",
+                "reference": "7cf7fef3d667bfe4b2560bc87e67d5387a7bcde9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23.1"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php",
+                    "src/Future/functions.php",
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Bob Weinand",
+                    "email": "bobwei9@hotmail.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@php.net"
+                }
+            ],
+            "description": "A non-blocking concurrency framework for PHP applications.",
+            "homepage": "https://amphp.org/amp",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "awaitable",
+                "concurrency",
+                "event",
+                "event-loop",
+                "future",
+                "non-blocking",
+                "promise"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/amp/issues",
+                "source": "https://github.com/amphp/amp/tree/v3.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-01-26T16:07:39+00:00"
+        },
+        {
+            "name": "amphp/byte-stream",
+            "version": "v2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/byte-stream.git",
+                "reference": "55a6bd071aec26fa2a3e002618c20c35e3df1b46"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/byte-stream/zipball/55a6bd071aec26fa2a3e002618c20c35e3df1b46",
+                "reference": "55a6bd071aec26fa2a3e002618c20c35e3df1b46",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/parser": "^1.1",
+                "amphp/pipeline": "^1",
+                "amphp/serialization": "^1",
+                "amphp/sync": "^2",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2.3"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.22.1"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php",
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\ByteStream\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "A stream abstraction to make working with non-blocking I/O simple.",
+            "homepage": "https://amphp.org/byte-stream",
+            "keywords": [
+                "amp",
+                "amphp",
+                "async",
+                "io",
+                "non-blocking",
+                "stream"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/byte-stream/issues",
+                "source": "https://github.com/amphp/byte-stream/tree/v2.1.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-03-16T17:10:27+00:00"
+        },
+        {
+            "name": "amphp/cache",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/cache.git",
+                "reference": "46912e387e6aa94933b61ea1ead9cf7540b7797c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/cache/zipball/46912e387e6aa94933b61ea1ead9cf7540b7797c",
+                "reference": "46912e387e6aa94933b61ea1ead9cf7540b7797c",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/serialization": "^1",
+                "amphp/sync": "^2",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Cache\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@php.net"
+                }
+            ],
+            "description": "A fiber-aware cache API based on Amp and Revolt.",
+            "homepage": "https://amphp.org/cache",
+            "support": {
+                "issues": "https://github.com/amphp/cache/issues",
+                "source": "https://github.com/amphp/cache/tree/v2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-04-19T03:38:06+00:00"
+        },
+        {
+            "name": "amphp/dns",
+            "version": "v2.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/dns.git",
+                "reference": "78eb3db5fc69bf2fc0cb503c4fcba667bc223c71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/dns/zipball/78eb3db5fc69bf2fc0cb503c4fcba667bc223c71",
+                "reference": "78eb3db5fc69bf2fc0cb503c4fcba667bc223c71",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/byte-stream": "^2",
+                "amphp/cache": "^2",
+                "amphp/parser": "^1",
+                "amphp/process": "^2",
+                "daverandom/libdns": "^2.0.2",
+                "ext-filter": "*",
+                "ext-json": "*",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.20"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Dns\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Wright",
+                    "email": "addr@daverandom.com"
+                },
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@php.net"
+                },
+                {
+                    "name": "Bob Weinand",
+                    "email": "bobwei9@hotmail.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Async DNS resolution for Amp.",
+            "homepage": "https://github.com/amphp/dns",
+            "keywords": [
+                "amp",
+                "amphp",
+                "async",
+                "client",
+                "dns",
+                "resolve"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/dns/issues",
+                "source": "https://github.com/amphp/dns/tree/v2.4.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-01-19T15:43:40+00:00"
+        },
+        {
+            "name": "amphp/parser",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/parser.git",
+                "reference": "3cf1f8b32a0171d4b1bed93d25617637a77cded7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/parser/zipball/3cf1f8b32a0171d4b1bed93d25617637a77cded7",
+                "reference": "3cf1f8b32a0171d4b1bed93d25617637a77cded7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Parser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "A generator parser to make streaming parsers simple.",
+            "homepage": "https://github.com/amphp/parser",
+            "keywords": [
+                "async",
+                "non-blocking",
+                "parser",
+                "stream"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/parser/issues",
+                "source": "https://github.com/amphp/parser/tree/v1.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-03-21T19:16:53+00:00"
+        },
+        {
+            "name": "amphp/pipeline",
+            "version": "v1.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/pipeline.git",
+                "reference": "7b52598c2e9105ebcddf247fc523161581930367"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/pipeline/zipball/7b52598c2e9105ebcddf247fc523161581930367",
+                "reference": "7b52598c2e9105ebcddf247fc523161581930367",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.18"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Pipeline\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Asynchronous iterators and operators.",
+            "homepage": "https://amphp.org/pipeline",
+            "keywords": [
+                "amp",
+                "amphp",
+                "async",
+                "io",
+                "iterator",
+                "non-blocking"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/pipeline/issues",
+                "source": "https://github.com/amphp/pipeline/tree/v1.2.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-03-16T16:33:53+00:00"
+        },
+        {
+            "name": "amphp/process",
+            "version": "v2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/process.git",
+                "reference": "52e08c09dec7511d5fbc1fb00d3e4e79fc77d58d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/process/zipball/52e08c09dec7511d5fbc1fb00d3e4e79fc77d58d",
+                "reference": "52e08c09dec7511d5fbc1fb00d3e4e79fc77d58d",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/byte-stream": "^2",
+                "amphp/sync": "^2",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Process\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bob Weinand",
+                    "email": "bobwei9@hotmail.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "A fiber-aware process manager based on Amp and Revolt.",
+            "homepage": "https://amphp.org/process",
+            "support": {
+                "issues": "https://github.com/amphp/process/issues",
+                "source": "https://github.com/amphp/process/tree/v2.0.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-04-19T03:13:44+00:00"
+        },
+        {
+            "name": "amphp/serialization",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/serialization.git",
+                "reference": "693e77b2fb0b266c3c7d622317f881de44ae94a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/serialization/zipball/693e77b2fb0b266c3c7d622317f881de44ae94a1",
+                "reference": "693e77b2fb0b266c3c7d622317f881de44ae94a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "dev-master",
+                "phpunit/phpunit": "^9 || ^8 || ^7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Serialization\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Serialization tools for IPC and data storage in PHP.",
+            "homepage": "https://github.com/amphp/serialization",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "serialization",
+                "serialize"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/serialization/issues",
+                "source": "https://github.com/amphp/serialization/tree/master"
+            },
+            "time": "2020-03-25T21:39:07+00:00"
+        },
+        {
+            "name": "amphp/socket",
+            "version": "v2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/socket.git",
+                "reference": "58e0422221825b79681b72c50c47a930be7bf1e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/socket/zipball/58e0422221825b79681b72c50c47a930be7bf1e1",
+                "reference": "58e0422221825b79681b72c50c47a930be7bf1e1",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/byte-stream": "^2",
+                "amphp/dns": "^2",
+                "ext-openssl": "*",
+                "kelunik/certificate": "^1.1",
+                "league/uri": "^6.5 | ^7",
+                "league/uri-interfaces": "^2.3 | ^7",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "amphp/process": "^2",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.20"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php",
+                    "src/Internal/functions.php",
+                    "src/SocketAddress/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Socket\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Non-blocking socket connection / server implementations based on Amp and Revolt.",
+            "homepage": "https://github.com/amphp/socket",
+            "keywords": [
+                "amp",
+                "async",
+                "encryption",
+                "non-blocking",
+                "sockets",
+                "tcp",
+                "tls"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/socket/issues",
+                "source": "https://github.com/amphp/socket/tree/v2.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-04-21T14:33:03+00:00"
+        },
+        {
+            "name": "amphp/sync",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/sync.git",
+                "reference": "217097b785130d77cfcc58ff583cf26cd1770bf1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/sync/zipball/217097b785130d77cfcc58ff583cf26cd1770bf1",
+                "reference": "217097b785130d77cfcc58ff583cf26cd1770bf1",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/pipeline": "^1",
+                "amphp/serialization": "^1",
+                "php": ">=8.1",
+                "revolt/event-loop": "^1 || ^0.2"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Sync\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Stephen Coakley",
+                    "email": "me@stephencoakley.com"
+                }
+            ],
+            "description": "Non-blocking synchronization primitives for PHP based on Amp and Revolt.",
+            "homepage": "https://github.com/amphp/sync",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "mutex",
+                "semaphore",
+                "synchronization"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/sync/issues",
+                "source": "https://github.com/amphp/sync/tree/v2.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-08-03T19:31:26+00:00"
+        },
+        {
+            "name": "daverandom/libdns",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DaveRandom/LibDNS.git",
+                "reference": "b84c94e8fe6b7ee4aecfe121bfe3b6177d303c8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/b84c94e8fe6b7ee4aecfe121bfe3b6177d303c8a",
+                "reference": "b84c94e8fe6b7ee4aecfe121bfe3b6177d303c8a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "php": ">=7.1"
+            },
+            "suggest": {
+                "ext-intl": "Required for IDN support"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "LibDNS\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "DNS protocol implementation written in pure PHP",
+            "keywords": [
+                "dns"
+            ],
+            "support": {
+                "issues": "https://github.com/DaveRandom/LibDNS/issues",
+                "source": "https://github.com/DaveRandom/LibDNS/tree/v2.1.0"
+            },
+            "time": "2024-04-12T12:12:48+00:00"
+        },
+        {
+            "name": "kelunik/certificate",
+            "version": "v1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kelunik/certificate.git",
+                "reference": "7e00d498c264d5eb4f78c69f41c8bd6719c0199e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kelunik/certificate/zipball/7e00d498c264d5eb4f78c69f41c8bd6719c0199e",
+                "reference": "7e00d498c264d5eb4f78c69f41c8bd6719c0199e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "phpunit/phpunit": "^6 | 7 | ^8 | ^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Kelunik\\Certificate\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Access certificate details and transform between different formats.",
+            "keywords": [
+                "DER",
+                "certificate",
+                "certificates",
+                "openssl",
+                "pem",
+                "x509"
+            ],
+            "support": {
+                "issues": "https://github.com/kelunik/certificate/issues",
+                "source": "https://github.com/kelunik/certificate/tree/v1.1.3"
+            },
+            "time": "2023-02-03T21:26:53+00:00"
+        },
+        {
+            "name": "league/uri",
+            "version": "7.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri.git",
+                "reference": "81fb5145d2644324614cc532b28efd0215bda430"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/81fb5145d2644324614cc532b28efd0215bda430",
+                "reference": "81fb5145d2644324614cc532b28efd0215bda430",
+                "shasum": ""
+            },
+            "require": {
+                "league/uri-interfaces": "^7.5",
+                "php": "^8.1"
+            },
+            "conflict": {
+                "league/uri-schemes": "^1.0"
+            },
+            "suggest": {
+                "ext-bcmath": "to improve IPV4 host parsing",
+                "ext-fileinfo": "to create Data URI from file contennts",
+                "ext-gmp": "to improve IPV4 host parsing",
+                "ext-intl": "to handle IDN host with the best performance",
+                "jeremykendall/php-domain-parser": "to resolve Public Suffix and Top Level Domain",
+                "league/uri-components": "Needed to easily manipulate URI objects components",
+                "php-64bit": "to improve IPV4 host parsing",
+                "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "7.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Uri\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignace Nyamagana Butera",
+                    "email": "nyamsprod@gmail.com",
+                    "homepage": "https://nyamsprod.com"
+                }
+            ],
+            "description": "URI manipulation library",
+            "homepage": "https://uri.thephpleague.com",
+            "keywords": [
+                "data-uri",
+                "file-uri",
+                "ftp",
+                "hostname",
+                "http",
+                "https",
+                "middleware",
+                "parse_str",
+                "parse_url",
+                "psr-7",
+                "query-string",
+                "querystring",
+                "rfc3986",
+                "rfc3987",
+                "rfc6570",
+                "uri",
+                "uri-template",
+                "url",
+                "ws"
+            ],
+            "support": {
+                "docs": "https://uri.thephpleague.com",
+                "forum": "https://thephpleague.slack.com",
+                "issues": "https://github.com/thephpleague/uri-src/issues",
+                "source": "https://github.com/thephpleague/uri/tree/7.5.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/nyamsprod",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-12-08T08:40:02+00:00"
+        },
+        {
+            "name": "league/uri-interfaces",
+            "version": "7.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri-interfaces.git",
+                "reference": "08cfc6c4f3d811584fb09c37e2849e6a7f9b0742"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/08cfc6c4f3d811584fb09c37e2849e6a7f9b0742",
+                "reference": "08cfc6c4f3d811584fb09c37e2849e6a7f9b0742",
+                "shasum": ""
+            },
+            "require": {
+                "ext-filter": "*",
+                "php": "^8.1",
+                "psr/http-factory": "^1",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "suggest": {
+                "ext-bcmath": "to improve IPV4 host parsing",
+                "ext-gmp": "to improve IPV4 host parsing",
+                "ext-intl": "to handle IDN host with the best performance",
+                "php-64bit": "to improve IPV4 host parsing",
+                "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "7.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Uri\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignace Nyamagana Butera",
+                    "email": "nyamsprod@gmail.com",
+                    "homepage": "https://nyamsprod.com"
+                }
+            ],
+            "description": "Common interfaces and classes for URI representation and interaction",
+            "homepage": "https://uri.thephpleague.com",
+            "keywords": [
+                "data-uri",
+                "file-uri",
+                "ftp",
+                "hostname",
+                "http",
+                "https",
+                "parse_str",
+                "parse_url",
+                "psr-7",
+                "query-string",
+                "querystring",
+                "rfc3986",
+                "rfc3987",
+                "rfc6570",
+                "uri",
+                "url",
+                "ws"
+            ],
+            "support": {
+                "docs": "https://uri.thephpleague.com",
+                "forum": "https://thephpleague.slack.com",
+                "issues": "https://github.com/thephpleague/uri-src/issues",
+                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/nyamsprod",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-12-08T08:18:47+00:00"
+        },
         {
             "name": "psr/clock",
             "version": "1.0.0",
@@ -108,6 +1108,114 @@
             "time": "2021-11-05T16:47:00+00:00"
         },
         {
+            "name": "psr/http-factory",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-factory.git",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "psr/http-message": "^1.0 || ^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "psr",
+                "psr-17",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/http-factory"
+            },
+            "time": "2024-04-15T12:06:14+00:00"
+        },
+        {
+            "name": "psr/http-message",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-message.git",
+                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/402d35bcb92c70c026d1a6a9883f06b2ead23d71",
+                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP messages",
+            "homepage": "https://github.com/php-fig/http-message",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/http-message/tree/2.0"
+            },
+            "time": "2023-04-04T09:54:51+00:00"
+        },
+        {
             "name": "psr/log",
             "version": "3.0.2",
             "source": {
@@ -158,17 +1266,644 @@
             "time": "2024-09-11T13:17:53+00:00"
         },
         {
-            "name": "thesis/message",
-            "version": "0.2.0",
+            "name": "revolt/event-loop",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thesisphp/message.git",
-                "reference": "2723e33d97afefebb65d4358e8decbc5a5c9fadc"
+                "url": "https://github.com/revoltphp/event-loop.git",
+                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/message/zipball/2723e33d97afefebb65d4358e8decbc5a5c9fadc",
-                "reference": "2723e33d97afefebb65d4358e8decbc5a5c9fadc",
+                "url": "https://api.github.com/repos/revoltphp/event-loop/zipball/09bf1bf7f7f574453efe43044b06fafe12216eb3",
+                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "jetbrains/phpstorm-stubs": "^2019.3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.15"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Revolt\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Cees-Jan Kiewiet",
+                    "email": "ceesjank@gmail.com"
+                },
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@clue.engineering"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Rock-solid event loop for concurrent PHP applications.",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "concurrency",
+                "event",
+                "event-loop",
+                "non-blocking",
+                "scheduler"
+            ],
+            "support": {
+                "issues": "https://github.com/revoltphp/event-loop/issues",
+                "source": "https://github.com/revoltphp/event-loop/tree/v1.0.7"
+            },
+            "time": "2025-01-25T19:27:39+00:00"
+        },
+        {
+            "name": "thesis/amp-bridge",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/amp-bridge.git",
+                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/amp-bridge/zipball/46cd975538dd77aaa583aeea3461450d33cc757d",
+                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/socket": "^2.3",
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\AmpBridge\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Reader/Writer bridge to amphp/socket.",
+            "support": {
+                "issues": "https://github.com/thesisphp/amp-bridge/issues",
+                "source": "https://github.com/thesisphp/amp-bridge/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:09:28+00:00"
+        },
+        {
+            "name": "thesis/amqp",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/amqp.git",
+                "reference": "8c06696ebef2114c19f606b41b98842c89ff15c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/amqp/zipball/8c06696ebef2114c19f606b41b98842c89ff15c5",
+                "reference": "8c06696ebef2114c19f606b41b98842c89ff15c5",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3.0",
+                "amphp/pipeline": "^1.2",
+                "amphp/socket": "^2.3",
+                "ext-filter": "*",
+                "php": "^8.3",
+                "revolt/event-loop": "^1.0",
+                "thesis/amp-bridge": "^0.1.0",
+                "thesis/byte-buffer": "^0.1.0",
+                "thesis/byte-order": "^0.2.0",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-reader-writer": "^0.1.0",
+                "thesis/byte-writer": "^0.2.1",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8",
+                "ergebnis/composer-normalize": "^2.45",
+                "phpunit/phpunit": "^11.5",
+                "symfony/var-dumper": "^7.2"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Thesis\\Amqp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Async (fiber based) client for AMQP 0.9.1",
+            "support": {
+                "issues": "https://github.com/thesisphp/amqp/issues",
+                "source": "https://github.com/thesisphp/amqp/tree/0.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-03-23T12:15:10+00:00"
+        },
+        {
+            "name": "thesis/byte-buffer",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-buffer.git",
+                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-buffer/zipball/91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
+                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteBuffer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "The library implements buffered I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-buffer/issues",
+                "source": "https://github.com/thesisphp/byte-buffer/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:03:35+00:00"
+        },
+        {
+            "name": "thesis/byte-order",
+            "version": "0.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-order.git",
+                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-order/zipball/b46a10d17c5986636a942a676648ed6b5066ed50",
+                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteOrder\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "The library adds methods for reading bytes in any byte order to Reader and Writer.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-order/issues",
+                "source": "https://github.com/thesisphp/byte-order/tree/0.2.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:14:08+00:00"
+        },
+        {
+            "name": "thesis/byte-reader",
+            "version": "0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-reader.git",
+                "reference": "95bf6b52017726a98d348919f60795d656690ee9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-reader/zipball/95bf6b52017726a98d348919f60795d656690ee9",
+                "reference": "95bf6b52017726a98d348919f60795d656690ee9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteReader\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Reader abstraction for I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-reader/issues",
+                "source": "https://github.com/thesisphp/byte-reader/tree/0.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-16T15:56:41+00:00"
+        },
+        {
+            "name": "thesis/byte-reader-writer",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-reader-writer.git",
+                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-reader-writer/zipball/9effcc645fefed37e83fee20cc63eeeea03ee520",
+                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-order": "^0.2.0",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteReaderWriter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "An implementation for thesis/byte-order.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-reader-writer/issues",
+                "source": "https://github.com/thesisphp/byte-reader-writer/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:00:21+00:00"
+        },
+        {
+            "name": "thesis/byte-writer",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-writer.git",
+                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-writer/zipball/5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
+                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteWriter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Writer abstraction for I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-writer/issues",
+                "source": "https://github.com/thesisphp/byte-writer/tree/0.2.2"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T12:55:08+00:00"
+        },
+        {
+            "name": "thesis/endian",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/endian.git",
+                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/endian/zipball/a7d22f427dec33eae32383bbe63f379d1c1db64f",
+                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Thesis\\Endian\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Library for encoding and decoding numbers in either big-endian or little-endian order.",
+            "support": {
+                "issues": "https://github.com/thesisphp/endian/issues",
+                "source": "https://github.com/thesisphp/endian/tree/0.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-15T04:45:11+00:00"
+        },
+        {
+            "name": "thesis/message",
+            "version": "0.2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/message.git",
+                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/message/zipball/3859eb3094cd814989b4fd592eb73b2d237d7bdb",
+                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb",
                 "shasum": ""
             },
             "require": {
@@ -177,6 +1912,7 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -207,7 +1943,7 @@
             "description": "Thesis Message",
             "support": {
                 "issues": "https://github.com/thesisphp/message/issues",
-                "source": "https://github.com/thesisphp/message/tree/0.2.0"
+                "source": "https://github.com/thesisphp/message/tree/0.2.x"
             },
             "funding": [
                 {
@@ -215,7 +1951,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-04-02T20:15:02+00:00"
+            "time": "2025-04-05T12:22:22+00:00"
         },
         {
             "name": "typhoon/describe",
@@ -287,6 +2023,188 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "amphp/postgres",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/postgres.git",
+                "reference": "c62555c6497782399a166f15c8da8e64be456141"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/postgres/zipball/c62555c6497782399a166f15c8da8e64be456141",
+                "reference": "c62555c6497782399a166f15c8da8e64be456141",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/pipeline": "^1",
+                "amphp/sql": "^2",
+                "amphp/sql-common": "^2",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "ext-pgsql": "*",
+                "ext-pq": "*",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php",
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Postgres\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Asynchronous PostgreSQL client for Amp.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "pgsql",
+                "postgre",
+                "postgresql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/postgres/issues",
+                "source": "https://github.com/amphp/postgres/tree/v2.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-21T04:45:08+00:00"
+        },
+        {
+            "name": "amphp/sql",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/sql.git",
+                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/sql/zipball/2a7962dba23bf017bbdd3c3a0af0eb212481627b",
+                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Sql\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Asynchronous SQL client for Amp.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "sql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/sql/issues",
+                "source": "https://github.com/amphp/sql/tree/v2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-23T16:16:34+00:00"
+        },
+        {
+            "name": "amphp/sql-common",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/sql-common.git",
+                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/sql-common/zipball/069183d57f17f85c60842ea3a8ce5ff52dba5399",
+                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/sql": "^2",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Sql\\Common\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Common classes for non-blocking SQL implementations.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "sql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/sql-common/issues",
+                "source": "https://github.com/amphp/sql-common/tree/v2.0.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-27T16:04:14+00:00"
+        },
         {
             "name": "bamarni/composer-bin-plugin",
             "version": "1.8.2",
@@ -582,16 +2500,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.1.0",
+            "version": "12.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "d331a5ced3d9a2b917baa9841b2211e72f9e780d"
+                "reference": "05c33d01a856f9f62488d144bafddc3d7b7a4ebb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/d331a5ced3d9a2b917baa9841b2211e72f9e780d",
-                "reference": "d331a5ced3d9a2b917baa9841b2211e72f9e780d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/05c33d01a856f9f62488d144bafddc3d7b7a4ebb",
+                "reference": "05c33d01a856f9f62488d144bafddc3d7b7a4ebb",
                 "shasum": ""
             },
             "require": {
@@ -647,7 +2565,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.1.0"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.1.2"
             },
             "funding": [
                 {
@@ -655,7 +2573,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-17T13:56:07+00:00"
+            "time": "2025-04-03T14:34:39+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -904,16 +2822,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.0.10",
+            "version": "12.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "6075843014de23bcd6992842d69ca99d25d6a433"
+                "reference": "c433e7972440e1370a26879bb54c359f8898aa3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6075843014de23bcd6992842d69ca99d25d6a433",
-                "reference": "6075843014de23bcd6992842d69ca99d25d6a433",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c433e7972440e1370a26879bb54c359f8898aa3a",
+                "reference": "c433e7972440e1370a26879bb54c359f8898aa3a",
                 "shasum": ""
             },
             "require": {
@@ -927,7 +2845,7 @@
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
-                "phpunit/php-code-coverage": "^12.1.0",
+                "phpunit/php-code-coverage": "^12.1.2",
                 "phpunit/php-file-iterator": "^6.0.0",
                 "phpunit/php-invoker": "^6.0.0",
                 "phpunit/php-text-template": "^5.0.0",
@@ -949,7 +2867,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "12.0-dev"
+                    "dev-main": "12.1-dev"
                 }
             },
             "autoload": {
@@ -981,7 +2899,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.0.10"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.1.0"
             },
             "funding": [
                 {
@@ -997,7 +2915,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-23T16:03:59+00:00"
+            "time": "2025-04-04T04:10:58+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -2081,6 +3999,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "thesis/message": 20,
         "typhoon/describe": 20
     },
     "prefer-stable": false,
@@ -2088,7 +4007,9 @@
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": {},
+    "platform-dev": {
+        "ext-pdo": "*"
+    },
     "platform-overrides": {
         "php": "8.3"
     },

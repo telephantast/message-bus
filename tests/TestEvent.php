@@ -6,4 +6,12 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Event;
 
-final class TestEvent implements Event {}
+/**
+ * @psalm-suppress PossiblyUnusedProperty
+ */
+final readonly class TestEvent implements Event
+{
+    public function __construct(
+        public mixed $data = null,
+    ) {}
+}

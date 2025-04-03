@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handler;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Handler;
-use Thesis\MessageBus\MessageContext;
+use function Typhoon\Describe\describeReflectedDeclaration;
 
 /**
  * @api
@@ -17,21 +18,28 @@ use Thesis\MessageBus\MessageContext;
 final readonly class CallableHandler implements Handler
 {
     /**
-     * @param non-empty-string $id
-     * @param callable(TMessage, MessageContext<TResult, TMessage>): TResult $callable
+     * @var non-empty-string
+     */
+    private string $id;
+
+    /**
+     * @param callable(TMessage, Context<TResult, TMessage>): TResult $handler
+     * @param ?non-empty-string $id
      */
     public function __construct(
-        private string $id,
-        private mixed $callable,
-    ) {}
+        private mixed $handler,
+        ?string $id = null,
+    ) {
+        $this->id = $id ?? describeReflectedDeclaration(new \ReflectionFunction($handler(...)));
+    }
 
     public function id(): string
     {
         return $this->id;
     }
 
-    public function handle(MessageContext $messageContext): mixed
+    public function handle(Context $context): mixed
     {
-        return ($this->callable)($messageContext->getMessage(), $messageContext);
+        return ($this->handler)($context->envelope->message, $context);
     }
 }

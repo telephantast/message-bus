@@ -7,10 +7,11 @@ namespace Thesis\MessageBus\HandlerRegistry;
 use PHPUnit\Framework\TestCase;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\Handler\CallableHandler;
+use Thesis\MessageBus\Handler\NullHandler;
 use Thesis\MessageBus\HandlerRegistry;
+use Thesis\MessageBus\TestCommand;
 use Thesis\MessageBus\TestEvent;
-use Thesis\MessageBus\TestMessage;
-use Thesis\MessageBus\TestMessageHandler;
 
 abstract class HandlerRegistryTestCase extends TestCase
 {
@@ -23,13 +24,13 @@ abstract class HandlerRegistryTestCase extends TestCase
 
     final public function testGet(): void
     {
-        $handler = new TestMessageHandler();
+        $handler = new NullHandler();
 
         $handlerRegistry = $this->createHandlerRegistry([
-            TestMessage::class => $handler,
+            TestCommand::class => $handler,
         ]);
 
-        self::assertSame($handler, $handlerRegistry->get(TestMessage::class));
+        self::assertSame($handler, $handlerRegistry->get(TestCommand::class));
     }
 
     final public function testGetHandlerNotFound(): void
@@ -38,7 +39,7 @@ abstract class HandlerRegistryTestCase extends TestCase
 
         $handlerRegistry = $this->createHandlerRegistry([]);
 
-        $handlerRegistry->get(TestMessage::class);
+        $handlerRegistry->get(TestCommand::class);
     }
 
     final public function testGetHandlerForEventNotFound(): void
@@ -47,24 +48,24 @@ abstract class HandlerRegistryTestCase extends TestCase
 
         $handler = $handlerRegistry->get(TestEvent::class);
 
-        self::assertInstanceOf(Handler\CallableHandler::class, $handler);
+        self::assertInstanceOf(CallableHandler::class, $handler);
     }
 
     final public function testFind(): void
     {
-        $handler = new TestMessageHandler();
+        $handler = new NullHandler();
 
         $handlerRegistry = $this->createHandlerRegistry([
-            TestMessage::class => $handler,
+            TestCommand::class => $handler,
         ]);
 
-        self::assertSame($handler, $handlerRegistry->find(TestMessage::class));
+        self::assertSame($handler, $handlerRegistry->find(TestCommand::class));
     }
 
     final public function testFindHandlerNotFound(): void
     {
         $handlerRegistry = $this->createHandlerRegistry([]);
 
-        self::assertNull($handlerRegistry->find(TestMessage::class));
+        self::assertNull($handlerRegistry->find(TestCommand::class));
     }
 }

@@ -1,5 +1,6 @@
 {
     "symbol-whitelist" : [
-        "firstFunctionAttribute"
+        "firstFunctionAttribute",
+        "PDO"
     ]
 }

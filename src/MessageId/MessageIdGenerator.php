@@ -12,5 +12,5 @@ interface MessageIdGenerator
     /**
      * @return non-empty-string
      */
-    public function generate(): string;
+    public function generateMessageId(): string;
 }

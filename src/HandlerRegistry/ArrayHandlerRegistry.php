@@ -14,23 +14,21 @@ use Thesis\MessageBus\HandlerRegistry;
 final class ArrayHandlerRegistry extends HandlerRegistry
 {
     /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param array<class-string<TMessage>, Handler<TResult, TMessage>> $messageClassToHandler
+     * @param array<class-string<Message>, Handler> $messageClassToHandler
      */
     public function __construct(
         private readonly array $messageClassToHandler = [],
     ) {}
 
     /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param class-string<TMessage> $messageClass
-     * @return ?Handler<TResult, TMessage>
+     * @template TFindResult
+     * @template TFindMessage of Message<TFindResult>
+     * @param class-string<TFindMessage> $messageClass
+     * @return ?Handler<TFindResult, TFindMessage>
      */
     public function find(string $messageClass): ?Handler
     {
-        /** @var ?Handler<TResult, TMessage> */
+        /** @var ?Handler<TFindResult, TFindMessage> */
         return $this->messageClassToHandler[$messageClass] ?? null;
     }
 }
