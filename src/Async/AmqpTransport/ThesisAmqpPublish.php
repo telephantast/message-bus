@@ -6,9 +6,8 @@ namespace Thesis\MessageBus\Async\AmqpTransport;
 
 use Thesis\Amqp\Channel;
 use Thesis\Amqp\Client;
-use Thesis\Amqp\Confirmation;
-use Thesis\Amqp\Message as AmqpMessage;
-use Thesis\Amqp\PublishResult;
+use Thesis\Amqp\Message;
+use Thesis\Amqp\PublishMessage;
 use Thesis\MessageBus\Async\MessageEncoder;
 use Thesis\MessageBus\Async\TransportPublish;
 use Thesis\MessageBus\Async\UnsupportedTransportOptions;
@@ -39,40 +38,34 @@ final class ThesisAmqpPublish implements TransportPublish
             $this->channel->confirmSelect();
         }
 
-        $confirmations = [];
-
-        foreach ($envelopes as $envelope) {
-            $transportOptions = $envelope->transportOptions ?? new AmqpOptions();
-
-            if (!$transportOptions instanceof AmqpOptions) {
-                throw new UnsupportedTransportOptions(
-                    transport: self::class,
-                    received: $transportOptions::class,
-                    supported: [AmqpOptions::class],
-                );
-            }
-
-            $confirmation = $this->channel->publish(
-                message: $this->createAmqpMessageFromEnvelope($envelope, $transportOptions),
+        $confirmation = $this->channel->publishBatch(array_map(
+            fn(Envelope $envelope): PublishMessage => new PublishMessage(
+                message: $this->createMessage($envelope),
                 exchange: $this->routingTopology->resolveExchange($envelope->message::class),
-                immediate: $transportOptions->immediate,
-            );
-            \assert($confirmation !== null);
-            $confirmations[] = $confirmation;
-        }
+            ),
+            $envelopes,
+        ));
 
-        foreach (Confirmation::awaitAll($confirmations) as $publishResult) {
-            if ($publishResult !== PublishResult::Acked) {
-                throw new \LogicException('Failed to publish an envelope');
-            }
+        if ($confirmation->unconfirmed() !== []) {
+            throw new \RuntimeException('Failed to publish');
         }
     }
 
-    private function createAmqpMessageFromEnvelope(Envelope $envelope, AmqpOptions $options): AmqpMessage
+    private function createMessage(Envelope $envelope): Message
     {
+        $options = $envelope->transportOptions ?? new AmqpOptions();
+
+        if (!$options instanceof AmqpOptions) {
+            throw new UnsupportedTransportOptions(
+                transport: self::class,
+                received: $options::class,
+                supported: [AmqpOptions::class],
+            );
+        }
+
         $encodedMessage = $this->messageEncoder->encodeMessage($envelope->message);
 
-        return new AmqpMessage(
+        return new Message(
             body: $encodedMessage->body,
             headers: [
                 ...$envelope->headers,

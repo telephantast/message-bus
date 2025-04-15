@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Async\AmqpTransport;
 
 use Thesis\Amqp\Client;
-use Thesis\Amqp\Delivery;
+use Thesis\Amqp\DeliveryMessage;
+use Thesis\Amqp\Message;
 use Thesis\MessageBus\Async\Consumer;
 use Thesis\MessageBus\Async\EncodedMessage;
 use Thesis\MessageBus\Async\MessageDecoder;
@@ -19,13 +20,13 @@ use Thesis\MessageBus\Time\TimeSpan;
 final readonly class ThesisAmqpConsume implements TransportConsume
 {
     /**
-     * @var callable(Delivery): non-empty-string
+     * @var callable(Message): non-empty-string
      */
     private mixed $onMessageIdMissing;
 
     /**
      * @param non-negative-int $prefetchCount
-     * @param ?callable(Delivery): non-empty-string $onMessageIdMissing
+     * @param ?callable(Message): non-empty-string $onMessageIdMissing
      */
     public function __construct(
         private Client $client,
@@ -46,9 +47,9 @@ final readonly class ThesisAmqpConsume implements TransportConsume
         $channel->qos(prefetchCount: $this->prefetchCount);
 
         $consumerTag = $channel->consume(
-            callback: function (Delivery $delivery) use ($consumer): void {
-                $consumer->consume($this->createEnvelopeFromDelivery($delivery));
-                $delivery->ack();
+            callback: function (DeliveryMessage $deliveryMessage) use ($consumer): void {
+                $consumer->consume($this->createEnvelope($deliveryMessage->message));
+                $deliveryMessage->ack();
             },
             queue: $consumer->queue,
         );
@@ -59,29 +60,30 @@ final readonly class ThesisAmqpConsume implements TransportConsume
         };
     }
 
-    private function createEnvelopeFromDelivery(Delivery $delivery): Envelope
+    private function createEnvelope(Message $message): Envelope
     {
-        $headers = $delivery->headers;
+        $headers = $message->headers;
+
         $causationId = self::toNullOrNonEmptyString($headers[ThesisAmqpPublish::CAUSATION_ID_HEADER] ?? null);
         unset($headers[ThesisAmqpPublish::CAUSATION_ID_HEADER]);
 
         return new Envelope(
             message: $this->messageDecoder->decodeMessage(
                 new EncodedMessage(
-                    type: $delivery->type ?? '',
-                    contentType: $delivery->contentType,
-                    body: $delivery->body,
+                    type: $message->type ?? '',
+                    contentType: $message->contentType,
+                    body: $message->body,
                 ),
             ),
-            messageId: self::toNullOrNonEmptyString($delivery->messageId) ?? ($this->onMessageIdMissing)($delivery),
+            messageId: self::toNullOrNonEmptyString($message->messageId) ?? ($this->onMessageIdMissing)($message),
             causationId: $causationId,
-            correlationId: self::toNullOrNonEmptyString($delivery->correlationId),
-            timestamp: $delivery->timestamp,
-            headers: $delivery->headers,
+            correlationId: self::toNullOrNonEmptyString($message->correlationId),
+            timestamp: $message->timestamp,
+            headers: $headers,
             transportOptions: new AmqpOptions(
-                deliveryMode: $delivery->deliveryMode,
-                expiration: TimeSpan::fromMilliseconds((int) $delivery->expiration),
-                priority: $delivery->priority,
+                deliveryMode: $message->deliveryMode,
+                expiration: TimeSpan::fromMilliseconds((int) $message->expiration),
+                priority: $message->priority,
             ),
         );
     }

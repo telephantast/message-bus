@@ -18,7 +18,7 @@
         "psr/clock": "^1.0",
         "psr/container": "^2.0",
         "psr/log": "^3",
-        "thesis/amqp": "^0.2.0",
+        "thesis/amqp": "^0.3.1",
         "thesis/message": "^0.2@dev",
         "typhoon/describe": "^0.1@dev"
     },
