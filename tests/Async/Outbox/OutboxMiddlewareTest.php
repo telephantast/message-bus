@@ -11,6 +11,7 @@ use Thesis\MessageBus\Async\InMemoryTransport;
 use Thesis\MessageBus\Async\PublishHandler;
 use Thesis\MessageBus\Async\TransportPublish;
 use Thesis\MessageBus\Context;
+use Thesis\MessageBus\ContextAttributes;
 use Thesis\MessageBus\HandlerRegistry;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\MessageId\IncrementalMessageIdGenerator;
@@ -81,7 +82,7 @@ final class OutboxMiddlewareTest extends TestCase
 
         $messageBus->dispatch(
             message: new TestCommand('data'),
-            attributes: [new InConsumer('queue')],
+            attributes: new ContextAttributes([new InConsumer('queue')]),
         );
 
         self::assertSame([], $outboxStorage->get('1', 'queue')?->envelopes);

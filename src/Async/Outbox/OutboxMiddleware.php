@@ -32,11 +32,11 @@ final readonly class OutboxMiddleware implements Middleware
 
     public function handle(Context $context, Pipeline $pipeline): mixed
     {
-        if ($context->hasAttribute(OutboxCollector::class)) {
+        if ($context->attributes->has(OutboxCollector::class)) {
             return $pipeline->continue();
         }
 
-        $inConsumer = $context->getAttribute(InConsumer::class);
+        $inConsumer = $context->attributes->get(InConsumer::class);
 
         if ($inConsumer === null) {
             return $this->controller($context, $pipeline);
@@ -60,7 +60,7 @@ final readonly class OutboxMiddleware implements Middleware
         $messageId = $context->envelope->messageId;
 
         $collector = new OutboxCollector();
-        $context->addAttribute($collector);
+        $context->attributes->add($collector);
 
         $result = $this->transactionProvider->wrapInTransaction(
             function () use ($messageId, $pipeline, $collector): mixed {
@@ -127,7 +127,7 @@ final readonly class OutboxMiddleware implements Middleware
 
         if ($outbox === null) {
             $collector = new OutboxCollector();
-            $context->addAttribute($collector);
+            $context->attributes->add($collector);
 
             $this->transactionProvider->wrapInTransaction(
                 function () use ($pipeline, $collector, $messageId, $queue): void {

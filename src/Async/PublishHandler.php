@@ -30,7 +30,7 @@ final readonly class PublishHandler implements Handler
 
     public function handle(Context $context): mixed
     {
-        $outbox = $context->getAttribute(OutboxCollector::class);
+        $outbox = $context->attributes->get(OutboxCollector::class);
 
         if ($outbox !== null) {
             $outbox->add($context->envelope);

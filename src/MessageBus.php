@@ -25,14 +25,13 @@ final readonly class MessageBus
     /**
      * @template TResult
      * @param Message<TResult> $message
-     * @param list<ContextAttribute> $attributes
      * @return TResult
      */
     public function dispatch(
         Message $message,
         PublishOptions $options = new PublishOptions(),
         ?Envelope $causation = null,
-        array $attributes = [],
+        ContextAttributes $attributes = new ContextAttributes(),
     ): mixed {
         $messageId = $options->messageId ?? $this->messageIdGenerator->generateMessageId();
 

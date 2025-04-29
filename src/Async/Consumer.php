@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Async;
 
 use Thesis\MessageBus\Context;
+use Thesis\MessageBus\ContextAttributes;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\HandlerRegistry;
 use Thesis\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
@@ -29,7 +30,7 @@ final readonly class Consumer
         $context = new Context(
             messageBus: $this->messageBus,
             envelope: $envelope,
-            attributes: [new InConsumer($this->queue)],
+            attributes: new ContextAttributes([new InConsumer($this->queue)]),
         );
 
         $this->handlerRegistry->get($envelope->message::class)->handle($context);
