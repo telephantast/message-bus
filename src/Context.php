@@ -8,8 +8,8 @@ use Thesis\Message\Message;
 
 /**
  * @api
- * @template-covariant TResult
- * @template-covariant TMessage of Message<TResult>
+ * @template-covariant TResult = mixed
+ * @template-covariant TMessage of Message<TResult> = Message<mixed>
  */
 final class Context
 {
