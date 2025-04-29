@@ -7,6 +7,8 @@ namespace Thesis\MessageBus;
 use Psr\Clock\ClockInterface;
 use Thesis\Message\Message;
 use Thesis\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Thesis\MessageBus\HandlerRegistry\ContextHandlerRegistry;
+use Thesis\MessageBus\HandlerRegistry\ScopedHandlerRegistry;
 use Thesis\MessageBus\MessageId\MessageIdGenerator;
 use Thesis\MessageBus\MessageId\RandomMessageIdGenerator;
 use Thesis\MessageBus\Time\WallClock;
@@ -51,6 +53,24 @@ final readonly class MessageBus
             attributes: $attributes,
         );
 
-        return $this->handlerRegistry->get($message::class)->handle($context);
+        return $this->resolveHandlerRegistry($attributes)->get($message::class)->handle($context);
+    }
+
+    private function resolveHandlerRegistry(ContextAttributes $attributes): HandlerRegistry
+    {
+        $attribute = $attributes->get(ContextHandlerRegistry::class);
+
+        if ($attribute !== null) {
+            return $attribute->handlerRegistry;
+        }
+
+        if ($this->handlerRegistry instanceof ScopedHandlerRegistry) {
+            $handlerRegistry = $this->handlerRegistry->scoped();
+            $attributes->add(new ContextHandlerRegistry($handlerRegistry));
+
+            return $handlerRegistry;
+        }
+
+        return $this->handlerRegistry;
     }
 }
