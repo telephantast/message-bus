@@ -1,0 +1,13 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Template type TMessage is declared as covariant, but occurs in invariant position in property Thesis\\MessageBus\\Envelope\:\:\$message\.$#'
+			identifier: generics.variance
+			count: 1
+			path: src/Envelope.php
+
+		-
+			message: '#^Template type TMessage is declared as covariant, but occurs in invariant position in property Thesis\\MessageBus\\Envelope\:\:\$messageClass\.$#'
+			identifier: generics.variance
+			count: 1
+			path: src/Envelope.php

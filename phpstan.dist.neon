@@ -1,6 +1,10 @@
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     level: max
     paths:
+        #- example
         - src
         - tests
     checkBenevolentUnionTypes: true
@@ -10,3 +14,5 @@ parameters:
     editorUrl: ''
     editorUrlTitle: '%%file%%:%%line%%'
     tmpDir: ./var/phpstan
+    stubFiles:
+        - stubs/amphp.phpstub

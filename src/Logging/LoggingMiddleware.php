@@ -6,7 +6,8 @@ namespace Thesis\MessageBus\Logging;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Handling\HandlingContext;
 use Thesis\MessageBus\Middleware;
 use Thesis\MessageBus\Pipeline;
 
@@ -22,37 +23,31 @@ final readonly class LoggingMiddleware implements Middleware
         private mixed $successfullyHandledLevel = LogLevel::DEBUG,
     ) {}
 
-    /**
-     * @throws \Throwable
-     */
-    public function handle(Context $context, Pipeline $pipeline): mixed
+    public function handle(Envelope $envelope, HandlingContext $context, Pipeline $pipeline): void
     {
         $this->logger->log($this->aboutToHandleLevel, 'About to handle message {message_class}', [
-            'message_class' => $context->envelope->message::class,
-            'handler_id' => $pipeline->handlerId(),
-            'envelope' => $context->envelope,
+            'message_class' => $envelope->messageClass,
+            'handler_id' => $pipeline->handlerId,
+            'envelope' => $envelope,
         ]);
 
         try {
-            $result = $pipeline->continue();
+            $pipeline->continue();
         } catch (\Throwable $exception) {
             $this->logger->log($this->failedToHandleLevel, 'Failed to handle message {message_class}', [
                 'exception' => $exception,
-                'message_class' => $context->envelope->message::class,
-                'handler_id' => $pipeline->handlerId(),
-                'envelope' => $context->envelope,
+                'message_class' => $envelope->messageClass,
+                'handler_id' => $pipeline->handlerId,
+                'envelope' => $envelope,
             ]);
 
             throw $exception;
         }
 
         $this->logger->log($this->successfullyHandledLevel, 'Successfully handled message {message_class}', [
-            'message_class' => $context->envelope->message::class,
-            'handler_id' => $pipeline->handlerId(),
-            'envelope' => $context->envelope,
-            'result' => $result,
+            'message_class' => $envelope->messageClass,
+            'handler_id' => $pipeline->handlerId,
+            'envelope' => $envelope,
         ]);
-
-        return $result;
     }
 }

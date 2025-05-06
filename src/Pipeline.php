@@ -5,23 +5,26 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Handling\Handler;
+use Thesis\MessageBus\Handling\HandlingContext;
+use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
- * @template TResult
- * @template TMessage of Message<TResult>
+ * @template TMessage of Message
+ * @template TTransaction of Transaction
  */
 final class Pipeline
 {
     /**
-     * @template TTResult
-     * @template TTMessage of Message<TTResult>
-     * @param Context<TTResult, TTMessage> $context
-     * @param Handler<TTResult, TTMessage> $handler
+     * @template TMethodMessage of Message
+     * @template TMethodTransaction of Transaction
+     * @param Handler<TMethodMessage, TMethodTransaction> $handler
      * @param iterable<Middleware> $middleware
-     * @return TTResult
+     * @param Envelope<TMethodMessage> $envelope
+     * @param HandlingContext<TMethodTransaction> $context
      */
-    public static function handle(Handler $handler, iterable $middleware, Context $context): mixed
+    public static function handle(Handler $handler, iterable $middleware, Envelope $envelope, HandlingContext $context): void
     {
         if (\is_array($middleware)) {
             $middleware = new \ArrayIterator($middleware);
@@ -32,57 +35,60 @@ final class Pipeline
         $middleware->rewind();
 
         if (!$middleware->valid()) {
-            return $handler->handle($context);
+            $handler->handle($envelope, $context);
+
+            return;
         }
 
-        return (new self($handler, $middleware, $context))->continue();
+        new self($handler, $middleware, $envelope, $context)->continue();
     }
-
-    private bool $started = false;
-
-    private bool $handled = false;
-
-    /**
-     * @param Handler<TResult, TMessage> $handler
-     * @param \Iterator<Middleware> $middleware
-     * @param Context<TResult, TMessage> $context
-     */
-    private function __construct(
-        private readonly Handler $handler,
-        private readonly \Iterator $middleware,
-        private readonly Context $context,
-    ) {}
 
     /**
      * @return non-empty-string
      */
-    public function handlerId(): string
-    {
-        return $this->handler->id();
-    }
+    public string $handlerId { get => $this->handler->id; }
+
+    private bool $called = false;
 
     /**
-     * @return TResult
+     * @param Handler<TMessage, TTransaction> $handler
+     * @param \Iterator<Middleware> $middleware
+     * @param Envelope<TMessage> $envelope
+     * @param HandlingContext<TTransaction> $context
      */
-    public function continue(): mixed
+    public function __construct(
+        private readonly Handler $handler,
+        private readonly \Iterator $middleware,
+        private readonly Envelope $envelope,
+        private readonly HandlingContext $context,
+    ) {}
+
+    /**
+     * @param ?Envelope<TMessage> $envelope
+     */
+    public function continue(?Envelope $envelope = null): void
     {
-        if ($this->handled) {
-            throw new \LogicException('Pipeline fully handled');
+        if ($this->called) {
+            throw new \LogicException('Cannot call continue twice');
         }
 
-        if ($this->started) {
-            $this->middleware->next();
-        } else {
-            $this->started = true;
+        $this->called = true;
+        $nextEnvelope = $envelope ?? $this->envelope;
+
+        if (!$this->middleware->valid()) {
+            $this->handler->handle($nextEnvelope, $this->context);
+
+            return;
         }
 
-        if ($this->middleware->valid()) {
-            /** @psalm-suppress PossiblyNullReference */
-            return $this->middleware->current()->handle($this->context, $this);
-        }
+        $middleware = $this->middleware->current();
+        $this->middleware->next();
 
-        $this->handled = true;
-
-        return $this->handler->handle($this->context);
+        $middleware->handle($nextEnvelope, $this->context, new self(
+            handler: $this->handler,
+            middleware: $this->middleware,
+            envelope: $nextEnvelope,
+            context: $this->context,
+        ));
     }
 }

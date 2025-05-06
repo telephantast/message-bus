@@ -4,8 +4,299 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02a7d0e5009656ffb5da93c02a82dd4e",
+    "content-hash": "2a8dd05fda43e4600175de90aa9ad41e",
     "packages": [
+        {
+            "name": "psr/clock",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/clock.git",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Clock\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for reading the clock.",
+            "homepage": "https://github.com/php-fig/clock",
+            "keywords": [
+                "clock",
+                "now",
+                "psr",
+                "psr-20",
+                "time"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/clock/issues",
+                "source": "https://github.com/php-fig/clock/tree/1.0.0"
+            },
+            "time": "2022-11-25T14:36:26+00:00"
+        },
+        {
+            "name": "psr/log",
+            "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Log\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "homepage": "https://github.com/php-fig/log",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/log/tree/3.0.2"
+            },
+            "time": "2024-09-11T13:17:53+00:00"
+        },
+        {
+            "name": "thesis/message",
+            "version": "0.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/message.git",
+                "reference": "3e2bc34aea5f77530106f676d4a8cb834882b864"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/message/zipball/3e2bc34aea5f77530106f676d4a8cb834882b864",
+                "reference": "3e2bc34aea5f77530106f676d4a8cb834882b864",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Thesis Message",
+            "support": {
+                "issues": "https://github.com/thesisphp/message/issues",
+                "source": "https://github.com/thesisphp/message/tree/0.2.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-04-04T04:36:31+00:00"
+        },
+        {
+            "name": "thesis/time",
+            "version": "0.1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/time.git",
+                "reference": "74904f61b49852b8d1189c5da487453fce94304d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/time/zipball/74904f61b49852b8d1189c5da487453fce94304d",
+                "reference": "74904f61b49852b8d1189c5da487453fce94304d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "psr/clock": "^1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^12.1.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\Time\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Thesis Time",
+            "support": {
+                "issues": "https://github.com/thesis-php/time/issues",
+                "source": "https://github.com/thesis-php/time/tree/0.1.x"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-04-30T13:44:45+00:00"
+        },
+        {
+            "name": "typhoon/describe",
+            "version": "0.1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/describe.git",
+                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/describe/zipball/e09e2a9253254494d0e96c1949dc682d9fdb0583",
+                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^10.5.45",
+                "symfony/var-dumper": "^6.4.18 || ^7.2.3"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/describeReflectedDeclaration.php",
+                    "src/describeValueType.php",
+                    "src/describeReflectedType.php"
+                ],
+                "psr-4": {
+                    "Typhoon\\Describe\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Typhoon Team",
+                    "homepage": "https://github.com/orgs/typhoon-php/people"
+                }
+            ],
+            "description": "Typhoon Describe",
+            "support": {
+                "issues": "https://github.com/typhoon-php/describe/issues",
+                "source": "https://github.com/typhoon-php/describe/tree/0.1.x"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-03-12T15:46:05+00:00"
+        }
+    ],
+    "packages-dev": [
         {
             "name": "amphp/amp",
             "version": "v3.1.0",
@@ -446,6 +737,78 @@
             "time": "2025-03-16T16:33:53+00:00"
         },
         {
+            "name": "amphp/postgres",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/postgres.git",
+                "reference": "c62555c6497782399a166f15c8da8e64be456141"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/postgres/zipball/c62555c6497782399a166f15c8da8e64be456141",
+                "reference": "c62555c6497782399a166f15c8da8e64be456141",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/pipeline": "^1",
+                "amphp/sql": "^2",
+                "amphp/sql-common": "^2",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "ext-pgsql": "*",
+                "ext-pq": "*",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php",
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Amp\\Postgres\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Asynchronous PostgreSQL client for Amp.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "pgsql",
+                "postgre",
+                "postgresql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/postgres/issues",
+                "source": "https://github.com/amphp/postgres/tree/v2.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-21T04:45:08+00:00"
+        },
+        {
             "name": "amphp/process",
             "version": "v2.0.3",
             "source": {
@@ -656,6 +1019,116 @@
             "time": "2024-04-21T14:33:03+00:00"
         },
         {
+            "name": "amphp/sql",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/sql.git",
+                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/sql/zipball/2a7962dba23bf017bbdd3c3a0af0eb212481627b",
+                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Sql\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Asynchronous SQL client for Amp.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "sql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/sql/issues",
+                "source": "https://github.com/amphp/sql/tree/v2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-23T16:16:34+00:00"
+        },
+        {
+            "name": "amphp/sql-common",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/sql-common.git",
+                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/sql-common/zipball/069183d57f17f85c60842ea3a8ce5ff52dba5399",
+                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "amphp/sql": "^2",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "amphp/php-cs-fixer-config": "^2",
+                "amphp/phpunit-util": "^3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "5.23"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Sql\\Common\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Common classes for non-blocking SQL implementations.",
+            "homepage": "https://amphp.org",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "database",
+                "db",
+                "sql"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/sql-common/issues",
+                "source": "https://github.com/amphp/sql-common/tree/v2.0.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-27T16:04:14+00:00"
+        },
+        {
             "name": "amphp/sync",
             "version": "v2.3.0",
             "source": {
@@ -729,6 +1202,63 @@
                 }
             ],
             "time": "2024-08-03T19:31:26+00:00"
+        },
+        {
+            "name": "bamarni/composer-bin-plugin",
+            "version": "1.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bamarni/composer-bin-plugin.git",
+                "reference": "92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bamarni/composer-bin-plugin/zipball/92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880",
+                "reference": "92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "php": "^7.2.5 || ^8.0"
+            },
+            "require-dev": {
+                "composer/composer": "^2.0",
+                "ext-json": "*",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpunit/phpunit": "^8.5 || ^9.5",
+                "symfony/console": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
+                "symfony/finder": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
+                "symfony/process": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Bamarni\\Composer\\Bin\\BamarniBinPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bamarni\\Composer\\Bin\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "No conflicts for your bin dependencies",
+            "keywords": [
+                "composer",
+                "conflict",
+                "dependency",
+                "executable",
+                "isolation",
+                "tool"
+            ],
+            "support": {
+                "issues": "https://github.com/bamarni/composer-bin-plugin/issues",
+                "source": "https://github.com/bamarni/composer-bin-plugin/tree/1.8.2"
+            },
+            "time": "2022-10-31T08:38:03+00:00"
         },
         {
             "name": "daverandom/libdns",
@@ -1007,1273 +1537,17 @@
             "time": "2024-12-08T08:18:47+00:00"
         },
         {
-            "name": "psr/clock",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/clock.git",
-                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
-                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.0 || ^8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Clock\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interface for reading the clock.",
-            "homepage": "https://github.com/php-fig/clock",
-            "keywords": [
-                "clock",
-                "now",
-                "psr",
-                "psr-20",
-                "time"
-            ],
-            "support": {
-                "issues": "https://github.com/php-fig/clock/issues",
-                "source": "https://github.com/php-fig/clock/tree/1.0.0"
-            },
-            "time": "2022-11-25T14:36:26+00:00"
-        },
-        {
-            "name": "psr/container",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/container.git",
-                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
-                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Container\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common Container Interface (PHP FIG PSR-11)",
-            "homepage": "https://github.com/php-fig/container",
-            "keywords": [
-                "PSR-11",
-                "container",
-                "container-interface",
-                "container-interop",
-                "psr"
-            ],
-            "support": {
-                "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/2.0.2"
-            },
-            "time": "2021-11-05T16:47:00+00:00"
-        },
-        {
-            "name": "psr/http-factory",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/http-factory.git",
-                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
-                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1",
-                "psr/http-message": "^1.0 || ^2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Http\\Message\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
-            "keywords": [
-                "factory",
-                "http",
-                "message",
-                "psr",
-                "psr-17",
-                "psr-7",
-                "request",
-                "response"
-            ],
-            "support": {
-                "source": "https://github.com/php-fig/http-factory"
-            },
-            "time": "2024-04-15T12:06:14+00:00"
-        },
-        {
-            "name": "psr/http-message",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/http-message.git",
-                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-message/zipball/402d35bcb92c70c026d1a6a9883f06b2ead23d71",
-                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2 || ^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Http\\Message\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interface for HTTP messages",
-            "homepage": "https://github.com/php-fig/http-message",
-            "keywords": [
-                "http",
-                "http-message",
-                "psr",
-                "psr-7",
-                "request",
-                "response"
-            ],
-            "support": {
-                "source": "https://github.com/php-fig/http-message/tree/2.0"
-            },
-            "time": "2023-04-04T09:54:51+00:00"
-        },
-        {
-            "name": "psr/log",
-            "version": "3.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/log.git",
-                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
-                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.0.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\Log\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interface for logging libraries",
-            "homepage": "https://github.com/php-fig/log",
-            "keywords": [
-                "log",
-                "psr",
-                "psr-3"
-            ],
-            "support": {
-                "source": "https://github.com/php-fig/log/tree/3.0.2"
-            },
-            "time": "2024-09-11T13:17:53+00:00"
-        },
-        {
-            "name": "revolt/event-loop",
-            "version": "v1.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/revoltphp/event-loop.git",
-                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/revoltphp/event-loop/zipball/09bf1bf7f7f574453efe43044b06fafe12216eb3",
-                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "ext-json": "*",
-                "jetbrains/phpstorm-stubs": "^2019.3",
-                "phpunit/phpunit": "^9",
-                "psalm/phar": "^5.15"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Revolt\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aaron Piotrowski",
-                    "email": "aaron@trowski.com"
-                },
-                {
-                    "name": "Cees-Jan Kiewiet",
-                    "email": "ceesjank@gmail.com"
-                },
-                {
-                    "name": "Christian Lück",
-                    "email": "christian@clue.engineering"
-                },
-                {
-                    "name": "Niklas Keller",
-                    "email": "me@kelunik.com"
-                }
-            ],
-            "description": "Rock-solid event loop for concurrent PHP applications.",
-            "keywords": [
-                "async",
-                "asynchronous",
-                "concurrency",
-                "event",
-                "event-loop",
-                "non-blocking",
-                "scheduler"
-            ],
-            "support": {
-                "issues": "https://github.com/revoltphp/event-loop/issues",
-                "source": "https://github.com/revoltphp/event-loop/tree/v1.0.7"
-            },
-            "time": "2025-01-25T19:27:39+00:00"
-        },
-        {
-            "name": "thesis/amp-bridge",
-            "version": "0.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/amp-bridge.git",
-                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/amp-bridge/zipball/46cd975538dd77aaa583aeea3461450d33cc757d",
-                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/socket": "^2.3",
-                "php": "^8.3",
-                "thesis/byte-reader": "^0.3.1",
-                "thesis/byte-writer": "^0.2.2"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\AmpBridge\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Reader/Writer bridge to amphp/socket.",
-            "support": {
-                "issues": "https://github.com/thesisphp/amp-bridge/issues",
-                "source": "https://github.com/thesisphp/amp-bridge/tree/0.1.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-23T13:09:28+00:00"
-        },
-        {
-            "name": "thesis/amqp",
-            "version": "0.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/amqp.git",
-                "reference": "657ee28afa6d5c614eaea890abc5ebbe473f8703"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/amqp/zipball/657ee28afa6d5c614eaea890abc5ebbe473f8703",
-                "reference": "657ee28afa6d5c614eaea890abc5ebbe473f8703",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "^3.0",
-                "amphp/pipeline": "^1.2",
-                "amphp/socket": "^2.3",
-                "ext-filter": "*",
-                "php": "^8.3",
-                "revolt/event-loop": "^1.0",
-                "thesis/amp-bridge": "^0.1.0",
-                "thesis/byte-buffer": "^0.1.0",
-                "thesis/byte-order": "^0.2.0",
-                "thesis/byte-reader": "^0.3.1",
-                "thesis/byte-reader-writer": "^0.1.0",
-                "thesis/byte-writer": "^0.2.1",
-                "thesis/endian": "^0.1.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8",
-                "ergebnis/composer-normalize": "^2.45",
-                "phpunit/phpunit": "^11.5",
-                "symfony/var-dumper": "^7.2"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Internal/functions.php"
-                ],
-                "psr-4": {
-                    "Thesis\\Amqp\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Async (fiber based) client for AMQP 0.9.1",
-            "support": {
-                "issues": "https://github.com/thesisphp/amqp/issues",
-                "source": "https://github.com/thesisphp/amqp/tree/0.3.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-04-14T05:03:10+00:00"
-        },
-        {
-            "name": "thesis/byte-buffer",
-            "version": "0.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/byte-buffer.git",
-                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/byte-buffer/zipball/91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
-                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3",
-                "thesis/byte-reader": "^0.3.1",
-                "thesis/byte-writer": "^0.2.2"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0",
-                "phpunit/phpunit": "^10.5.40"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\ByteBuffer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "The library implements buffered I/O.",
-            "support": {
-                "issues": "https://github.com/thesisphp/byte-buffer/issues",
-                "source": "https://github.com/thesisphp/byte-buffer/tree/0.1.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-23T13:03:35+00:00"
-        },
-        {
-            "name": "thesis/byte-order",
-            "version": "0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/byte-order.git",
-                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/byte-order/zipball/b46a10d17c5986636a942a676648ed6b5066ed50",
-                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3",
-                "thesis/byte-reader": "^0.3.1",
-                "thesis/byte-writer": "^0.2.2",
-                "thesis/endian": "^0.1.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\ByteOrder\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "The library adds methods for reading bytes in any byte order to Reader and Writer.",
-            "support": {
-                "issues": "https://github.com/thesisphp/byte-order/issues",
-                "source": "https://github.com/thesisphp/byte-order/tree/0.2.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-23T13:14:08+00:00"
-        },
-        {
-            "name": "thesis/byte-reader",
-            "version": "0.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/byte-reader.git",
-                "reference": "95bf6b52017726a98d348919f60795d656690ee9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/byte-reader/zipball/95bf6b52017726a98d348919f60795d656690ee9",
-                "reference": "95bf6b52017726a98d348919f60795d656690ee9",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\ByteReader\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Reader abstraction for I/O.",
-            "support": {
-                "issues": "https://github.com/thesisphp/byte-reader/issues",
-                "source": "https://github.com/thesisphp/byte-reader/tree/0.3.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-16T15:56:41+00:00"
-        },
-        {
-            "name": "thesis/byte-reader-writer",
-            "version": "0.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/byte-reader-writer.git",
-                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/byte-reader-writer/zipball/9effcc645fefed37e83fee20cc63eeeea03ee520",
-                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3",
-                "thesis/byte-order": "^0.2.0",
-                "thesis/byte-reader": "^0.3.1",
-                "thesis/byte-writer": "^0.2.2",
-                "thesis/endian": "^0.1.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0",
-                "phpunit/phpunit": "^10.5.40"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\ByteReaderWriter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "An implementation for thesis/byte-order.",
-            "support": {
-                "issues": "https://github.com/thesisphp/byte-reader-writer/issues",
-                "source": "https://github.com/thesisphp/byte-reader-writer/tree/0.1.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-23T13:00:21+00:00"
-        },
-        {
-            "name": "thesis/byte-writer",
-            "version": "0.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/byte-writer.git",
-                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/byte-writer/zipball/5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
-                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\ByteWriter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Writer abstraction for I/O.",
-            "support": {
-                "issues": "https://github.com/thesisphp/byte-writer/issues",
-                "source": "https://github.com/thesisphp/byte-writer/tree/0.2.2"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-23T12:55:08+00:00"
-        },
-        {
-            "name": "thesis/endian",
-            "version": "0.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/endian.git",
-                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/endian/zipball/a7d22f427dec33eae32383bbe63f379d1c1db64f",
-                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "ergebnis/composer-normalize": "^2.45.0",
-                "phpunit/phpunit": "^10.5.40"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Internal/functions.php"
-                ],
-                "psr-4": {
-                    "Thesis\\Endian\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "kafkiansky",
-                    "email": "vadimzanfir@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Library for encoding and decoding numbers in either big-endian or little-endian order.",
-            "support": {
-                "issues": "https://github.com/thesisphp/endian/issues",
-                "source": "https://github.com/thesisphp/endian/tree/0.1.0"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-01-15T04:45:11+00:00"
-        },
-        {
-            "name": "thesis/message",
-            "version": "0.2.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/message.git",
-                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/message/zipball/3859eb3094cd814989b4fd592eb73b2d237d7bdb",
-                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\Message\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Thesis Message",
-            "support": {
-                "issues": "https://github.com/thesisphp/message/issues",
-                "source": "https://github.com/thesisphp/message/tree/0.2.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-04-05T12:22:22+00:00"
-        },
-        {
-            "name": "typhoon/describe",
-            "version": "0.1.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/typhoon-php/describe.git",
-                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/describe/zipball/e09e2a9253254494d0e96c1949dc682d9fdb0583",
-                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^10.5.45",
-                "symfony/var-dumper": "^6.4.18 || ^7.2.3"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/describeReflectedDeclaration.php",
-                    "src/describeValueType.php",
-                    "src/describeReflectedType.php"
-                ],
-                "psr-4": {
-                    "Typhoon\\Describe\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Typhoon Team",
-                    "homepage": "https://github.com/orgs/typhoon-php/people"
-                }
-            ],
-            "description": "Typhoon Describe",
-            "support": {
-                "issues": "https://github.com/typhoon-php/describe/issues",
-                "source": "https://github.com/typhoon-php/describe/tree/0.1.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-03-12T15:46:05+00:00"
-        }
-    ],
-    "packages-dev": [
-        {
-            "name": "amphp/postgres",
-            "version": "v2.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/postgres.git",
-                "reference": "c62555c6497782399a166f15c8da8e64be456141"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/postgres/zipball/c62555c6497782399a166f15c8da8e64be456141",
-                "reference": "c62555c6497782399a166f15c8da8e64be456141",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "^3",
-                "amphp/pipeline": "^1",
-                "amphp/sql": "^2",
-                "amphp/sql-common": "^2",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "amphp/php-cs-fixer-config": "^2",
-                "amphp/phpunit-util": "^3",
-                "ext-pgsql": "*",
-                "ext-pq": "*",
-                "phpunit/phpunit": "^9",
-                "psalm/phar": "5.23"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/functions.php",
-                    "src/Internal/functions.php"
-                ],
-                "psr-4": {
-                    "Amp\\Postgres\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aaron Piotrowski",
-                    "email": "aaron@trowski.com"
-                }
-            ],
-            "description": "Asynchronous PostgreSQL client for Amp.",
-            "homepage": "https://amphp.org",
-            "keywords": [
-                "async",
-                "asynchronous",
-                "database",
-                "db",
-                "pgsql",
-                "postgre",
-                "postgresql"
-            ],
-            "support": {
-                "issues": "https://github.com/amphp/postgres/issues",
-                "source": "https://github.com/amphp/postgres/tree/v2.1.1"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/amphp",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-11-21T04:45:08+00:00"
-        },
-        {
-            "name": "amphp/sql",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/sql.git",
-                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/sql/zipball/2a7962dba23bf017bbdd3c3a0af0eb212481627b",
-                "reference": "2a7962dba23bf017bbdd3c3a0af0eb212481627b",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "^3",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "amphp/php-cs-fixer-config": "^2",
-                "phpunit/phpunit": "^9",
-                "psalm/phar": "5.23"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Amp\\Sql\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Asynchronous SQL client for Amp.",
-            "homepage": "https://amphp.org",
-            "keywords": [
-                "async",
-                "asynchronous",
-                "database",
-                "db",
-                "sql"
-            ],
-            "support": {
-                "issues": "https://github.com/amphp/sql/issues",
-                "source": "https://github.com/amphp/sql/tree/v2.0.1"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/amphp",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-11-23T16:16:34+00:00"
-        },
-        {
-            "name": "amphp/sql-common",
-            "version": "v2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/sql-common.git",
-                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/sql-common/zipball/069183d57f17f85c60842ea3a8ce5ff52dba5399",
-                "reference": "069183d57f17f85c60842ea3a8ce5ff52dba5399",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "^3",
-                "amphp/sql": "^2",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "amphp/php-cs-fixer-config": "^2",
-                "amphp/phpunit-util": "^3",
-                "phpunit/phpunit": "^9",
-                "psalm/phar": "5.23"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Amp\\Sql\\Common\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Common classes for non-blocking SQL implementations.",
-            "homepage": "https://amphp.org",
-            "keywords": [
-                "async",
-                "asynchronous",
-                "database",
-                "db",
-                "sql"
-            ],
-            "support": {
-                "issues": "https://github.com/amphp/sql-common/issues",
-                "source": "https://github.com/amphp/sql-common/tree/v2.0.2"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/amphp",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-10-27T16:04:14+00:00"
-        },
-        {
-            "name": "bamarni/composer-bin-plugin",
-            "version": "1.8.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bamarni/composer-bin-plugin.git",
-                "reference": "92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bamarni/composer-bin-plugin/zipball/92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880",
-                "reference": "92fd7b1e6e9cdae19b0d57369d8ad31a37b6a880",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^2.0",
-                "php": "^7.2.5 || ^8.0"
-            },
-            "require-dev": {
-                "composer/composer": "^2.0",
-                "ext-json": "*",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan": "^1.8",
-                "phpstan/phpstan-phpunit": "^1.1",
-                "phpunit/phpunit": "^8.5 || ^9.5",
-                "symfony/console": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
-                "symfony/finder": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
-                "symfony/process": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Bamarni\\Composer\\Bin\\BamarniBinPlugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Bamarni\\Composer\\Bin\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "No conflicts for your bin dependencies",
-            "keywords": [
-                "composer",
-                "conflict",
-                "dependency",
-                "executable",
-                "isolation",
-                "tool"
-            ],
-            "support": {
-                "issues": "https://github.com/bamarni/composer-bin-plugin/issues",
-                "source": "https://github.com/bamarni/composer-bin-plugin/tree/1.8.2"
-            },
-            "time": "2022-10-31T08:38:03+00:00"
-        },
-        {
             "name": "myclabs/deep-copy",
-            "version": "1.13.0",
+            "version": "1.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414"
+                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/024473a478be9df5fdaca2c793f2232fe788e414",
-                "reference": "024473a478be9df5fdaca2c793f2232fe788e414",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/1720ddd719e16cf0db4eb1c6eca108031636d46c",
+                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c",
                 "shasum": ""
             },
             "require": {
@@ -2312,7 +1586,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.0"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.1"
             },
             "funding": [
                 {
@@ -2320,7 +1594,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-02-12T12:17:51+00:00"
+            "time": "2025-04-29T12:36:36+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2500,16 +1774,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.1.2",
+            "version": "12.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "05c33d01a856f9f62488d144bafddc3d7b7a4ebb"
+                "reference": "448f2c504d86dbff3949dcd02c95aa85db2c7617"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/05c33d01a856f9f62488d144bafddc3d7b7a4ebb",
-                "reference": "05c33d01a856f9f62488d144bafddc3d7b7a4ebb",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/448f2c504d86dbff3949dcd02c95aa85db2c7617",
+                "reference": "448f2c504d86dbff3949dcd02c95aa85db2c7617",
                 "shasum": ""
             },
             "require": {
@@ -2527,7 +1801,7 @@
                 "theseer/tokenizer": "^1.2.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.0"
+                "phpunit/phpunit": "^12.1"
             },
             "suggest": {
                 "ext-pcov": "PHP extension that provides line coverage",
@@ -2536,7 +1810,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "12.1.x-dev"
+                    "dev-main": "12.2.x-dev"
                 }
             },
             "autoload": {
@@ -2565,15 +1839,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.1.2"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.2.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/phpunit/php-code-coverage",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-04-03T14:34:39+00:00"
+            "time": "2025-05-04T05:25:05+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2822,16 +2108,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.1.0",
+            "version": "12.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c433e7972440e1370a26879bb54c359f8898aa3a"
+                "reference": "5ee57ad690bda2c487594577600931a99053436c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c433e7972440e1370a26879bb54c359f8898aa3a",
-                "reference": "c433e7972440e1370a26879bb54c359f8898aa3a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5ee57ad690bda2c487594577600931a99053436c",
+                "reference": "5ee57ad690bda2c487594577600931a99053436c",
                 "shasum": ""
             },
             "require": {
@@ -2841,7 +2127,7 @@
                 "ext-mbstring": "*",
                 "ext-xml": "*",
                 "ext-xmlwriter": "*",
-                "myclabs/deep-copy": "^1.13.0",
+                "myclabs/deep-copy": "^1.13.1",
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
@@ -2899,7 +2185,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.1.0"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.1.4"
             },
             "funding": [
                 {
@@ -2911,11 +2197,199 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/phpunit/phpunit",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-04T04:10:58+00:00"
+            "time": "2025-05-02T07:01:56+00:00"
+        },
+        {
+            "name": "psr/http-factory",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-factory.git",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "psr/http-message": "^1.0 || ^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "psr",
+                "psr-17",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/http-factory"
+            },
+            "time": "2024-04-15T12:06:14+00:00"
+        },
+        {
+            "name": "psr/http-message",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-message.git",
+                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/402d35bcb92c70c026d1a6a9883f06b2ead23d71",
+                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP messages",
+            "homepage": "https://github.com/php-fig/http-message",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/http-message/tree/2.0"
+            },
+            "time": "2023-04-04T09:54:51+00:00"
+        },
+        {
+            "name": "revolt/event-loop",
+            "version": "v1.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/revoltphp/event-loop.git",
+                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/revoltphp/event-loop/zipball/09bf1bf7f7f574453efe43044b06fafe12216eb3",
+                "reference": "09bf1bf7f7f574453efe43044b06fafe12216eb3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "jetbrains/phpstorm-stubs": "^2019.3",
+                "phpunit/phpunit": "^9",
+                "psalm/phar": "^5.15"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Revolt\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                },
+                {
+                    "name": "Cees-Jan Kiewiet",
+                    "email": "ceesjank@gmail.com"
+                },
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@clue.engineering"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Rock-solid event loop for concurrent PHP applications.",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "concurrency",
+                "event",
+                "event-loop",
+                "non-blocking",
+                "scheduler"
+            ],
+            "support": {
+                "issues": "https://github.com/revoltphp/event-loop/issues",
+                "source": "https://github.com/revoltphp/event-loop/tree/v1.0.7"
+            },
+            "time": "2025-01-25T19:27:39+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -3784,19 +3258,20 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.31.0",
+            "version": "v1.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341"
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/85181ba99b2345b0ef10ce42ecac37612d9fd341",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/6d857f4d76bd4b343eac26d6b539585d2bc56493",
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493",
                 "shasum": ""
             },
             "require": {
+                "ext-iconv": "*",
                 "php": ">=7.2"
             },
             "provide": {
@@ -3844,7 +3319,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.31.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.32.0"
             },
             "funding": [
                 {
@@ -3860,20 +3335,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T11:45:10+00:00"
+            "time": "2024-12-23T08:48:59+00:00"
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v7.2.3",
+            "version": "v7.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "82b478c69745d8878eb60f9a049a4d584996f73a"
+                "reference": "9c46038cd4ed68952166cf7001b54eb539184ccb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/82b478c69745d8878eb60f9a049a4d584996f73a",
-                "reference": "82b478c69745d8878eb60f9a049a4d584996f73a",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/9c46038cd4ed68952166cf7001b54eb539184ccb",
+                "reference": "9c46038cd4ed68952166cf7001b54eb539184ccb",
                 "shasum": ""
             },
             "require": {
@@ -3927,7 +3402,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v7.2.3"
+                "source": "https://github.com/symfony/var-dumper/tree/v7.2.6"
             },
             "funding": [
                 {
@@ -3943,7 +3418,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-17T11:39:41+00:00"
+            "time": "2025-04-09T08:14:01+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -3994,24 +3469,649 @@
                 }
             ],
             "time": "2024-03-03T12:36:25+00:00"
+        },
+        {
+            "name": "thesis/amp-bridge",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/amp-bridge.git",
+                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/amp-bridge/zipball/46cd975538dd77aaa583aeea3461450d33cc757d",
+                "reference": "46cd975538dd77aaa583aeea3461450d33cc757d",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/socket": "^2.3",
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\AmpBridge\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Reader/Writer bridge to amphp/socket.",
+            "support": {
+                "issues": "https://github.com/thesisphp/amp-bridge/issues",
+                "source": "https://github.com/thesisphp/amp-bridge/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:09:28+00:00"
+        },
+        {
+            "name": "thesis/amqp",
+            "version": "0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/amqp.git",
+                "reference": "657ee28afa6d5c614eaea890abc5ebbe473f8703"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/amqp/zipball/657ee28afa6d5c614eaea890abc5ebbe473f8703",
+                "reference": "657ee28afa6d5c614eaea890abc5ebbe473f8703",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3.0",
+                "amphp/pipeline": "^1.2",
+                "amphp/socket": "^2.3",
+                "ext-filter": "*",
+                "php": "^8.3",
+                "revolt/event-loop": "^1.0",
+                "thesis/amp-bridge": "^0.1.0",
+                "thesis/byte-buffer": "^0.1.0",
+                "thesis/byte-order": "^0.2.0",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-reader-writer": "^0.1.0",
+                "thesis/byte-writer": "^0.2.1",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8",
+                "ergebnis/composer-normalize": "^2.45",
+                "phpunit/phpunit": "^11.5",
+                "symfony/var-dumper": "^7.2"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Thesis\\Amqp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Async (fiber based) client for AMQP 0.9.1",
+            "support": {
+                "issues": "https://github.com/thesis-php/amqp/issues",
+                "source": "https://github.com/thesis-php/amqp/tree/0.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-04-14T05:03:10+00:00"
+        },
+        {
+            "name": "thesis/byte-buffer",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-buffer.git",
+                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-buffer/zipball/91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
+                "reference": "91dd3e6a147e638d422f5223ff5a93c5bc6a3992",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteBuffer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "The library implements buffered I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-buffer/issues",
+                "source": "https://github.com/thesisphp/byte-buffer/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:03:35+00:00"
+        },
+        {
+            "name": "thesis/byte-order",
+            "version": "0.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-order.git",
+                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-order/zipball/b46a10d17c5986636a942a676648ed6b5066ed50",
+                "reference": "b46a10d17c5986636a942a676648ed6b5066ed50",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteOrder\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "The library adds methods for reading bytes in any byte order to Reader and Writer.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-order/issues",
+                "source": "https://github.com/thesisphp/byte-order/tree/0.2.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:14:08+00:00"
+        },
+        {
+            "name": "thesis/byte-reader",
+            "version": "0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-reader.git",
+                "reference": "95bf6b52017726a98d348919f60795d656690ee9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-reader/zipball/95bf6b52017726a98d348919f60795d656690ee9",
+                "reference": "95bf6b52017726a98d348919f60795d656690ee9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteReader\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Reader abstraction for I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-reader/issues",
+                "source": "https://github.com/thesisphp/byte-reader/tree/0.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-16T15:56:41+00:00"
+        },
+        {
+            "name": "thesis/byte-reader-writer",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-reader-writer.git",
+                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-reader-writer/zipball/9effcc645fefed37e83fee20cc63eeeea03ee520",
+                "reference": "9effcc645fefed37e83fee20cc63eeeea03ee520",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3",
+                "thesis/byte-order": "^0.2.0",
+                "thesis/byte-reader": "^0.3.1",
+                "thesis/byte-writer": "^0.2.2",
+                "thesis/endian": "^0.1.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteReaderWriter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "An implementation for thesis/byte-order.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-reader-writer/issues",
+                "source": "https://github.com/thesisphp/byte-reader-writer/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T13:00:21+00:00"
+        },
+        {
+            "name": "thesis/byte-writer",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/byte-writer.git",
+                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/byte-writer/zipball/5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
+                "reference": "5f02ce4e3a7e5ce7daeb947cd202fb9420e18a84",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\ByteWriter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Writer abstraction for I/O.",
+            "support": {
+                "issues": "https://github.com/thesisphp/byte-writer/issues",
+                "source": "https://github.com/thesisphp/byte-writer/tree/0.2.2"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-23T12:55:08+00:00"
+        },
+        {
+            "name": "thesis/endian",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesisphp/endian.git",
+                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesisphp/endian/zipball/a7d22f427dec33eae32383bbe63f379d1c1db64f",
+                "reference": "a7d22f427dec33eae32383bbe63f379d1c1db64f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "ergebnis/composer-normalize": "^2.45.0",
+                "phpunit/phpunit": "^10.5.40"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Internal/functions.php"
+                ],
+                "psr-4": {
+                    "Thesis\\Endian\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "kafkiansky",
+                    "email": "vadimzanfir@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesisphp/people"
+                }
+            ],
+            "description": "Library for encoding and decoding numbers in either big-endian or little-endian order.",
+            "support": {
+                "issues": "https://github.com/thesisphp/endian/issues",
+                "source": "https://github.com/thesisphp/endian/tree/0.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-01-15T04:45:11+00:00"
+        },
+        {
+            "name": "thesis/message-bus-transport-amqp",
+            "version": "0.1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/message-bus-transport-amqp.git",
+                "reference": "580a3dd574f2854e19b9dfa0c065c9f112e315b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/580a3dd574f2854e19b9dfa0c065c9f112e315b2",
+                "reference": "580a3dd574f2854e19b9dfa0c065c9f112e315b2",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3",
+                "php": "^8.4",
+                "thesis/amqp": "^0.3",
+                "thesis/message-bus": "^0.3@dev",
+                "thesis/time": "^0.1@dev",
+                "typhoon/describe": "^0.1@dev"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^12.1.4",
+                "symfony/var-dumper": "^6.4.15 || ^7.2.6"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\MessageBus\\Transport\\Amqp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesis-php/people"
+                }
+            ],
+            "description": "Amqp transport for thesis/message-bus",
+            "support": {
+                "issues": "https://github.com/thesis-php/message-bus-transport-amqp/issues",
+                "source": "https://github.com/thesis-php/message-bus-transport-amqp/tree/0.1.x"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-05-06T01:40:51+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "thesis/message": 20,
+        "thesis/message-bus-transport-amqp": 20,
+        "thesis/time": 20,
         "typhoon/describe": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.3"
+        "php": "^8.4"
     },
     "platform-dev": {
+        "ext-pcntl": "*",
         "ext-pdo": "*"
     },
     "platform-overrides": {
-        "php": "8.3"
+        "php": "8.4.4"
     },
     "plugin-api-version": "2.6.0"
 }

@@ -10,32 +10,31 @@
         },
         {
             "name": "Thesis Team",
-            "homepage": "https://github.com/orgs/thesisphp/people"
+            "homepage": "https://github.com/orgs/thesis-php/people"
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "psr/clock": "^1.0",
-        "psr/container": "^2.0",
         "psr/log": "^3",
-        "thesis/amqp": "^0.3.1",
-        "thesis/message": "^0.2@dev",
+        "thesis/message": "^0.2.1",
+        "thesis/time": "^0.1@dev",
         "typhoon/describe": "^0.1@dev"
     },
     "require-dev": {
+        "ext-pcntl": "*",
         "ext-pdo": "*",
         "amphp/postgres": "^2.1.1",
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^12.1.0",
-        "symfony/var-dumper": "^6.4.15 || ^7.2.3"
+        "phpunit/phpunit": "^12.1.4",
+        "symfony/var-dumper": "^6.4.15 || ^7.2.6",
+        "thesis/amqp": "^0.3.1",
+        "thesis/message-bus-transport-amqp": "^0.1@dev"
     },
     "autoload": {
         "psr-4": {
             "Thesis\\MessageBus\\": "src/"
-        },
-        "files": [
-            "src/Internal/firstFunctionAttribute.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
@@ -48,7 +47,7 @@
         },
         "bump-after-update": "dev",
         "platform": {
-            "php": "8.3"
+            "php": "8.4.4"
         },
         "sort-packages": true
     },
@@ -60,14 +59,14 @@
         }
     },
     "scripts": {
-        "check-require": "tools/composer-require-checker/vendor/bin/composer-require-checker",
-        "check-unused": "tools/composer-unused/vendor/bin/composer-unused",
-        "fixcs": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --diff --verbose",
+        "analyse-deps": "tools/composer-dependency-analyser/vendor/bin/composer-dependency-analyser",
+        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --diff --verbose",
         "infection": "tools/infection/vendor/bin/infection --show-mutations",
         "normalize": "@composer bin composer-normalize normalize --diff ../../composer.json",
         "phpstan": "tools/phpstan/vendor/bin/phpstan analyze",
         "pre-command-run": "mkdir -p var",
         "psalm": "tools/psalm/vendor/bin/psalm --show-info --no-diff --no-cache",
+        "rector": "tools/rector/vendor/bin/rector process",
         "test": "phpunit"
     }
 }

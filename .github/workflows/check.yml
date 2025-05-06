@@ -5,7 +5,8 @@ on:
 
 jobs:
   check:
-    uses: thesisphp/.github/.github/workflows/check.yml@main
+    uses: thesis-php/.github/.github/workflows/check.yml@main
     secrets: inherit
     with:
-      psalm: true
+      php_versions: '["8.4"]'
+      infection: false
