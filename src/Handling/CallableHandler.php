@@ -7,7 +7,7 @@ namespace Thesis\MessageBus\Handling;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Persistence\Transaction;
-use function Typhoon\Describe\describeReflectedDeclaration;
+use function Typhoon\Formatter\formatFunction;
 
 /**
  * @api
@@ -30,7 +30,7 @@ final readonly class CallableHandler implements Handler
         private mixed $handler,
         ?string $id = null,
     ) {
-        $this->id = $id ?? describeReflectedDeclaration(new \ReflectionFunction($handler(...)));
+        $this->id = $id ?? formatFunction($handler);
     }
 
     public function handle(Envelope $envelope, HandlingContext $context): void

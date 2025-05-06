@@ -19,7 +19,8 @@
         "psr/log": "^3",
         "thesis/message": "^0.2.1",
         "thesis/time": "^0.1@dev",
-        "typhoon/describe": "^0.1@dev"
+        "typhoon/describe": "^0.1@dev",
+        "typhoon/formatter": "^0.1@dev"
     },
     "require-dev": {
         "ext-pcntl": "*",
@@ -28,7 +29,7 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "phpunit/phpunit": "^12.1.4",
         "symfony/var-dumper": "^6.4.15 || ^7.2.6",
-        "thesis/amqp": "^0.3.1",
+        "thesis/amqp": "^0.3@dev",
         "thesis/message-bus-transport-amqp": "^0.1@dev"
     },
     "autoload": {
