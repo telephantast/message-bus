@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "18a58ab9d9e5cefda333db8483186e55",
+    "content-hash": "7e07a102e4947581a5b8785ae8c3e1a2",
     "packages": [
         {
             "name": "psr/clock",
@@ -226,74 +226,6 @@
                 }
             ],
             "time": "2025-05-06T02:34:22+00:00"
-        },
-        {
-            "name": "typhoon/describe",
-            "version": "0.1.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/typhoon-php/describe.git",
-                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/describe/zipball/e09e2a9253254494d0e96c1949dc682d9fdb0583",
-                "reference": "e09e2a9253254494d0e96c1949dc682d9fdb0583",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^10.5.45",
-                "symfony/var-dumper": "^6.4.18 || ^7.2.3"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/describeReflectedDeclaration.php",
-                    "src/describeValueType.php",
-                    "src/describeReflectedType.php"
-                ],
-                "psr-4": {
-                    "Typhoon\\Describe\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Typhoon Team",
-                    "homepage": "https://github.com/orgs/typhoon-php/people"
-                }
-            ],
-            "description": "Typhoon Describe",
-            "support": {
-                "issues": "https://github.com/typhoon-php/describe/issues",
-                "source": "https://github.com/typhoon-php/describe/tree/0.1.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-03-12T15:46:05+00:00"
         },
         {
             "name": "typhoon/formatter",
@@ -3608,16 +3540,16 @@
         },
         {
             "name": "thesis/amqp",
-            "version": "0.3.x-dev",
+            "version": "0.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/amqp.git",
-                "reference": "169dfa6971de27ca8b1d08f482a1882d16f58c2a"
+                "reference": "28016cc8e3fda3da6d73869dc52e083e2b395840"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/amqp/zipball/169dfa6971de27ca8b1d08f482a1882d16f58c2a",
-                "reference": "169dfa6971de27ca8b1d08f482a1882d16f58c2a",
+                "url": "https://api.github.com/repos/thesis-php/amqp/zipball/28016cc8e3fda3da6d73869dc52e083e2b395840",
+                "reference": "28016cc8e3fda3da6d73869dc52e083e2b395840",
                 "shasum": ""
             },
             "require": {
@@ -3678,7 +3610,7 @@
             "description": "Async (fiber based) client for AMQP 0.9.1",
             "support": {
                 "issues": "https://github.com/thesis-php/amqp/issues",
-                "source": "https://github.com/thesis-php/amqp/tree/0.3.x"
+                "source": "https://github.com/thesis-php/amqp/tree/0.4.x"
             },
             "funding": [
                 {
@@ -3686,7 +3618,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T11:48:01+00:00"
+            "time": "2025-05-06T16:01:14+00:00"
         },
         {
             "name": "thesis/byte-buffer",
@@ -4099,26 +4031,28 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message-bus-transport-amqp.git",
-                "reference": "391b96372ec6e45c91cd56117a5a60a7ebd9496a"
+                "reference": "b5f7665f8c1d4144c8167b51cb8add9e3e866923"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/391b96372ec6e45c91cd56117a5a60a7ebd9496a",
-                "reference": "391b96372ec6e45c91cd56117a5a60a7ebd9496a",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/b5f7665f8c1d4144c8167b51cb8add9e3e866923",
+                "reference": "b5f7665f8c1d4144c8167b51cb8add9e3e866923",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^3",
                 "php": "^8.4",
-                "thesis/amqp": "^0.3@dev",
+                "thesis/amqp": "^0.4@dev",
+                "thesis/message": "^0.2.1",
                 "thesis/message-bus": "^0.3@dev",
-                "thesis/time": "^0.1@dev",
-                "typhoon/describe": "^0.1@dev"
+                "thesis/time": "^0.1@dev"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "phpunit/phpunit": "^12.1.4",
-                "symfony/var-dumper": "^6.4.15 || ^7.2.6"
+                "symfony/var-dumper": "^6.4.15 || ^7.2.6",
+                "typhoon/describe": "^0.1@dev",
+                "typhoon/formatter": "^0.1@dev"
             },
             "default-branch": true,
             "type": "library",
@@ -4159,7 +4093,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T12:51:59+00:00"
+            "time": "2025-05-06T22:54:32+00:00"
         }
     ],
     "aliases": [],
@@ -4168,7 +4102,6 @@
         "thesis/amqp": 20,
         "thesis/message-bus-transport-amqp": 20,
         "thesis/time": 20,
-        "typhoon/describe": 20,
         "typhoon/formatter": 20
     },
     "prefer-stable": false,
