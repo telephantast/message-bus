@@ -22,7 +22,7 @@ $endpoint = new Endpoint(
     name: 'receiver',
     storage: new PostgresStorage(
         connection: new PostgresConnectionPool(
-            PostgresConfig::fromString('host=localhost user=app password=!ChangeMe! db=app'),
+            PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
         ),
     ),
     transport: new AmqpTransport(Config::default()),

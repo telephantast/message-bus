@@ -13,7 +13,6 @@ use Thesis\MessageBus\Handling\CallableHandler;
 use Thesis\MessageBus\Handling\HandlingContext;
 use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 use Thesis\MessageBus\Transport\Amqp\AmqpTransport;
-use function Amp\async;
 use function Amp\trapSignal;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -23,7 +22,7 @@ $endpoint = new Endpoint(
     name: 'sender',
     storage: new PostgresStorage(
         connection: new PostgresConnectionPool(
-            PostgresConfig::fromString('host=localhost user=app password=!ChangeMe! db=app'),
+            PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
         ),
     ),
     transport: new AmqpTransport(Config::default()),
@@ -44,9 +43,14 @@ $callbackId = EventLoop::onReadable(STDIN, static function () use ($endpoint): v
     assert($text !== false);
     $text = trim($text);
 
-    async(static fn(): null => $endpoint->dispatch(new Ping($text)));
+    try {
+        $endpoint->dispatch(new Ping($text));
+        echo sprintf('Message `%s` successfully sent.', $text), PHP_EOL;
+    } catch (Throwable $exception) {
+        dump($exception);
+    }
 
-    echo sprintf("Message `%s` sent.\nType a message and hit <Enter>: ", $text);
+    echo 'Type a message and hit <Enter>: ';
 });
 
 trapSignal([SIGINT, SIGTERM]);

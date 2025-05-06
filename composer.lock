@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e07a102e4947581a5b8785ae8c3e1a2",
+    "content-hash": "ad230b36bc7022b02d95032981e93f44",
     "packages": [
         {
             "name": "psr/clock",
@@ -4026,17 +4026,84 @@
             "time": "2025-01-15T04:45:11+00:00"
         },
         {
+            "name": "thesis/message-bus-persistence-postgres",
+            "version": "0.1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/message-bus-persistence-postgres.git",
+                "reference": "248ebcdd3156b14d019848040f186d803c99b346"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-persistence-postgres/zipball/248ebcdd3156b14d019848040f186d803c99b346",
+                "reference": "248ebcdd3156b14d019848040f186d803c99b346",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/postgres": "^2.1",
+                "amphp/sql": "^2.0",
+                "php": "^8.4",
+                "thesis/message-bus": "^0.3@dev"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^12.1.4",
+                "symfony/var-dumper": "^6.4.15 || ^7.2.6",
+                "typhoon/formatter": "^0.1@dev"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\MessageBus\\Persistence\\Postgres\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesis-php/people"
+                }
+            ],
+            "description": "Postgres Persistence for Thesis MessageBus",
+            "support": {
+                "issues": "https://github.com/thesis-php/message-bus-persistence-postgres/issues",
+                "source": "https://github.com/thesis-php/message-bus-persistence-postgres/tree/0.1.x"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-05-06T23:00:04+00:00"
+        },
+        {
             "name": "thesis/message-bus-transport-amqp",
             "version": "0.1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message-bus-transport-amqp.git",
-                "reference": "b5f7665f8c1d4144c8167b51cb8add9e3e866923"
+                "reference": "a3c36a746db2a53393fbbc5ab3d51457899c4b96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/b5f7665f8c1d4144c8167b51cb8add9e3e866923",
-                "reference": "b5f7665f8c1d4144c8167b51cb8add9e3e866923",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/a3c36a746db2a53393fbbc5ab3d51457899c4b96",
+                "reference": "a3c36a746db2a53393fbbc5ab3d51457899c4b96",
                 "shasum": ""
             },
             "require": {
@@ -4051,7 +4118,6 @@
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "phpunit/phpunit": "^12.1.4",
                 "symfony/var-dumper": "^6.4.15 || ^7.2.6",
-                "typhoon/describe": "^0.1@dev",
                 "typhoon/formatter": "^0.1@dev"
             },
             "default-branch": true,
@@ -4093,13 +4159,14 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T22:54:32+00:00"
+            "time": "2025-05-06T22:56:26+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "thesis/amqp": 20,
+        "thesis/message-bus-persistence-postgres": 20,
         "thesis/message-bus-transport-amqp": 20,
         "thesis/time": 20,
         "typhoon/formatter": 20

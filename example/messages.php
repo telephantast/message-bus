@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Thesis\MessageBus\Command;
-use Thesis\MessageBus\Event;
+use Thesis\Message\Command;
+use Thesis\Message\Event;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

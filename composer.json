@@ -29,6 +29,7 @@
         "phpunit/phpunit": "^12.1.4",
         "symfony/var-dumper": "^6.4.15 || ^7.2.6",
         "thesis/amqp": "^0.4@dev",
+        "thesis/message-bus-persistence-postgres": "^0.1@dev",
         "thesis/message-bus-transport-amqp": "^0.1@dev"
     },
     "autoload": {
