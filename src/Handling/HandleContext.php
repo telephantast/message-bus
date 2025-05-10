@@ -12,7 +12,7 @@ use Thesis\MessageBus\Persistence\Transaction;
  * @api
  * @template-covariant TTransaction of Transaction = Transaction
  */
-final class HandlingContext
+final class HandleContext
 {
     /**
      * @param non-empty-string $endpoint

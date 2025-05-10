@@ -18,7 +18,6 @@
         "psr/clock": "^1.0",
         "psr/log": "^3",
         "thesis/message": "^0.2.1",
-        "thesis/time": "^0.1@dev",
         "typhoon/formatter": "^0.1@dev"
     },
     "require-dev": {

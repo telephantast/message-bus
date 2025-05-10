@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Handling\Handler;
-use Thesis\MessageBus\Handling\HandlingContext;
 use Thesis\MessageBus\Persistence\Transaction;
 
 /**
@@ -22,9 +22,9 @@ final class Pipeline
      * @param Handler<TMethodMessage, TMethodTransaction> $handler
      * @param iterable<Middleware> $middleware
      * @param Envelope<TMethodMessage> $envelope
-     * @param HandlingContext<TMethodTransaction> $context
+     * @param HandleContext<TMethodTransaction> $context
      */
-    public static function handle(Handler $handler, iterable $middleware, Envelope $envelope, HandlingContext $context): void
+    public static function handle(Handler $handler, iterable $middleware, Envelope $envelope, HandleContext $context): void
     {
         if (\is_array($middleware)) {
             $middleware = new \ArrayIterator($middleware);
@@ -54,13 +54,13 @@ final class Pipeline
      * @param Handler<TMessage, TTransaction> $handler
      * @param \Iterator<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
-     * @param HandlingContext<TTransaction> $context
+     * @param HandleContext<TTransaction> $context
      */
     public function __construct(
         private readonly Handler $handler,
         private readonly \Iterator $middleware,
         private readonly Envelope $envelope,
-        private readonly HandlingContext $context,
+        private readonly HandleContext $context,
     ) {}
 
     /**

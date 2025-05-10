@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\Handling\HandlingContext;
+use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Persistence\Transaction;
 
 /**
@@ -17,8 +17,8 @@ interface Middleware
      * @template TMessage of Message
      * @template TTransaction of Transaction
      * @param Envelope<TMessage> $envelope
-     * @param HandlingContext<TTransaction> $context
+     * @param HandleContext<TTransaction> $context
      * @param Pipeline<TMessage, TTransaction> $pipeline
      */
-    public function handle(Envelope $envelope, HandlingContext $context, Pipeline $pipeline): void;
+    public function handle(Envelope $envelope, HandleContext $context, Pipeline $pipeline): void;
 }

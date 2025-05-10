@@ -22,7 +22,7 @@ interface Handler
 
     /**
      * @param Envelope<TMessage> $envelope
-     * @param HandlingContext<TTransaction> $context
+     * @param HandleContext<TTransaction> $context
      */
-    public function handle(Envelope $envelope, HandlingContext $context): void;
+    public function handle(Envelope $envelope, HandleContext $context): void;
 }

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\Dispatching\DispatchingContext;
+use Thesis\MessageBus\Dispatching\DispatchContext;
 use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Handling\Handler;
 use Thesis\MessageBus\Handling\HandlerRegistry;
-use Thesis\MessageBus\Handling\HandlingContext;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Persistence\Transaction;
@@ -37,7 +37,7 @@ final class Session
         OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
         Envelope $envelope,
     ): void {
-        $envelope = $outgoingEnvelopeProcessor->process($envelope, new DispatchingContext($endpoint));
+        $envelope = $outgoingEnvelopeProcessor->process($envelope, new DispatchContext($endpoint));
 
         $syncHandlers = $syncHandlerRegistry->getHandlers($envelope->messageClass);
 
@@ -162,7 +162,7 @@ final class Session
             throw new \LogicException('Command must have 1 handler');
         }
 
-        $context = new HandlingContext(
+        $context = new HandleContext(
             endpoint: $this->endpoint,
             transaction: $this->transaction,
         );
@@ -178,7 +178,7 @@ final class Session
 
     private function dispatch(Envelope $message, Envelope $cause): void
     {
-        $envelope = $this->outgoingEnvelopeProcessor->process($message, new DispatchingContext($this->endpoint, $cause));
+        $envelope = $this->outgoingEnvelopeProcessor->process($message, new DispatchContext($this->endpoint, $cause));
 
         $syncHandlers = $this->syncHandlerRegistry->getHandlers($envelope->messageClass);
 

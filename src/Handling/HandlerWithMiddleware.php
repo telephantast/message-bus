@@ -29,7 +29,7 @@ final class HandlerWithMiddleware implements Handler
 
     public string $id { get => $this->handler->id; }
 
-    public function handle(Envelope $envelope, HandlingContext $context): void
+    public function handle(Envelope $envelope, HandleContext $context): void
     {
         Pipeline::handle(
             handler: $this->handler,

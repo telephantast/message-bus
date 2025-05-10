@@ -5,34 +5,67 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handling;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Handling\Mapping\CallableHandlerDescriptor;
 use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
- * @template-covariant TRegistryMessage of Message = Message
  * @template TTransaction of Transaction = Transaction
  * @implements HandlerRegistry<TTransaction>
  */
 final class ArrayHandlerRegistry implements HandlerRegistry
 {
     /**
-     * @var array<class-string<TRegistryMessage>, list<Handler<TRegistryMessage, TTransaction>>>
+     * @template TMTransaction of Transaction
+     * @param class-string<TMTransaction> $transaction
+     * @return self<TMTransaction>
      */
-    private array $handlersByMessageClass;
-
-    /**
-     * @param array<class-string<TRegistryMessage>, Handler<TRegistryMessage, TTransaction>|list<Handler<TRegistryMessage, TTransaction>>> $handlersByMessageClass
-     */
-    public function __construct(array $handlersByMessageClass = [])
+    public static function create(string $transaction = Transaction::class): self
     {
-        $this->handlersByMessageClass = array_map(
-            static fn(Handler|array $handler): array => \is_array($handler) ? $handler : [$handler],
-            $handlersByMessageClass,
-        );
+        /** @var self<TMTransaction> */
+        return new self();
     }
 
+    /**
+     * @param array<class-string<Message>, list<Handler<*, TTransaction>>> $handlers
+     */
+    public function __construct(
+        private array $handlers = [],
+    ) {}
+
     public array $messages {
-        get => array_keys($this->handlersByMessageClass);
+        get => array_keys($this->handlers);
+    }
+
+    /**
+     * @template TWithMessage of Message
+     * @param class-string<TWithMessage> $message
+     * @param Handler<TWithMessage, TTransaction> $handler
+     */
+    public function with(string $message, Handler $handler): static
+    {
+        $registry = clone $this;
+        $registry->handlers[$message][] = $handler;
+
+        return $registry;
+    }
+
+    /**
+     * @template TWithMessage of Message
+     * @param callable(TWithMessage, HandleContext<TTransaction>, Envelope<TWithMessage>): void $handler
+     */
+    public function withCallableHandler(callable $handler): static
+    {
+        $descriptor = CallableHandlerDescriptor::fromFunction(new \ReflectionFunction($handler(...)));
+        $handler = new CallableHandler($handler, $descriptor->id);
+        $registry = clone $this;
+
+        foreach ($descriptor->messages as $message) {
+            $registry->handlers[$message][] = $handler;
+        }
+
+        return $registry;
     }
 
     /**
@@ -43,6 +76,6 @@ final class ArrayHandlerRegistry implements HandlerRegistry
     public function getHandlers(string $messageClass): array
     {
         /** @var list<Handler<TMessage, TTransaction>> */
-        return $this->handlersByMessageClass[$messageClass] ?? [];
+        return $this->handlers[$messageClass] ?? [];
     }
 }

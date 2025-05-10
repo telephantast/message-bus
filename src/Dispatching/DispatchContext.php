@@ -9,7 +9,7 @@ use Thesis\MessageBus\Envelope;
 /**
  * @api
  */
-final readonly class DispatchingContext
+final readonly class DispatchContext
 {
     /**
      * @param non-empty-string $endpoint

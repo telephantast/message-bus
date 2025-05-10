@@ -11,5 +11,5 @@ use Thesis\MessageBus\Envelope;
  */
 interface OutgoingEnvelopeProcessor
 {
-    public function process(Envelope $envelope, DispatchingContext $context): Envelope;
+    public function process(Envelope $envelope, DispatchContext $context): Envelope;
 }

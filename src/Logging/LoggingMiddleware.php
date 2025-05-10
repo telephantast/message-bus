@@ -7,7 +7,7 @@ namespace Thesis\MessageBus\Logging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handling\HandlingContext;
+use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Middleware;
 use Thesis\MessageBus\Pipeline;
 
@@ -23,7 +23,7 @@ final readonly class LoggingMiddleware implements Middleware
         private mixed $successfullyHandledLevel = LogLevel::DEBUG,
     ) {}
 
-    public function handle(Envelope $envelope, HandlingContext $context, Pipeline $pipeline): void
+    public function handle(Envelope $envelope, HandleContext $context, Pipeline $pipeline): void
     {
         $this->logger->log($this->aboutToHandleLevel, 'About to handle message {message_class}', [
             'message_class' => $envelope->messageClass,

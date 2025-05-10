@@ -18,7 +18,7 @@ final readonly class OutgoingEnvelopeProcessors implements OutgoingEnvelopeProce
         public iterable $processors,
     ) {}
 
-    public function process(Envelope $envelope, DispatchingContext $context): Envelope
+    public function process(Envelope $envelope, DispatchContext $context): Envelope
     {
         foreach ($this->processors as $processor) {
             $envelope = $processor->process($envelope, $context);

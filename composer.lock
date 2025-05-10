@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad230b36bc7022b02d95032981e93f44",
+    "content-hash": "1cb7a6b7c80434f355261ac08b45f989",
     "packages": [
         {
             "name": "psr/clock",
@@ -165,80 +165,17 @@
             "time": "2025-04-04T04:36:31+00:00"
         },
         {
-            "name": "thesis/time",
-            "version": "0.1.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesis-php/time.git",
-                "reference": "423be49be070696cbfa17a6547ced4138aab167b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/time/zipball/423be49be070696cbfa17a6547ced4138aab167b",
-                "reference": "423be49be070696cbfa17a6547ced4138aab167b",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3",
-                "psr/clock": "^1.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^12.1.4"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\Time\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesis-php/people"
-                }
-            ],
-            "description": "Thesis Time",
-            "support": {
-                "issues": "https://github.com/thesis-php/time/issues",
-                "source": "https://github.com/thesis-php/time/tree/0.1.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-05-06T02:34:22+00:00"
-        },
-        {
             "name": "typhoon/formatter",
             "version": "0.1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhoon-php/formatter.git",
-                "reference": "8d3206d26ac36588a38445dd55f77764b8493758"
+                "reference": "2c3b20d5e937e62962410cf2a9f0d10a2293aee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/formatter/zipball/8d3206d26ac36588a38445dd55f77764b8493758",
-                "reference": "8d3206d26ac36588a38445dd55f77764b8493758",
+                "url": "https://api.github.com/repos/typhoon-php/formatter/zipball/2c3b20d5e937e62962410cf2a9f0d10a2293aee3",
+                "reference": "2c3b20d5e937e62962410cf2a9f0d10a2293aee3",
                 "shasum": ""
             },
             "require": {
@@ -260,12 +197,16 @@
             },
             "autoload": {
                 "files": [
-                    "src/format.php",
-                    "src/formatClass.php",
-                    "src/formatFunction.php",
-                    "src/formatReflectedClass.php",
-                    "src/formatReflectedFunction.php",
-                    "src/formatReflectedType.php"
+                    "src/format.fn.php",
+                    "src/formatClass.fn.php",
+                    "src/formatFunction.fn.php",
+                    "src/formatParameter.fn.php",
+                    "src/formatProperty.fn.php",
+                    "src/formatReflectedClass.fn.php",
+                    "src/formatReflectedFunction.fn.php",
+                    "src/formatReflectedParameter.fn.php",
+                    "src/formatReflectedProperty.fn.php",
+                    "src/formatReflectedType.fn.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -293,7 +234,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T22:44:52+00:00"
+            "time": "2025-05-09T14:37:08+00:00"
         }
     ],
     "packages-dev": [
@@ -3544,16 +3485,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/amqp.git",
-                "reference": "28016cc8e3fda3da6d73869dc52e083e2b395840"
+                "reference": "b00fcb5ebabe6e0ffbf7058a90cec2d223bf2da5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/amqp/zipball/28016cc8e3fda3da6d73869dc52e083e2b395840",
-                "reference": "28016cc8e3fda3da6d73869dc52e083e2b395840",
+                "url": "https://api.github.com/repos/thesis-php/amqp/zipball/b00fcb5ebabe6e0ffbf7058a90cec2d223bf2da5",
+                "reference": "b00fcb5ebabe6e0ffbf7058a90cec2d223bf2da5",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^3.0",
+                "amphp/byte-stream": "^2.1",
                 "amphp/pipeline": "^1.2",
                 "amphp/socket": "^2.3",
                 "ext-filter": "*",
@@ -3565,7 +3507,9 @@
                 "thesis/byte-reader": "^0.3.1",
                 "thesis/byte-reader-writer": "^0.1.0",
                 "thesis/byte-writer": "^0.2.1",
-                "thesis/endian": "^0.1.0"
+                "thesis/endian": "^0.1.0",
+                "thesis/sync-once": "^0.1.1",
+                "thesis/time-span": "^0.2.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
@@ -3618,7 +3562,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T16:01:14+00:00"
+            "time": "2025-05-09T16:37:24+00:00"
         },
         {
             "name": "thesis/byte-buffer",
@@ -4098,21 +4042,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message-bus-transport-amqp.git",
-                "reference": "a3c36a746db2a53393fbbc5ab3d51457899c4b96"
+                "reference": "1e19396ffa5921f77dedca0224d580f32d122eb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/a3c36a746db2a53393fbbc5ab3d51457899c4b96",
-                "reference": "a3c36a746db2a53393fbbc5ab3d51457899c4b96",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-transport-amqp/zipball/1e19396ffa5921f77dedca0224d580f32d122eb8",
+                "reference": "1e19396ffa5921f77dedca0224d580f32d122eb8",
                 "shasum": ""
             },
             "require": {
-                "amphp/amp": "^3",
                 "php": "^8.4",
                 "thesis/amqp": "^0.4@dev",
                 "thesis/message": "^0.2.1",
                 "thesis/message-bus": "^0.3@dev",
-                "thesis/time": "^0.1@dev"
+                "thesis/sync-once": "^0.1.0",
+                "thesis/time-span": "^0.2.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
@@ -4159,7 +4103,131 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-05-06T22:56:26+00:00"
+            "time": "2025-05-10T00:56:22+00:00"
+        },
+        {
+            "name": "thesis/sync-once",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/sync-once.git",
+                "reference": "bccfddbb8192a013a61c5a19502f4a99e180200c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/sync-once/zipball/bccfddbb8192a013a61c5a19502f4a99e180200c",
+                "reference": "bccfddbb8192a013a61c5a19502f4a99e180200c",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^3.1",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^12.1.4",
+                "symfony/var-dumper": "^6.4.15 || ^7.2.6"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\Sync\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesis-php/people"
+                }
+            ],
+            "description": "Thesis Sync Once",
+            "support": {
+                "issues": "https://github.com/thesis-php/sync-once/issues",
+                "source": "https://github.com/thesis-php/sync-once/tree/0.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-05-07T18:30:37+00:00"
+        },
+        {
+            "name": "thesis/time-span",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thesis-php/time-span.git",
+                "reference": "84fd9fa412d0534f268c74e6b745c931ff8776ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thesis-php/time-span/zipball/84fd9fa412d0534f268c74e6b745c931ff8776ed",
+                "reference": "84fd9fa412d0534f268c74e6b745c931ff8776ed",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^12.1.4"
+            },
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Thesis\\Time\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Thesis Team",
+                    "homepage": "https://github.com/orgs/thesis-php/people"
+                }
+            ],
+            "description": "Thesis TimeSpan",
+            "support": {
+                "issues": "https://github.com/thesis-php/time-span/issues",
+                "source": "https://github.com/thesis-php/time-span/tree/0.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-05-09T10:55:25+00:00"
         }
     ],
     "aliases": [],
@@ -4168,7 +4236,6 @@
         "thesis/amqp": 20,
         "thesis/message-bus-persistence-postgres": 20,
         "thesis/message-bus-transport-amqp": 20,
-        "thesis/time": 20,
         "typhoon/formatter": 20
     },
     "prefer-stable": false,

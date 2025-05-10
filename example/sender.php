@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use Revolt\EventLoop;
+use Thesis\Amqp\Client;
 use Thesis\Amqp\Config;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handling\ArrayHandlerRegistry;
-use Thesis\MessageBus\Handling\CallableHandler;
-use Thesis\MessageBus\Handling\HandlingContext;
+use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 use Thesis\MessageBus\Transport\Amqp\AmqpTransport;
 use function Amp\trapSignal;
@@ -25,14 +25,13 @@ $endpoint = new Endpoint(
             PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
         ),
     ),
-    transport: new AmqpTransport(Config::default()),
-    asyncHandlerRegistry: new ArrayHandlerRegistry([
-        Pong::class => new CallableHandler(
-            static function (Pong $event, HandlingContext $context, Envelope $envelope): void {
+    transport: new AmqpTransport(new Client(Config::default())),
+    asyncHandlerRegistry: ArrayHandlerRegistry::create()
+        ->withCallableHandler(
+            static function (Pong $event, HandleContext $context, Envelope $envelope): void {
                 dump($envelope);
             },
         ),
-    ]),
 );
 $endpoint->run();
 

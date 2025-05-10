@@ -23,7 +23,7 @@ final readonly class CallableHandler implements Handler
     public string $id;
 
     /**
-     * @param callable(TMessage, HandlingContext<TTransaction>, Envelope<TMessage>): void $handler
+     * @param callable(TMessage, HandleContext<TTransaction>, Envelope<TMessage>): void $handler
      * @param ?non-empty-string $id
      */
     public function __construct(
@@ -33,7 +33,7 @@ final readonly class CallableHandler implements Handler
         $this->id = $id ?? formatFunction($handler);
     }
 
-    public function handle(Envelope $envelope, HandlingContext $context): void
+    public function handle(Envelope $envelope, HandleContext $context): void
     {
         ($this->handler)($envelope->message, $context, $envelope);
     }
