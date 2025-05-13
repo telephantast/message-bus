@@ -6,11 +6,12 @@ namespace Thesis\MessageBus\Handling;
 
 /**
  * @api
+ * @template TTransaction of object = object
  */
 final class HandlerRegistries implements HandlerRegistry
 {
     /**
-     * @param iterable<HandlerRegistry> $handlerRegistries
+     * @param iterable<HandlerRegistry<TTransaction>> $handlerRegistries
      */
     public function __construct(
         private readonly iterable $handlerRegistries,
