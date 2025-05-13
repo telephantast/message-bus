@@ -6,9 +6,8 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @template-covariant TWrappedTransaction of object = object
- * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
- * @extends Storage<TWrappedTransaction, TTransaction>
+ * @template-covariant TTransaction of object = object
+ * @extends Storage<TTransaction>
  */
 interface StorageSetup extends Storage
 {

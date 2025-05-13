@@ -8,7 +8,7 @@ use Thesis\Message\Message;
 
 /**
  * @api
- * @template TWrappedTransaction of object = object
+ * @template TTransaction of object = object
  */
 interface HandlerRegistry
 {
@@ -20,7 +20,7 @@ interface HandlerRegistry
     /**
      * @template TMessage of Message
      * @param class-string<TMessage> $messageClass
-     * @return list<Handler<TMessage, TWrappedTransaction>>
+     * @return list<Handler<TMessage, TTransaction>>
      */
     public function getHandlers(string $messageClass): array;
 }

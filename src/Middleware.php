@@ -14,10 +14,10 @@ interface Middleware
 {
     /**
      * @template TMessage of Message
-     * @template TWrappedTransaction of object
+     * @template TTransaction of object
      * @param Envelope<TMessage> $envelope
-     * @param HandleContext<TWrappedTransaction> $context
-     * @param Pipeline<TMessage, TWrappedTransaction> $pipeline
+     * @param HandleContext<TTransaction> $context
+     * @param Pipeline<TMessage, TTransaction> $pipeline
      */
     public function handle(Envelope $envelope, HandleContext $context, Pipeline $pipeline): void;
 }

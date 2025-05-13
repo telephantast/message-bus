@@ -12,7 +12,6 @@ use Thesis\MessageBus\Handling\HandlerRegistry;
 use Thesis\MessageBus\Internal\Session;
 use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Persistence\StorageSetup;
-use Thesis\MessageBus\Persistence\Transaction;
 use Thesis\MessageBus\Tracing\AddCauseIdToOutgoingEnvelope;
 use Thesis\MessageBus\Tracing\AddCorrelationIdToOutgoingEnvelope;
 use Thesis\MessageBus\Tracing\AddMessageIdToOutgoingEnvelope;
@@ -23,8 +22,7 @@ use Thesis\MessageBus\Transport\Transport;
 
 /**
  * @api
- * @template-covariant TWrappedTransaction of object = object
- * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
+ * @template-covariant TTransaction of object = object
  */
 final class Endpoint
 {
@@ -51,9 +49,9 @@ final class Endpoint
 
     /**
      * @param non-empty-string $name
-     * @param Storage<TWrappedTransaction, TTransaction> $storage
-     * @param HandlerRegistry<TWrappedTransaction> $asyncHandlerRegistry
-     * @param HandlerRegistry<TWrappedTransaction> $syncHandlerRegistry
+     * @param Storage<TTransaction> $storage
+     * @param HandlerRegistry<TTransaction> $asyncHandlerRegistry
+     * @param HandlerRegistry<TTransaction> $syncHandlerRegistry
      * @param ?list<OutgoingEnvelopeProcessor> $outgoingEnvelopeProcessors
      */
     public function __construct(

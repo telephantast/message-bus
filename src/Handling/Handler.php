@@ -10,7 +10,7 @@ use Thesis\MessageBus\Envelope;
 /**
  * @api
  * @template TMessage of Message = Message
- * @template TWrappedTransaction of object = object
+ * @template TTransaction of object = object
  */
 interface Handler
 {
@@ -21,7 +21,7 @@ interface Handler
 
     /**
      * @param Envelope<TMessage> $envelope
-     * @param HandleContext<TWrappedTransaction> $context
+     * @param HandleContext<TTransaction> $context
      */
     public function handle(Envelope $envelope, HandleContext $context): void;
 }

@@ -6,12 +6,12 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @template-covariant TWrappedTransaction of object = object
+ * @template-covariant TTransaction of object = object
  */
 interface Transaction
 {
     /**
-     * @var TWrappedTransaction
+     * @var TTransaction
      */
     public ?object $wrappedTransaction { get; }
 

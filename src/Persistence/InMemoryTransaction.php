@@ -6,7 +6,7 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @implements Transaction<InMemoryTransaction>
+ * @implements Transaction<Transaction>
  */
 final class InMemoryTransaction implements Transaction
 {

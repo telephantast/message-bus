@@ -10,13 +10,13 @@ use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
- * @template-covariant TWrappedTransaction of object = object
+ * @template-covariant TTransaction of object = object
  */
 final class HandleContext
 {
     /**
      * @param non-empty-string $endpoint
-     * @param TWrappedTransaction $transaction
+     * @param TTransaction $transaction
      */
     public function __construct(
         public readonly string $endpoint,

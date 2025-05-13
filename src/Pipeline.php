@@ -11,7 +11,7 @@ use Thesis\MessageBus\Handling\Handler;
 /**
  * @api
  * @template TMessage of Message
- * @template TWrappedTransaction of object = object
+ * @template TTransaction of object = object
  */
 final class Pipeline
 {
@@ -50,10 +50,10 @@ final class Pipeline
     private bool $called = false;
 
     /**
-     * @param Handler<TMessage, TWrappedTransaction> $handler
+     * @param Handler<TMessage, TTransaction> $handler
      * @param \Iterator<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
-     * @param HandleContext<TWrappedTransaction> $context
+     * @param HandleContext<TTransaction> $context
      */
     public function __construct(
         private readonly Handler $handler,

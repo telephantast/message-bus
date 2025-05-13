@@ -12,13 +12,13 @@ use Thesis\MessageBus\Pipeline;
 /**
  * @api
  * @template TMessage of Message
- * @template TWrappedTransaction of object = object
- * @implements Handler<TMessage, TWrappedTransaction>
+ * @template TTransaction of object = object
+ * @implements Handler<TMessage, TTransaction>
  */
 final class HandlerWithMiddleware implements Handler
 {
     /**
-     * @param Handler<TMessage, TWrappedTransaction> $handler
+     * @param Handler<TMessage, TTransaction> $handler
      * @param iterable<Middleware> $middleware
      */
     public function __construct(

@@ -19,16 +19,14 @@ use Thesis\MessageBus\Transport\Transport;
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
- * @template-covariant TWrappedTransaction of object = object
- * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
+ * @template-covariant TTransaction of object = object
  */
 final class Session
 {
     /**
      * @template TMethodWrappedTransaction of object
-     * @template TMethodTransaction of Transaction<TMethodWrappedTransaction>
      * @param non-empty-string $endpoint
-     * @param Storage<TMethodWrappedTransaction, TMethodTransaction> $storage
+     * @param Storage<TMethodWrappedTransaction> $storage
      * @param HandlerRegistry<TMethodWrappedTransaction> $syncHandlerRegistry
      */
     public static function dispatchFromEndpoint(
@@ -85,9 +83,8 @@ final class Session
 
     /**
      * @template TMethodWrappedTransaction of object
-     * @template TMethodTransaction of Transaction<TMethodWrappedTransaction>
      * @param non-empty-string $endpoint
-     * @param Storage<TMethodWrappedTransaction, TMethodTransaction> $storage
+     * @param Storage<TMethodWrappedTransaction> $storage
      * @param HandlerRegistry<TMethodWrappedTransaction> $syncHandlerRegistry
      * @param HandlerRegistry<TMethodWrappedTransaction> $asyncHandlerRegistry
      */
@@ -139,8 +136,8 @@ final class Session
 
     /**
      * @param non-empty-string $endpoint
-     * @param TTransaction $transaction
-     * @param HandlerRegistry<TWrappedTransaction> $syncHandlerRegistry
+     * @param Transaction<TTransaction> $transaction
+     * @param HandlerRegistry<TTransaction> $syncHandlerRegistry
      */
     private function __construct(
         private readonly string $endpoint,
@@ -157,7 +154,7 @@ final class Session
     /**
      * @template TMessage of Message
      * @param Envelope<TMessage> $envelope
-     * @param list<Handler<TMessage, TWrappedTransaction>> $handlers
+     * @param list<Handler<TMessage, TTransaction>> $handlers
      */
     private function handle(Envelope $envelope, array $handlers): void
     {

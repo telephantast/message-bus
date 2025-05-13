@@ -11,8 +11,8 @@ use function Typhoon\Formatter\formatFunction;
 /**
  * @api
  * @template TMessage of Message
- * @template TWrappedTransaction of object = object
- * @implements Handler<TMessage, TWrappedTransaction>
+ * @template TTransaction of object = object
+ * @implements Handler<TMessage, TTransaction>
  */
 final readonly class CallableHandler implements Handler
 {
@@ -22,7 +22,7 @@ final readonly class CallableHandler implements Handler
     public string $id;
 
     /**
-     * @param callable(TMessage, HandleContext<TWrappedTransaction>, Envelope<TMessage>): void $handler
+     * @param callable(TMessage, HandleContext<TTransaction>, Envelope<TMessage>): void $handler
      * @param ?non-empty-string $id
      */
     public function __construct(

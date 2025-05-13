@@ -6,13 +6,12 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @template-covariant TWrappedTransaction of object = object
- * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
+ * @template-covariant TTransaction of object = object
  */
 interface Storage
 {
     /**
-     * @return TTransaction
+     * @return Transaction<TTransaction>
      */
     public function beginTransaction(): Transaction;
 
