@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Persistence;
 
 /**
- * @api
- * @implements Transaction<Transaction>
+ * @internal
+ * @psalm-internal Thesis\MessageBus
+ * @implements Transaction<object>
  */
 final class InMemoryTransaction implements Transaction
 {
