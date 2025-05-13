@@ -13,9 +13,6 @@ $config = new Config()
             ->in(__DIR__ . '/example')
             ->in(__DIR__ . '/src')
             ->in(__DIR__ . '/tests')
-            ->notPath([
-                'Handling/HandleContext.php',
-            ])
             ->append([
                 __FILE__,
             ]),

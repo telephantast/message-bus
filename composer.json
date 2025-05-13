@@ -15,8 +15,6 @@
     ],
     "require": {
         "php": "^8.4",
-        "psr/clock": "^1.0",
-        "psr/log": "^3",
         "thesis/message": "^0.2.1",
         "typhoon/formatter": "^0.1@dev"
     },
@@ -25,11 +23,9 @@
         "ext-pdo": "*",
         "amphp/postgres": "^2.1.1",
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^12.1.4",
+        "phpunit/phpunit": "^12.1.5",
         "symfony/var-dumper": "^6.4.15 || ^7.2.6",
-        "thesis/amqp": "^0.4@dev",
-        "thesis/message-bus-persistence-postgres": "^0.1@dev",
-        "thesis/message-bus-transport-amqp": "^0.1@dev"
+        "thesis/message-bus-persistence-postgres": "^0.1@dev"
     },
     "autoload": {
         "psr-4": {

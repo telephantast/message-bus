@@ -13,7 +13,7 @@ interface Transaction
     /**
      * @var TTransaction
      */
-    public object $wrappedTransaction { get; }
+    public object $wrappedTransaction { get; } /** @phpstan-ignore generics.variance */
 
     /**
      * @throws OutboxAlreadyExists

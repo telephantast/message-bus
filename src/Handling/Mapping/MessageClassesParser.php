@@ -12,7 +12,7 @@ use function Typhoon\Formatter\formatReflectedType;
 /**
  * @api
  */
-final readonly class MessageClassParser
+final readonly class MessageClassesParser
 {
     /**
      * @return list<class-string<Message>>
