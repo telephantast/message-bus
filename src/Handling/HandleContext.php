@@ -6,7 +6,6 @@ namespace Thesis\MessageBus\Handling;
 
 use Thesis\MessageBus\Envelope;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
@@ -20,7 +19,7 @@ final class HandleContext
      */
     public function __construct(
         public readonly string $endpoint,
-        public readonly ?object $transaction,
+        public readonly object $transaction,
     ) {}
 
     /**
