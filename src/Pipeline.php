@@ -7,22 +7,21 @@ namespace Thesis\MessageBus;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Handling\HandleContext;
 use Thesis\MessageBus\Handling\Handler;
-use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
  * @template TMessage of Message
- * @template TTransaction of Transaction
+ * @template TWrappedTransaction of object = object
  */
 final class Pipeline
 {
     /**
      * @template TMethodMessage of Message
-     * @template TMethodTransaction of Transaction
-     * @param Handler<TMethodMessage, TMethodTransaction> $handler
+     * @template TMethodWrappedTransaction of object
+     * @param Handler<TMethodMessage, TMethodWrappedTransaction> $handler
      * @param iterable<Middleware> $middleware
      * @param Envelope<TMethodMessage> $envelope
-     * @param HandleContext<TMethodTransaction> $context
+     * @param HandleContext<TMethodWrappedTransaction> $context
      */
     public static function handle(Handler $handler, iterable $middleware, Envelope $envelope, HandleContext $context): void
     {
@@ -51,10 +50,10 @@ final class Pipeline
     private bool $called = false;
 
     /**
-     * @param Handler<TMessage, TTransaction> $handler
+     * @param Handler<TMessage, TWrappedTransaction> $handler
      * @param \Iterator<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
-     * @param HandleContext<TTransaction> $context
+     * @param HandleContext<TWrappedTransaction> $context
      */
     public function __construct(
         private readonly Handler $handler,

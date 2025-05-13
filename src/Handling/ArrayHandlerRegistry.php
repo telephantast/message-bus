@@ -7,28 +7,27 @@ namespace Thesis\MessageBus\Handling;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handling\Mapping\CallableHandlerDescriptor;
-use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
- * @template TTransaction of Transaction = Transaction
- * @implements HandlerRegistry<TTransaction>
+ * @template TWrappedTransaction of object = object
+ * @implements HandlerRegistry<TWrappedTransaction>
  */
 final class ArrayHandlerRegistry implements HandlerRegistry
 {
     /**
-     * @template TMTransaction of Transaction
-     * @param class-string<TMTransaction> $transaction
-     * @return self<TMTransaction>
+     * @template TMethodWrappedTransaction of object
+     * @param ?class-string<TMethodWrappedTransaction> $wrappedTransactionClass
+     * @return self<TMethodWrappedTransaction>
      */
-    public static function create(string $transaction = Transaction::class): self
+    public static function create(?string $wrappedTransactionClass = null): self
     {
-        /** @var self<TMTransaction> */
+        /** @var self<TMethodWrappedTransaction> */
         return new self();
     }
 
     /**
-     * @param array<class-string<Message>, list<Handler<*, TTransaction>>> $handlers
+     * @param array<class-string<Message>, list<Handler<*, TWrappedTransaction>>> $handlers
      */
     public function __construct(
         private array $handlers = [],
@@ -41,7 +40,7 @@ final class ArrayHandlerRegistry implements HandlerRegistry
     /**
      * @template TWithMessage of Message
      * @param class-string<TWithMessage> $message
-     * @param Handler<TWithMessage, TTransaction> $handler
+     * @param Handler<TWithMessage, TWrappedTransaction> $handler
      */
     public function with(string $message, Handler $handler): static
     {
@@ -53,7 +52,7 @@ final class ArrayHandlerRegistry implements HandlerRegistry
 
     /**
      * @template TWithMessage of Message
-     * @param callable(TWithMessage, HandleContext<TTransaction>, Envelope<TWithMessage>): void $handler
+     * @param callable(TWithMessage, HandleContext<TWrappedTransaction>, Envelope<TWithMessage>): void $handler
      */
     public function withCallableHandler(callable $handler): static
     {
@@ -71,11 +70,11 @@ final class ArrayHandlerRegistry implements HandlerRegistry
     /**
      * @template TMessage of Message
      * @param class-string<TMessage> $messageClass
-     * @return list<Handler<TMessage, TTransaction>>
+     * @return list<Handler<TMessage, TWrappedTransaction>>
      */
     public function getHandlers(string $messageClass): array
     {
-        /** @var list<Handler<TMessage, TTransaction>> */
+        /** @var list<Handler<TMessage, TWrappedTransaction>> */
         return $this->handlers[$messageClass] ?? [];
     }
 }

@@ -6,9 +6,15 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
+ * @template-covariant TWrappedTransaction of object = object
  */
 interface Transaction
 {
+    /**
+     * @var TWrappedTransaction
+     */
+    public ?object $wrappedTransaction { get; }
+
     /**
      * @throws OutboxAlreadyExists
      * @throws TransactionClosed

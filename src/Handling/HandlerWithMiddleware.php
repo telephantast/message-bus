@@ -7,19 +7,18 @@ namespace Thesis\MessageBus\Handling;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Middleware;
-use Thesis\MessageBus\Persistence\Transaction;
 use Thesis\MessageBus\Pipeline;
 
 /**
  * @api
  * @template TMessage of Message
- * @template TTransaction of Transaction
- * @implements Handler<TMessage, TTransaction>
+ * @template TWrappedTransaction of object = object
+ * @implements Handler<TMessage, TWrappedTransaction>
  */
 final class HandlerWithMiddleware implements Handler
 {
     /**
-     * @param Handler<TMessage, TTransaction> $handler
+     * @param Handler<TMessage, TWrappedTransaction> $handler
      * @param iterable<Middleware> $middleware
      */
     public function __construct(

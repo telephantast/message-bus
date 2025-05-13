@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
+use Amp\Postgres\PostgresTransaction;
 use Thesis\Amqp\Client;
 use Thesis\Amqp\Config;
 use Thesis\MessageBus\Endpoint;
@@ -25,13 +26,14 @@ $endpoint = new Endpoint(
         ),
     ),
     transport: new AmqpTransport(new Client(Config::default())),
-    asyncHandlerRegistry: ArrayHandlerRegistry::create()
+    asyncHandlerRegistry: ArrayHandlerRegistry::create(PostgresTransaction::class)
         ->withCallableHandler(
             static function (Ping $command, HandleContext $context, Envelope $envelope): void {
                 dump($envelope);
                 $context->dispatch(new Pong($command->text));
             },
         ),
+    syncHandlerRegistry: ArrayHandlerRegistry::create(PostgresTransaction::class),
 );
 $endpoint->run();
 

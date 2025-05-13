@@ -6,6 +6,7 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
+ * @implements Transaction<InMemoryTransaction>
  */
 final class InMemoryTransaction implements Transaction
 {
@@ -17,6 +18,8 @@ final class InMemoryTransaction implements Transaction
     public function __construct(
         private readonly \Closure $insertOutbox,
     ) {}
+
+    public self $wrappedTransaction { get => $this; }
 
     public function commit(Outbox $outbox): void
     {

@@ -11,3 +11,9 @@ parameters:
 			identifier: generics.variance
 			count: 1
 			path: src/Envelope.php
+
+		-
+			message: '#^Template type TWrappedTransaction is declared as covariant, but occurs in invariant position in property Thesis\\MessageBus\\Persistence\\Transaction\:\:\$wrappedTransaction\.$#'
+			identifier: generics.variance
+			count: 1
+			path: src/Persistence/Transaction.php

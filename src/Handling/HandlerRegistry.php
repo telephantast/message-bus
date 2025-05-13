@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handling;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
- * @template TTransaction of Transaction = Transaction
+ * @template TWrappedTransaction of object = object
  */
 interface HandlerRegistry
 {
@@ -21,7 +20,7 @@ interface HandlerRegistry
     /**
      * @template TMessage of Message
      * @param class-string<TMessage> $messageClass
-     * @return list<Handler<TMessage, TTransaction>>
+     * @return list<Handler<TMessage, TWrappedTransaction>>
      */
     public function getHandlers(string $messageClass): array;
 }

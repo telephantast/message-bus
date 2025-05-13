@@ -23,7 +23,8 @@ use Thesis\MessageBus\Transport\Transport;
 
 /**
  * @api
- * @template TTransaction of Transaction = Transaction
+ * @template-covariant TWrappedTransaction of object = object
+ * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
  */
 final class Endpoint
 {
@@ -50,9 +51,9 @@ final class Endpoint
 
     /**
      * @param non-empty-string $name
-     * @param Storage<TTransaction> $storage
-     * @param HandlerRegistry<TTransaction> $asyncHandlerRegistry
-     * @param HandlerRegistry<TTransaction> $syncHandlerRegistry
+     * @param Storage<TWrappedTransaction, TTransaction> $storage
+     * @param HandlerRegistry<TWrappedTransaction> $asyncHandlerRegistry
+     * @param HandlerRegistry<TWrappedTransaction> $syncHandlerRegistry
      * @param ?list<OutgoingEnvelopeProcessor> $outgoingEnvelopeProcessors
      */
     public function __construct(

@@ -6,12 +6,11 @@ namespace Thesis\MessageBus\Handling;
 
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Persistence\Transaction;
 
 /**
  * @api
  * @template TMessage of Message = Message
- * @template TTransaction of Transaction = Transaction
+ * @template TWrappedTransaction of object = object
  */
 interface Handler
 {
@@ -22,7 +21,7 @@ interface Handler
 
     /**
      * @param Envelope<TMessage> $envelope
-     * @param HandleContext<TTransaction> $context
+     * @param HandleContext<TWrappedTransaction> $context
      */
     public function handle(Envelope $envelope, HandleContext $context): void;
 }

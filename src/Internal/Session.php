@@ -19,15 +19,17 @@ use Thesis\MessageBus\Transport\Transport;
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
- * @template TTransaction of Transaction
+ * @template-covariant TWrappedTransaction of object = object
+ * @template-covariant TTransaction of Transaction<TWrappedTransaction> = Transaction<object>
  */
 final class Session
 {
     /**
-     * @template TMethodTransaction of Transaction
+     * @template TMethodWrappedTransaction of object
+     * @template TMethodTransaction of Transaction<TMethodWrappedTransaction>
      * @param non-empty-string $endpoint
-     * @param Storage<TMethodTransaction> $storage
-     * @param HandlerRegistry<TMethodTransaction> $syncHandlerRegistry
+     * @param Storage<TMethodWrappedTransaction, TMethodTransaction> $storage
+     * @param HandlerRegistry<TMethodWrappedTransaction> $syncHandlerRegistry
      */
     public static function dispatchFromEndpoint(
         string $endpoint,
@@ -82,11 +84,12 @@ final class Session
     }
 
     /**
-     * @template TMethodTransaction of Transaction
+     * @template TMethodWrappedTransaction of object
+     * @template TMethodTransaction of Transaction<TMethodWrappedTransaction>
      * @param non-empty-string $endpoint
-     * @param Storage<TMethodTransaction> $storage
-     * @param HandlerRegistry<TMethodTransaction> $asyncHandlerRegistry
-     * @param HandlerRegistry<TMethodTransaction> $syncHandlerRegistry
+     * @param Storage<TMethodWrappedTransaction, TMethodTransaction> $storage
+     * @param HandlerRegistry<TMethodWrappedTransaction> $syncHandlerRegistry
+     * @param HandlerRegistry<TMethodWrappedTransaction> $asyncHandlerRegistry
      */
     public static function consume(
         string $endpoint,
@@ -137,7 +140,7 @@ final class Session
     /**
      * @param non-empty-string $endpoint
      * @param TTransaction $transaction
-     * @param HandlerRegistry<TTransaction> $syncHandlerRegistry
+     * @param HandlerRegistry<TWrappedTransaction> $syncHandlerRegistry
      */
     private function __construct(
         private readonly string $endpoint,
@@ -154,7 +157,7 @@ final class Session
     /**
      * @template TMessage of Message
      * @param Envelope<TMessage> $envelope
-     * @param list<Handler<TMessage, TTransaction>> $handlers
+     * @param list<Handler<TMessage, TWrappedTransaction>> $handlers
      */
     private function handle(Envelope $envelope, array $handlers): void
     {
@@ -164,7 +167,7 @@ final class Session
 
         $context = new HandleContext(
             endpoint: $this->endpoint,
-            transaction: $this->transaction,
+            transaction: $this->transaction->wrappedTransaction,
         );
 
         foreach ($handlers as $handler) {

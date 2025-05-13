@@ -6,14 +6,13 @@ namespace Thesis\MessageBus\Handling;
 
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Persistence\Transaction;
 use function Typhoon\Formatter\formatFunction;
 
 /**
  * @api
  * @template TMessage of Message
- * @template TTransaction of Transaction = Transaction
- * @implements Handler<TMessage, TTransaction>
+ * @template TWrappedTransaction of object = object
+ * @implements Handler<TMessage, TWrappedTransaction>
  */
 final readonly class CallableHandler implements Handler
 {
@@ -23,7 +22,7 @@ final readonly class CallableHandler implements Handler
     public string $id;
 
     /**
-     * @param callable(TMessage, HandleContext<TTransaction>, Envelope<TMessage>): void $handler
+     * @param callable(TMessage, HandleContext<TWrappedTransaction>, Envelope<TMessage>): void $handler
      * @param ?non-empty-string $id
      */
     public function __construct(
