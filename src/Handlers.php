@@ -8,7 +8,8 @@ use Thesis\Message\Event;
 use Thesis\Message\Message;
 
 /**
- * @template-contravariant TSupportedMessages of Message = Event
+ * @template TSupportedMessages of Message = Event
+ * @template-covariant TRequiredMessages of Message = never
  * @template TTransaction of object = object
  */
 final class Handlers
@@ -16,11 +17,11 @@ final class Handlers
     /**
      * @template TForTransaction of object
      * @param class-string<TForTransaction> $transactionClass
-     * @return self<Event, TForTransaction>
+     * @return self<Event, never, TForTransaction>
      */
     public static function forTransaction(string $transactionClass): self
     {
-        /** @var self<Event, TForTransaction> */
+        /** @var self<Event, never, TForTransaction> */
         return new self();
     }
 
@@ -37,8 +38,9 @@ final class Handlers
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param Handler<TResult, TMessage, Message, TTransaction> $handler
-     * @return self<TSupportedMessages|TMessage, TTransaction>
+     * @template THandlerRequiredMessages of Message
+     * @param Handler<TResult, TMessage, THandlerRequiredMessages, TTransaction> $handler
+     * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction>
      */
     public function with(Handler $handler): self
     {
@@ -61,20 +63,8 @@ final class Handlers
 
     /**
      * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param callable(TMessage, HandlerContext<Message, TTransaction>): TResult $handler
-     * @param ?non-empty-string $id
-     * @return self<TSupportedMessages|TMessage, TTransaction>
-     */
-    public function withCallable(callable $handler, ?string $id = null): self
-    {
-        return $this->with(new CallableHandler($handler, $id));
-    }
-
-    /**
-     * @template TResult
      * @param TSupportedMessages&Message<TResult> $message
-     * @param HandlerContext<never, TTransaction> $context
+     * @param HandlerContext<TRequiredMessages, TTransaction> $context
      * @return TResult
      */
     public function handle(Message $message, HandlerContext $context): mixed

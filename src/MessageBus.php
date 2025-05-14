@@ -19,7 +19,7 @@ use Thesis\MessageBus\Persistence\StorageSetup;
 final class MessageBus implements Dispatcher
 {
     /**
-     * @var array<non-empty-string, Handlers<never, TTransaction>>
+     * @var array<non-empty-string, Handlers<*, *, TTransaction>>
      */
     private array $syncHandlers = [];
 
@@ -64,11 +64,11 @@ final class MessageBus implements Dispatcher
     }
 
     /**
-     * @return Handlers<never, TTransaction>
+     * @return Handlers<*, *, TTransaction>
      */
     private function emptyHandlers(): Handlers
     {
-        /** @var Handlers<never, TTransaction> */
+        /** @var Handlers<*, *, TTransaction> */
         return new Handlers();
     }
 
@@ -97,7 +97,7 @@ final class MessageBus implements Dispatcher
 
         $endpoint = $this->syncRouting[$message::class] ?? throw new \Exception('Not routed');
 
-        /** @var Handlers<Message<TResult>, TTransaction> */
+        /** @var Handlers<Message<TResult>, never, TTransaction> */
         $handlers = $this->syncHandlers[$endpoint] ?? throw new \Exception('Not routed');
 
         if ($context !== null) {
