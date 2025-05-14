@@ -13,7 +13,7 @@ use Thesis\MessageBus\Persistence\StorageSetup;
 
 /**
  * @template-contravariant TSupportedMessages of Message = Event
- * @template TTransaction of object = object
+ * @template-covariant TTransaction of object = object
  * @implements Dispatcher<TSupportedMessages>
  */
 final class MessageBus implements Dispatcher
