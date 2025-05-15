@@ -110,6 +110,8 @@ final class MessageBus implements Dispatcher
             $context = new HandlerContext($this, $transaction->wrappedTransaction);
 
             $result = $handlers->handle($message, $context);
+            $context->dispatchPostponed();
+
             $transaction->commit(new Outbox($endpoint, bin2hex(random_bytes(10)), []));
 
             return $result;

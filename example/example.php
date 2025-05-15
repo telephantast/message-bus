@@ -2,11 +2,8 @@
 
 declare(strict_types=1);
 
-use Amp\Postgres\PostgresConfig;
-use Amp\Postgres\PostgresConnectionPool;
 use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\MessageBus;
-use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/messages.php';
@@ -25,6 +22,7 @@ final readonly class Handlers
                 $context->dispatch(new Now())->format('c'),
             )),
         );
+        dump(1);
     }
 
     public static function handleNow(Now $now): DateTimeImmutable
@@ -39,11 +37,7 @@ final readonly class Handlers
 }
 
 $messageBus
-    = new MessageBus(
-        storage: new PostgresStorage(new PostgresConnectionPool(
-            PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
-        )),
-    )
+    = new MessageBus()
     ->syncHandler(Handlers::handlePing(...))
     ->syncHandler(Handlers::handleNow(...))
     ->syncHandler(Handlers::onPong(...))
