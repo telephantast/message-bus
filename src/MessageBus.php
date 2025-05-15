@@ -40,13 +40,13 @@ final class MessageBus implements Dispatcher
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param (\Closure(TMessage, HandlerContext<Message, TTransaction>): TResult)|Handler<TResult, TMessage, Message, TTransaction> $handler
+     * @param (callable(TMessage, HandlerContext<Message, TTransaction>): TResult)|Handler<TResult, TMessage, Message, TTransaction> $handler
      * @param ?non-empty-string $endpoint
      * @return self<TSupportedMessages|TMessage, TTransaction>
      */
-    public function syncHandler(\Closure|Handler $handler, ?string $endpoint = null): self
+    public function syncHandler(callable|Handler $handler, ?string $endpoint = null): self
     {
-        if ($handler instanceof \Closure) {
+        if (\is_callable($handler)) {
             $handler = new CallableHandler($handler);
         }
 
