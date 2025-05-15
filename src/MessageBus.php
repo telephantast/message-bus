@@ -95,10 +95,20 @@ final class MessageBus implements Dispatcher
     {
         $this->setup();
 
-        $endpoint = $this->syncRouting[$message::class] ?? throw new \Exception(\sprintf('%s is not routed', $message::class));
+        $endpoint = $this->syncRouting[$message::class] ?? null;
+
+        if ($endpoint === null) {
+            if ($message instanceof Event) {
+                /** @phpstan-ignore return.type */
+                return null;
+            }
+
+            throw new \Exception(\sprintf('`%s` is not routed', $message::class));
+        }
 
         /** @var Handlers<Message<TResult>, never, TTransaction> */
-        $handlers = $this->syncHandlers[$endpoint] ?? throw new \Exception(\sprintf('Handlers of %s not assigned', $endpoint));
+        $handlers = $this->syncHandlers[$endpoint]
+            ?? throw new \Exception(\sprintf('Handlers of endpoint `%s` are not assigned', $endpoint));
 
         if ($context !== null) {
             return $handlers->handle($message, $context);
