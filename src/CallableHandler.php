@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Handling\Mapping\MessageClassesParser;
+use Thesis\MessageBus\Internal\MessageClassesParser;
 use function Typhoon\Formatter\formatReflectedFunction;
 
 /**
- * @template-covariant TResult = null
- * @template TMessage of Message<TResult> = Message<null>
- * @template-covariant TRequiredMessages of Message = Event
+ * @template-covariant TResult
+ * @template TMessage of Message<TResult>
+ * @template-covariant TRequiredMessages of Message = \Thesis\Message\Event
  * @template-contravariant TTransaction of object = object
- * @implements Handler<TResult, TMessage, TRequiredMessages, TTransaction>
+ * @implements Handler<TMessage, TRequiredMessages, TTransaction>
  */
 final readonly class CallableHandler implements Handler
 {
@@ -23,7 +22,7 @@ final readonly class CallableHandler implements Handler
     public array $messageClasses;
 
     /**
-     * @param callable(TMessage, HandlerContext<TRequiredMessages, TTransaction>): TResult $handler
+     * @param callable(TMessage, Dispatcher<TRequiredMessages>, Stamps, TTransaction): TResult $handler
      * @param ?non-empty-string $id
      */
     public function __construct(
@@ -37,8 +36,9 @@ final readonly class CallableHandler implements Handler
         $this->messageClasses = $messageClasses;
     }
 
-    public function handle(Message $message, HandlerContext $context): mixed
+    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed
     {
-        return ($this->handler)($message, $context);
+        /** @phpstan-ignore argument.type, return.type */
+        return ($this->handler)($envelope->message, $dispatcher, $envelope->stamps, $transaction);
     }
 }

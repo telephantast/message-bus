@@ -4,131 +4,63 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Event;
 use Thesis\Message\Message;
+use Thesis\MessageBus\Internal\HandlingSession;
 use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Persistence\StorageSetup;
 
 /**
- * @template-contravariant TSupportedMessages of Message = Event
+ * @template-contravariant TSupportedMessages of Message = \Thesis\Message\Event
  * @template-covariant TTransaction of object = object
- * @implements Dispatcher<TSupportedMessages>
+ * @extends Dispatcher<TSupportedMessages>
  */
-final class MessageBus implements Dispatcher
+final class MessageBus extends Dispatcher
 {
     /**
-     * @var array<non-empty-string, Handlers<*, *, TTransaction>>
-     */
-    private array $syncHandlers = [];
-
-    /**
-     * @var array<class-string<Message>, non-empty-string>
-     */
-    private array $syncRouting = [];
-
-    /**
+     * @param Handlers<TSupportedMessages, Message, TTransaction> $handlers
      * @param Storage<TTransaction> $storage
-     * @param non-empty-string $defaultEndpoint
      */
     public function __construct(
-        private readonly string $defaultEndpoint = 'default',
         private readonly Storage $storage = new InMemoryStorage(),
+        private readonly Handlers $handlers = new Handlers(),
     ) {}
 
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param (callable(TMessage, HandlerContext<Message, TTransaction>): TResult)|Handler<TResult, TMessage, Message, TTransaction> $handler
-     * @param ?non-empty-string $endpoint
+     * @param (\Closure(TMessage, Dispatcher<Message>, Stamps, TTransaction): TResult)|Handler<TMessage, Message, TTransaction> $handler
      * @return self<TSupportedMessages|TMessage, TTransaction>
      */
-    public function syncHandler(callable|Handler $handler, ?string $endpoint = null): self
+    public function withHandler(\Closure|Handler $handler): self
     {
-        if (\is_callable($handler)) {
+        if ($handler instanceof \Closure) {
             $handler = new CallableHandler($handler);
         }
 
-        $endpoint ??= $this->defaultEndpoint;
-
-        $messageBus = clone $this;
-
-        foreach ($handler->messageClasses as $messageClass) {
-            $messageBus->syncRouting[$messageClass] = $endpoint;
-        }
-
-        $messageBus->syncHandlers[$endpoint] = ($messageBus->syncHandlers[$endpoint] ?? $this->emptyHandlers())->with($handler);
-
-        return $messageBus;
+        return new self(
+            storage: $this->storage,
+            handlers: $this->handlers->with($handler),
+        );
     }
 
-    /**
-     * @return Handlers<*, *, TTransaction>
-     */
-    private function emptyHandlers(): Handlers
+    public function dispatchEnvelope(Envelope $envelope): mixed
     {
-        /** @var Handlers<*, *, TTransaction> */
-        return new Handlers();
-    }
-
-    private bool $setup = false;
-
-    public function setup(): void
-    {
-        if (!$this->setup) {
-            if ($this->storage instanceof StorageSetup) {
-                $this->storage->setup();
-            }
-
-            $this->setup = true;
-        }
-    }
-
-    /**
-     * @template TResult
-     * @param TSupportedMessages&Message<TResult> $message
-     * @param list<Stamp> $stamps
-     * @return TResult
-     */
-    public function dispatch(Message $message, array $stamps = [], ?HandlerContext $context = null): mixed
-    {
-        $this->setup();
-
-        $endpoint = $this->syncRouting[$message::class] ?? null;
-
-        if ($endpoint === null) {
-            if ($message instanceof Event) {
-                /** @phpstan-ignore return.type */
-                return null;
-            }
-
-            throw new \Exception(\sprintf('`%s` is not routed', $message::class));
-        }
-
-        /** @var Handlers<Message<TResult>, never, TTransaction> */
-        $handlers = $this->syncHandlers[$endpoint]
-            ?? throw new \Exception(\sprintf('Handlers of endpoint `%s` are not assigned', $endpoint));
-
-        if ($context !== null) {
-            return $handlers->handle($message, $context);
-        }
-
         $transaction = $this->storage->beginTransaction();
 
         try {
-            $context = new HandlerContext($this, $transaction->wrappedTransaction);
-
-            $result = $handlers->handle($message, $context);
-            $context->dispatchPostponed();
-
-            $transaction->commit(new Outbox($endpoint, bin2hex(random_bytes(10)), []));
-
-            return $result;
+            /** @phpstan-ignore argument.type */
+            $session = new HandlingSession($this->handlers, $transaction);
+            /** @phpstan-ignore argument.type */
+            $result = $session->dispatchEnvelope($envelope);
+            $session->dispatchPostponed();
+            $transaction->commit(new Outbox('default', bin2hex(random_bytes(10)), []));
         } catch (\Throwable $exception) {
             $transaction->rollback();
 
             throw $exception;
         }
+
+        return $result;
     }
 }

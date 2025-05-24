@@ -8,39 +8,28 @@ use Thesis\Message\Event;
 use Thesis\Message\Message;
 
 /**
- * @template TSupportedMessages of Message = Event
- * @template-covariant TRequiredMessages of Message = never
- * @template TTransaction of object = object
+ * @template TSupportedMessages of Message
+ * @template-covariant TRequiredMessages of Message = \Thesis\Message\Event
+ * @template-contravariant TTransaction of object = object
+ * @implements Handler<TSupportedMessages, TRequiredMessages, TTransaction>
  */
-final class Handlers
+final class Handlers implements Handler
 {
-    /**
-     * @template TForTransaction of object
-     * @param class-string<TForTransaction> $transactionClass
-     * @return self<Event, never, TForTransaction>
-     */
-    public static function forTransaction(string $transactionClass): self
-    {
-        /** @var self<Event, never, TForTransaction> */
-        return new self();
-    }
+    public string $id { get => json_encode(array_column($this->handlers, 'id'), JSON_THROW_ON_ERROR); }
+
+    public array $messageClasses { get => array_keys($this->handlers); }
 
     /**
-     * @var list<class-string<Message>>
-     */
-    public array $messages { get => array_keys($this->handlers); }
-
-    /**
-     * @var array<class-string<Message>, non-empty-list<Handler>>
+     * @var array<class-string<TSupportedMessages>, non-empty-list<Handler<Message>>>
      */
     private array $handlers = [];
 
     /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
+     * @template TMessage of Message
      * @template THandlerRequiredMessages of Message
-     * @param Handler<TResult, TMessage, THandlerRequiredMessages, TTransaction> $handler
-     * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction>
+     * @template THandlerTransaction of object
+     * @param Handler<TMessage, THandlerRequiredMessages, THandlerTransaction> $handler
+     * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction&THandlerTransaction>
      */
     public function with(Handler $handler): self
     {
@@ -55,26 +44,22 @@ final class Handlers
                 ));
             }
 
+            /** @phpstan-ignore assign.propertyType */
             $copy->handlers[$messageClass][] = $handler;
         }
 
         return $copy;
     }
 
-    /**
-     * @template TResult
-     * @param TSupportedMessages&Message<TResult> $message
-     * @param HandlerContext<TRequiredMessages, TTransaction> $context
-     * @return TResult
-     */
-    public function handle(Message $message, HandlerContext $context): mixed
+    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed
     {
-        /** @var list<Handler<TResult, Message<TResult>, never, TTransaction>> */
-        $handlers = $this->handlers[$message::class] ?? [];
+        $messageClass = $envelope->message::class;
+        $handlers = $this->handlers[$messageClass] ?? [];
 
-        if ($message instanceof Event) {
+        if ($envelope->message instanceof Event) {
             foreach ($handlers as $handler) {
-                $handler->handle($message, $context);
+                /** @phpstan-ignore argument.type */
+                $handler->handle($envelope, $dispatcher, $transaction);
             }
 
             /** @phpstan-ignore return.type */
@@ -84,10 +69,11 @@ final class Handlers
         if ($handlers === []) {
             throw new \Exception(\sprintf(
                 'Non-event message `%s` does not have a handler',
-                $message::class,
+                $messageClass,
             ));
         }
 
-        return $handlers[0]->handle($message, $context);
+        /** @phpstan-ignore argument.type */
+        return $handlers[0]->handle($envelope, $dispatcher, $transaction);
     }
 }

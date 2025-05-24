@@ -7,8 +7,7 @@ namespace Thesis\MessageBus;
 use Thesis\Message\Message;
 
 /**
- * @template-covariant TResult = null
- * @template-covariant TMessage of Message<TResult> = Message<null>
+ * @template-covariant TMessage of Message = Message
  */
 final readonly class Envelope
 {

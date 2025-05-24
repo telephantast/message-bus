@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Event;
 use Thesis\Message\Message;
 
 /**
- * @template-covariant TResult = null
- * @template TMessage of Message<TResult> = Message<null>
- * @template-covariant TRequiredMessages of Message = Event
+ * @template TSupportedMessages of Message
+ * @template-covariant TRequiredMessages of Message = \Thesis\Message\Event
  * @template-contravariant TTransaction of object = object
  */
 interface Handler
@@ -21,14 +19,17 @@ interface Handler
     public string $id { get; }
 
     /**
-     * @var non-empty-list<class-string<TMessage>>
+     * @var non-empty-list<class-string<TSupportedMessages>>
      */
     public array $messageClasses { get; }
 
     /**
-     * @param TMessage $message
-     * @param HandlerContext<TRequiredMessages, TTransaction> $context
+     * @template TResult
+     * @template TMessage of TSupportedMessages&Message<TResult>
+     * @param Envelope<TMessage> $envelope
+     * @param Dispatcher<TRequiredMessages> $dispatcher
+     * @param TTransaction $transaction
      * @return TResult
      */
-    public function handle(Message $message, HandlerContext $context): mixed;
+    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed;
 }

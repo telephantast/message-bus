@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Handling\Mapping;
+namespace Thesis\MessageBus\Internal;
 
 use Thesis\Message\Message;
 use function Typhoon\Formatter\formatReflectedFunction;
@@ -10,7 +10,8 @@ use function Typhoon\Formatter\formatReflectedParameter;
 use function Typhoon\Formatter\formatReflectedType;
 
 /**
- * @api
+ * @internal
+ * @psalm-internal Thesis\MessageBus
  */
 final readonly class MessageClassesParser
 {
