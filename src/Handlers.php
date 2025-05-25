@@ -36,15 +36,20 @@ final class Handlers implements Handler
     private array $handlers = [];
 
     /**
-     * @template TMessage of Message
-     * @template THandlerRequiredMessages of Message
-     * @template THandlerTransaction of object
-     * @param Handler<TMessage, THandlerRequiredMessages, THandlerTransaction> $handler
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     * @template THandlerRequiredMessages of Message = never
+     * @template THandlerTransaction of object = object
+     * @param (\Closure(TMessage, HandlerContext<THandlerRequiredMessages, THandlerTransaction>, Stamps): TResult)|Handler<TMessage, THandlerRequiredMessages, THandlerTransaction> $handler
      * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction&THandlerTransaction>
      */
-    public function with(Handler $handler): self
+    public function with(\Closure|Handler $handler): self
     {
         $copy = clone $this;
+
+        if ($handler instanceof \Closure) {
+            $handler = new CallableHandler($handler);
+        }
 
         foreach ($handler->messageClasses as $messageClass) {
             if (!is_a($messageClass, Event::class, allow_string: true) && isset($copy->handlers[$messageClass])) {
@@ -60,19 +65,6 @@ final class Handlers implements Handler
         }
 
         return $copy;
-    }
-
-    /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @template THandlerRequiredMessages of Message = never
-     * @template THandlerTransaction of object = object
-     * @param callable(TMessage, HandlerContext<THandlerRequiredMessages, THandlerTransaction>, Stamps): TResult $handler
-     * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction&THandlerTransaction>
-     */
-    public function withCallable(callable $handler): self
-    {
-        return $this->with(new CallableHandler($handler));
     }
 
     public function handle(Envelope $envelope, HandlerContext $context): mixed

@@ -52,8 +52,8 @@ final readonly class Service
 $messageBus = new MessageBus(
     storage: new InMemoryStorage(),
     syncHandlers: new Handlers()
-        ->withCallable(Service::handlePing(...))
-        ->withCallable(Service::handleNow(...))
-        ->withCallable(Service::onPong(...)),
+        ->with(Service::handlePing(...))
+        ->with(Service::handleNow(...))
+        ->with(Service::onPong(...)),
 );
 $messageBus->dispatch(new Ping('Hi!'));
