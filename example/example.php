@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Thesis\MessageBus\CallableHandler;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\MessageBus;
@@ -53,8 +52,8 @@ final readonly class Service
 $messageBus = new MessageBus(
     storage: new InMemoryStorage(),
     syncHandlers: new Handlers()
-        ->with(new CallableHandler(Service::handlePing(...)))
-        ->with(new CallableHandler(Service::handleNow(...)))
-        ->with(new CallableHandler(Service::onPong(...))),
+        ->withCallable(Service::handlePing(...))
+        ->withCallable(Service::handleNow(...))
+        ->withCallable(Service::onPong(...)),
 );
 $messageBus->dispatch(new Ping('Hi!'));

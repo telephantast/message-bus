@@ -7,18 +7,18 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\HandlerContext;
 
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
  * @template-contravariant TSupportedMessages of Message = \Thesis\Message\Event
  * @template-covariant TTransaction of object = object
- * @extends Dispatcher<TSupportedMessages>
+ * @extends HandlerContext<TSupportedMessages, TTransaction>
  */
-final class HandlingSession extends Dispatcher
+final class HandlingSession extends HandlerContext
 {
     /**
      * @var array<int, Envelope>
@@ -31,7 +31,7 @@ final class HandlingSession extends Dispatcher
      */
     public function __construct(
         private readonly Handler $handler,
-        private readonly object $transaction,
+        public readonly object $transaction,
     ) {}
 
     public function dispatchEnvelope(Envelope $envelope): mixed
@@ -44,13 +44,13 @@ final class HandlingSession extends Dispatcher
         }
 
         /** @phpstan-ignore argument.type */
-        return $this->handler->handle($envelope, $this, $this->transaction);
+        return $this->handler->handle($envelope, $this);
     }
 
     public function dispatchPostponed(): void
     {
         while ($envelope = array_shift($this->postponedEnvelopes)) {
-            $this->handler->handle($envelope, $this, $this->transaction);
+            $this->handler->handle($envelope, $this);
         }
     }
 }

@@ -22,7 +22,7 @@ final readonly class CallableHandler implements Handler
     public array $messageClasses;
 
     /**
-     * @param callable(TMessage, Dispatcher<TRequiredMessages>, Stamps, TTransaction): TResult $handler
+     * @param callable(TMessage, HandlerContext<TRequiredMessages, TTransaction>, Stamps): TResult $handler
      * @param ?non-empty-string $id
      */
     public function __construct(
@@ -36,9 +36,9 @@ final readonly class CallableHandler implements Handler
         $this->messageClasses = $messageClasses;
     }
 
-    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed
+    public function handle(Envelope $envelope, HandlerContext $context): mixed
     {
         /** @phpstan-ignore argument.type, return.type */
-        return ($this->handler)($envelope->message, $dispatcher, $envelope->stamps, $transaction);
+        return ($this->handler)($envelope->message, $context, $envelope->stamps);
     }
 }

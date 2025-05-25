@@ -27,9 +27,8 @@ interface Handler
      * @template TResult
      * @template TMessage of TSupportedMessages&Message<TResult>
      * @param Envelope<TMessage> $envelope
-     * @param Dispatcher<TRequiredMessages> $dispatcher
-     * @param TTransaction $transaction
+     * @param HandlerContext<TRequiredMessages, TTransaction> $context
      * @return TResult
      */
-    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed;
+    public function handle(Envelope $envelope, HandlerContext $context): mixed;
 }

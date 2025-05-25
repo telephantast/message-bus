@@ -26,7 +26,7 @@ final class Handlers implements Handler
         return new self();
     }
 
-    public string $id { get => json_encode(array_column($this->handlers, 'id'), JSON_THROW_ON_ERROR); }
+    public string $id { get => implode(', ', array_column($this->handlers, 'id')); }
 
     public array $messageClasses { get => array_keys($this->handlers); }
 
@@ -65,18 +65,17 @@ final class Handlers implements Handler
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @template THandlerRequiredMessages of Message
-     * @template THandlerTransaction of object
-     * @param callable(TMessage, Dispatcher<THandlerRequiredMessages>, Stamps, THandlerTransaction): TResult $handler
-     * @param ?non-empty-string $id
+     * @template THandlerRequiredMessages of Message = never
+     * @template THandlerTransaction of object = object
+     * @param callable(TMessage, HandlerContext<THandlerRequiredMessages, THandlerTransaction>, Stamps): TResult $handler
      * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction&THandlerTransaction>
      */
-    public function withCallable(callable $handler, ?string $id = null): self
+    public function withCallable(callable $handler): self
     {
-        return $this->with(new CallableHandler($handler, $id));
+        return $this->with(new CallableHandler($handler));
     }
 
-    public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed
+    public function handle(Envelope $envelope, HandlerContext $context): mixed
     {
         $messageClass = $envelope->message::class;
         $handlers = $this->handlers[$messageClass] ?? [];
@@ -84,7 +83,7 @@ final class Handlers implements Handler
         if ($envelope->message instanceof Event) {
             foreach ($handlers as $handler) {
                 /** @phpstan-ignore argument.type */
-                $handler->handle($envelope, $dispatcher, $transaction);
+                $handler->handle($envelope, $context);
             }
 
             /** @phpstan-ignore return.type */
@@ -99,6 +98,6 @@ final class Handlers implements Handler
         }
 
         /** @phpstan-ignore argument.type */
-        return $handlers[0]->handle($envelope, $dispatcher, $transaction);
+        return $handlers[0]->handle($envelope, $context);
     }
 }

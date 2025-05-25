@@ -15,6 +15,9 @@ $config = new Config()
             ->in(__DIR__ . '/tests')
             ->append([
                 __FILE__,
+            ])
+            ->notPath([
+                'HandlerContext.php',
             ]),
     )
     ->setParallelConfig(ParallelConfigFactory::detect())
