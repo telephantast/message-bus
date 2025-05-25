@@ -8,7 +8,7 @@ use Thesis\Message\Event;
 use Thesis\Message\Message;
 
 /**
- * @template TSupportedMessages of Message
+ * @template TSupportedMessages of Message = never
  * @template-covariant TRequiredMessages of Message = Event
  * @template-contravariant TTransaction of object = object
  * @implements Handler<TSupportedMessages, TRequiredMessages, TTransaction>

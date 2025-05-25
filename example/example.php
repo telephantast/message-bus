@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Thesis\MessageBus\Dispatcher;
+use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\Persistence\InMemoryStorage;
@@ -13,15 +13,15 @@ require_once __DIR__ . '/messages.php';
 final readonly class Service
 {
     /**
-     * @param Dispatcher<Now|Pong> $dispatcher
+     * @param HandlerContext<Now|Pong> $context
      */
-    public static function handlePing(Ping $ping, Dispatcher $dispatcher): void
+    public static function handlePing(Ping $ping, HandlerContext $context): void
     {
         dump('Entered ' . __METHOD__);
 
-        $now = $dispatcher->dispatch(new Now());
+        $now = $context->dispatch(new Now());
 
-        $dispatcher->dispatch(
+        $context->dispatch(
             new Pong(sprintf('Received "%s" at %s.', $ping->text, $now->format('c'))),
         );
 
