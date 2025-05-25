@@ -16,5 +16,5 @@ abstract class HandlerContext extends Dispatcher
     /**
      * @var TTransaction
      */
-    abstract public object $transaction { get; }
+    abstract public object $transaction { get; } /** @phpstan-ignore generics.variance */
 }

@@ -1,7 +1,0 @@
-parameters:
-	ignoreErrors:
-		-
-			message: '#^Template type TTransaction is declared as covariant, but occurs in invariant position in property Thesis\\MessageBus\\HandlerContext\:\:\$transaction\.$#'
-			identifier: generics.variance
-			count: 1
-			path: src/HandlerContext.php
