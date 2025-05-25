@@ -62,6 +62,20 @@ final class Handlers implements Handler
         return $copy;
     }
 
+    /**
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     * @template THandlerRequiredMessages of Message
+     * @template THandlerTransaction of object
+     * @param callable(TMessage, Dispatcher<THandlerRequiredMessages>, Stamps, THandlerTransaction): TResult $handler
+     * @param ?non-empty-string $id
+     * @return self<TSupportedMessages|TMessage, TRequiredMessages|THandlerRequiredMessages, TTransaction&THandlerTransaction>
+     */
+    public function withCallable(callable $handler, ?string $id = null): self
+    {
+        return $this->with(new CallableHandler($handler, $id));
+    }
+
     public function handle(Envelope $envelope, Dispatcher $dispatcher, object $transaction): mixed
     {
         $messageClass = $envelope->message::class;
