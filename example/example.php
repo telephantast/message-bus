@@ -51,7 +51,7 @@ final readonly class Service
 
 $messageBus = new MessageBus(
     storage: new InMemoryStorage(),
-    syncHandlers: new Handlers()
+    syncHandler: new Handlers()
         ->with(Service::handlePing(...))
         ->with(Service::handleNow(...))
         ->with(Service::onPong(...)),

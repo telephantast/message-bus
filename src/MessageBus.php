@@ -18,11 +18,11 @@ final class MessageBus extends Dispatcher
 {
     /**
      * @param Storage<TTransaction> $storage
-     * @param Handlers<TSupportedMessages, Message, TTransaction> $syncHandlers
+     * @param Handler<TSupportedMessages, Message, TTransaction> $syncHandler
      */
     public function __construct(
         private readonly Storage $storage,
-        private readonly Handlers $syncHandlers,
+        private readonly Handler $syncHandler,
     ) {}
 
     public function dispatchEnvelope(Envelope $envelope): mixed
@@ -30,7 +30,7 @@ final class MessageBus extends Dispatcher
         $transaction = $this->storage->beginTransaction();
 
         try {
-            $session = new HandlingSession($this->syncHandlers, $transaction->wrappedTransaction);
+            $session = new HandlingSession($this->syncHandler, $transaction->wrappedTransaction);
             /** @phpstan-ignore argument.type */
             $result = $session->dispatchEnvelope($envelope);
             $session->dispatchPostponed();
