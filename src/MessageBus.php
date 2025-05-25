@@ -30,8 +30,7 @@ final class MessageBus extends Dispatcher
         $transaction = $this->storage->beginTransaction();
 
         try {
-            /** @phpstan-ignore argument.type */
-            $session = new HandlingSession($this->syncHandlers, $transaction);
+            $session = new HandlingSession($this->syncHandlers, $transaction->wrappedTransaction);
             /** @phpstan-ignore argument.type */
             $result = $session->dispatchEnvelope($envelope);
             $session->dispatchPostponed();
