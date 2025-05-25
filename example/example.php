@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use Thesis\MessageBus\CallableHandler;
 use Thesis\MessageBus\Dispatcher;
+use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\MessageBus;
+use Thesis\MessageBus\Persistence\InMemoryStorage;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/messages.php';
 
-final readonly class Handlers
+final readonly class Service
 {
     /**
      * @param Dispatcher<Now|Pong> $dispatcher
@@ -47,9 +50,11 @@ final readonly class Handlers
     }
 }
 
-$messageBus
-    = new MessageBus()
-    ->withHandler(Handlers::handlePing(...))
-    ->withHandler(Handlers::handleNow(...))
-    ->withHandler(Handlers::onPong(...))
-    ->dispatch(new Ping('Hi!'));
+$messageBus = new MessageBus(
+    storage: new InMemoryStorage(),
+    syncHandlers: new Handlers()
+        ->with(new CallableHandler(Service::handlePing(...)))
+        ->with(new CallableHandler(Service::handleNow(...)))
+        ->with(new CallableHandler(Service::onPong(...))),
+);
+$messageBus->dispatch(new Ping('Hi!'));

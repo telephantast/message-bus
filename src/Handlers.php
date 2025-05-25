@@ -9,12 +9,23 @@ use Thesis\Message\Message;
 
 /**
  * @template TSupportedMessages of Message
- * @template-covariant TRequiredMessages of Message = \Thesis\Message\Event
+ * @template-covariant TRequiredMessages of Message = Event
  * @template-contravariant TTransaction of object = object
  * @implements Handler<TSupportedMessages, TRequiredMessages, TTransaction>
  */
 final class Handlers implements Handler
 {
+    /**
+     * @template TForTransaction of object
+     * @param class-string<TForTransaction> $transactionClass
+     * @return self<never, Event, TForTransaction>
+     */
+    public static function forTransaction(string $transactionClass): self
+    {
+        /** @var self<never, Event, TForTransaction> */
+        return new self();
+    }
+
     public string $id { get => json_encode(array_column($this->handlers, 'id'), JSON_THROW_ON_ERROR); }
 
     public array $messageClasses { get => array_keys($this->handlers); }

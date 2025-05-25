@@ -6,7 +6,6 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
 use Thesis\MessageBus\Internal\HandlingSession;
-use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
 
@@ -18,31 +17,13 @@ use Thesis\MessageBus\Persistence\Storage;
 final class MessageBus extends Dispatcher
 {
     /**
-     * @param Handlers<TSupportedMessages, Message, TTransaction> $handlers
      * @param Storage<TTransaction> $storage
+     * @param Handlers<TSupportedMessages, Message, TTransaction> $syncHandlers
      */
     public function __construct(
-        private readonly Storage $storage = new InMemoryStorage(),
-        private readonly Handlers $handlers = new Handlers(),
+        private readonly Storage $storage,
+        private readonly Handlers $syncHandlers,
     ) {}
-
-    /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param (\Closure(TMessage, Dispatcher<Message>, Stamps, TTransaction): TResult)|Handler<TMessage, Message, TTransaction> $handler
-     * @return self<TSupportedMessages|TMessage, TTransaction>
-     */
-    public function withHandler(\Closure|Handler $handler): self
-    {
-        if ($handler instanceof \Closure) {
-            $handler = new CallableHandler($handler);
-        }
-
-        return new self(
-            storage: $this->storage,
-            handlers: $this->handlers->with($handler),
-        );
-    }
 
     public function dispatchEnvelope(Envelope $envelope): mixed
     {
@@ -50,7 +31,7 @@ final class MessageBus extends Dispatcher
 
         try {
             /** @phpstan-ignore argument.type */
-            $session = new HandlingSession($this->handlers, $transaction);
+            $session = new HandlingSession($this->syncHandlers, $transaction);
             /** @phpstan-ignore argument.type */
             $result = $session->dispatchEnvelope($envelope);
             $session->dispatchPostponed();
