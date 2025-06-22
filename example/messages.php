@@ -2,20 +2,18 @@
 
 declare(strict_types=1);
 
-use Thesis\Message\Command;
-use Thesis\Message\Event;
-use Thesis\Message\Message;
+use Thesis\MessageBus\Call;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-final readonly class Ping implements Command
+final readonly class Ping
 {
     public function __construct(
         public string $text,
     ) {}
 }
 
-final readonly class Pong implements Event
+final readonly class Pong
 {
     public function __construct(
         public string $text,
@@ -23,6 +21,6 @@ final readonly class Pong implements Event
 }
 
 /**
- * @implements Message<\DateTimeImmutable>
+ * @implements Call<\DateTimeImmutable>
  */
-final readonly class Now implements Message {}
+final readonly class GetTimestamp implements Call {}

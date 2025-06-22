@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Message;
-
 /**
- * @implements Message<string>
+ * @implements Call<string>
  */
-final readonly class TestQuery implements Message {}
+final readonly class TestQuery implements Call {}

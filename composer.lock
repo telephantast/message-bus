@@ -4,68 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa26aac696a5b2f2a8052405f68a81f3",
+    "content-hash": "097b6aa1094a28b0f4687e411f2acb25",
     "packages": [
-        {
-            "name": "thesis/message",
-            "version": "0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesisphp/message.git",
-                "reference": "3e2bc34aea5f77530106f676d4a8cb834882b864"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesisphp/message/zipball/3e2bc34aea5f77530106f676d4a8cb834882b864",
-                "reference": "3e2bc34aea5f77530106f676d4a8cb834882b864",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\Message\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesisphp/people"
-                }
-            ],
-            "description": "Thesis Message",
-            "support": {
-                "issues": "https://github.com/thesisphp/message/issues",
-                "source": "https://github.com/thesisphp/message/tree/0.2.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-04-04T04:36:31+00:00"
-        },
         {
             "name": "typhoon/formatter",
             "version": "0.1.x-dev",

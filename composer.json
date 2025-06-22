@@ -15,7 +15,6 @@
     ],
     "require": {
         "php": "^8.4",
-        "thesis/message": "^0.2.1",
         "typhoon/formatter": "^0.1@dev"
     },
     "require-dev": {
@@ -30,7 +29,10 @@
     "autoload": {
         "psr-4": {
             "Thesis\\MessageBus\\": "src/"
-        }
+        },
+        "files": [
+            "src/Result.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

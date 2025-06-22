@@ -2,58 +2,52 @@
 
 declare(strict_types=1);
 
-use Thesis\MessageBus\HandlerContext;
-use Thesis\MessageBus\Handlers;
+use Thesis\MessageBus\Call\CallableCallHandler;
+use Thesis\MessageBus\Call\CallHandlers;
+use Thesis\MessageBus\Command\CallableCommandHandler;
+use Thesis\MessageBus\Command\CommandHandlers;
+use Thesis\MessageBus\Event\CallableEventListener;
+use Thesis\MessageBus\Event\EventListeners;
+use Thesis\MessageBus\Invoker;
 use Thesis\MessageBus\MessageBus;
-use Thesis\MessageBus\Persistence\InMemoryStorage;
+use Thesis\MessageBus\Result;
+use function Thesis\MessageBus\publish;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/messages.php';
 
-final readonly class Service
+final readonly class App
 {
     /**
-     * @param HandlerContext<Now|Pong> $context
+     * @param Invoker<GetTimestamp> $invoker
+     * @return Result<null>
      */
-    public static function handlePing(Ping $ping, HandlerContext $context): void
+    public static function ping(Ping $ping, Invoker $invoker): Result
     {
-        dump('Entered ' . __METHOD__);
+        $now = $invoker->invoke(new GetTimestamp());
+        $text = sprintf('Received "%s" at %s.', $ping->text, $now->format('c'));
 
-        $now = $context->dispatch(new Now());
-
-        $context->dispatch(
-            new Pong(sprintf('Received "%s" at %s.', $ping->text, $now->format('c'))),
-        );
-
-        dump('Leaving ' . __METHOD__);
+        return publish(new Pong($text));
     }
 
-    public static function handleNow(Now $now): DateTimeImmutable
+    public static function getTimestamp(): DateTimeImmutable
     {
-        dump('Entered ' . __METHOD__);
-
-        $date = new DateTimeImmutable();
-
-        dump('Leaving ' . __METHOD__);
-
-        return $date;
+        return new DateTimeImmutable();
     }
 
     public static function onPong(Pong $pong): void
     {
-        dump('Entered ' . __METHOD__);
-
         dump($pong);
-
-        dump('Leaving ' . __METHOD__);
     }
 }
 
 $messageBus = new MessageBus(
-    storage: new InMemoryStorage(),
-    syncHandler: new Handlers()
-        ->with(Service::handlePing(...))
-        ->with(Service::handleNow(...))
-        ->with(Service::onPong(...)),
+    commandHandler: new CommandHandlers()
+        ->with([Ping::class], new CallableCommandHandler(App::ping(...))),
+    eventListener: new EventListeners()
+        ->with([Pong::class], new CallableEventListener(App::onPong(...))),
+    callHandler: new CallHandlers()
+        ->with([GetTimestamp::class], new CallableCallHandler(App::getTimestamp(...))),
 );
-$messageBus->dispatch(new Ping('Hi!'));
+
+$messageBus->send(new Ping('Hello!'));

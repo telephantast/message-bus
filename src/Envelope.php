@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Message;
-
 /**
- * @template-covariant TMessage of Message = Message
+ * @template-covariant TMessage of object = object
  */
-final readonly class Envelope
+final class Envelope
 {
+    public static function wrap(object $message): self
+    {
+        if ($message instanceof self) {
+            return $message;
+        }
+
+        return new self($message);
+    }
+
+    /**
+     * @var class-string<TMessage>
+     */
+    public string $messageClass { get => $this->message::class; } /** @phpstan-ignore generics.variance */
+
     /**
      * @param TMessage $message
      */
     public function __construct(
-        public Message $message,
-        public Stamps $stamps = new Stamps(),
+        public readonly object $message,
+        public readonly Stamps $stamps = new Stamps(),
     ) {}
 }

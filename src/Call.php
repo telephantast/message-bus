@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 /**
- * @api
+ * @template-covariant TResult = mixed
  */
-abstract class MessageBusException extends \Exception {}
+interface Call {}

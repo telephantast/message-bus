@@ -4,43 +4,69 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Message;
-use Thesis\MessageBus\Internal\HandlingSession;
-use Thesis\MessageBus\Persistence\Outbox;
-use Thesis\MessageBus\Persistence\Storage;
+use Thesis\MessageBus\Call\CallHandler;
+use Thesis\MessageBus\Call\CallHandlers;
+use Thesis\MessageBus\Command\CommandHandler;
+use Thesis\MessageBus\Command\CommandHandlers;
+use Thesis\MessageBus\Event\EventListener;
+use Thesis\MessageBus\Event\EventListeners;
 
 /**
- * @template-contravariant TSupportedMessages of Message = \Thesis\Message\Event
- * @template-covariant TTransaction of object = object
- * @extends Dispatcher<TSupportedMessages>
+ * @template-contravariant TCommands of object = never
+ * @template-contravariant TCalls of Call = never
+ * @extends Invoker<TCalls>
  */
-final class MessageBus extends Dispatcher
+final class MessageBus extends Invoker
 {
     /**
-     * @param Storage<TTransaction> $storage
-     * @param Handler<TSupportedMessages, Message, TTransaction> $syncHandler
+     * @param CommandHandler<TCommands> $commandHandler
+     * @param EventListener<object> $eventListener
+     * @param CallHandler<TCalls> $callHandler
      */
     public function __construct(
-        private readonly Storage $storage,
-        private readonly Handler $syncHandler,
+        private readonly CommandHandler $commandHandler = new CommandHandlers(),
+        private readonly EventListener $eventListener = new EventListeners(),
+        private readonly CallHandler $callHandler = new CallHandlers(),
     ) {}
 
-    public function dispatchEnvelope(Envelope $envelope): mixed
+    public function send(object $command): void
     {
-        $transaction = $this->storage->beginTransaction();
-
-        try {
-            $session = new HandlingSession($this->syncHandler, $transaction->wrappedTransaction);
-            /** @phpstan-ignore argument.type */
-            $result = $session->dispatchEnvelope($envelope);
-            $session->dispatchPostponed();
-            $transaction->commit(new Outbox('default', bin2hex(random_bytes(10)), []));
-        } catch (\Throwable $exception) {
-            $transaction->rollback();
-
-            throw $exception;
+        if (!$command instanceof Envelope) {
+            $command = new Envelope($command);
         }
 
-        return $result;
+        $this->processResult($this->commandHandler->handle($command, $this));
+    }
+
+    public function on(object $event): void
+    {
+        if (!$event instanceof Envelope) {
+            $event = new Envelope($event);
+        }
+
+        $this->processResult($this->eventListener->on($event, $this));
+    }
+
+    protected function invokeEnvelope(Envelope $call): mixed
+    {
+        return $this->processResult($this->callHandler->handle($call, $this));
+    }
+
+    /**
+     * @template TResult
+     * @param Result<TResult> $result
+     * @return TResult
+     */
+    private function processResult(Result $result): mixed
+    {
+        foreach ($result->commandEnvelopes as $commandEnvelope) {
+            $this->send($commandEnvelope);
+        }
+
+        foreach ($result->eventEnvelopes as $eventEnvelope) {
+            $this->on($eventEnvelope);
+        }
+
+        return $result->result;
     }
 }
