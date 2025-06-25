@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\Message\Command;
+use Thesis\Message\Event;
+
 /**
- * @template-covariant TResult = mixed
+ * @template-covariant TResult
  */
 final readonly class Result
 {
     /**
      * @param TResult $result
-     * @param list<Envelope> $commandEnvelopes
-     * @param list<Envelope> $eventEnvelopes
+     * @param list<Envelope<Command>> $commands
+     * @param list<Envelope<Event>> $events
      */
     public function __construct(
         public mixed $result = null,
-        public array $commandEnvelopes = [],
-        public array $eventEnvelopes = [],
+        public array $commands = [],
+        public array $events = [],
     ) {}
 
     /**
@@ -29,32 +32,48 @@ final readonly class Result
     {
         return new self(
             result: $result,
-            commandEnvelopes: $this->commandEnvelopes,
-            eventEnvelopes: $this->eventEnvelopes,
+            commands: $this->commands,
+            events: $this->events,
         );
     }
 
     /**
      * @no-named-arguments
+     * @param Command|Envelope<Command> ...$commands
      */
-    public function send(object ...$commands): static
+    public function commands(Command|Envelope ...$commands): static
     {
         return new self(
             result: $this->result,
-            commandEnvelopes: [...$this->commandEnvelopes, ...array_map(Envelope::wrap(...), $commands)],
-            eventEnvelopes: $this->eventEnvelopes,
+            commands: [...$this->commands, ...array_map(Envelope::wrap(...), $commands)],
+            events: $this->events,
         );
     }
 
     /**
      * @no-named-arguments
+     * @param Event|Envelope<Event> ...$events
      */
-    public function publish(object ...$events): static
+    public function events(Event|Envelope ...$events): static
     {
         return new self(
             result: $this->result,
-            commandEnvelopes: $this->commandEnvelopes,
-            eventEnvelopes: [...$this->eventEnvelopes, ...array_map(Envelope::wrap(...), $events)],
+            commands: $this->commands,
+            events: [...$this->events, ...array_map(Envelope::wrap(...), $events)],
+        );
+    }
+
+    /**
+     * @template TNewResult
+     * @param Result<TNewResult> $result
+     * @return self<TNewResult>
+     */
+    public function merge(self $result): self
+    {
+        return new self(
+            result: $result->result,
+            commands: [...$this->commands, ...$result->commands],
+            events: [...$this->events, ...$result->events],
         );
     }
 }
@@ -62,33 +81,29 @@ final readonly class Result
 /**
  * @template TResult
  * @param TResult $result
- * @param list<object> $commands
- * @param list<object> $events
  * @return Result<TResult>
  */
-function result(mixed $result = null, array $commands = [], array $events = []): Result
+function result(mixed $result = null): Result
 {
-    return new Result(
-        result: $result,
-        commandEnvelopes: array_map(Envelope::wrap(...), $commands),
-        eventEnvelopes: array_map(Envelope::wrap(...), $events),
-    );
+    return new Result($result);
 }
 
 /**
  * @no-named-arguments
+ * @param Command|Envelope<Command> ...$commands
  * @return Result<null>
  */
-function send(object ...$commands): Result
+function commands(Command|Envelope ...$commands): Result
 {
-    return new Result(commandEnvelopes: array_map(Envelope::wrap(...), $commands));
+    return new Result(commands: array_map(Envelope::wrap(...), $commands));
 }
 
 /**
  * @no-named-arguments
+ * @param Event|Envelope<Event> ...$events
  * @return Result<null>
  */
-function publish(object ...$events): Result
+function events(Event|Envelope ...$events): Result
 {
-    return new Result(eventEnvelopes: array_map(Envelope::wrap(...), $events));
+    return new Result(events: array_map(Envelope::wrap(...), $events));
 }

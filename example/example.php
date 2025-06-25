@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-use Thesis\MessageBus\Call\CallableCallHandler;
-use Thesis\MessageBus\Call\CallHandlers;
-use Thesis\MessageBus\Command\CallableCommandHandler;
-use Thesis\MessageBus\Command\CommandHandlers;
-use Thesis\MessageBus\Event\CallableEventListener;
-use Thesis\MessageBus\Event\EventListeners;
+use Thesis\MessageBus\Handler\CallableHandler;
+use Thesis\MessageBus\Handler\Context;
+use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\Invoker;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\Result;
-use function Thesis\MessageBus\publish;
+use Thesis\MessageBus\Transport\InMemoryTransport;
+use Thesis\MessageBus\Transport\Router;
+use function Thesis\MessageBus\events;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/messages.php';
@@ -19,15 +18,14 @@ require_once __DIR__ . '/messages.php';
 final readonly class App
 {
     /**
-     * @param Invoker<GetTimestamp> $invoker
      * @return Result<null>
      */
-    public static function ping(Ping $ping, Invoker $invoker): Result
+    public static function ping(Ping $ping, Context $context): Result
     {
-        $now = $invoker->invoke(new GetTimestamp());
+        $now = $context->get(Invoker::class(GetTimestamp::class))->invoke(new GetTimestamp());
         $text = sprintf('Received "%s" at %s.', $ping->text, $now->format('c'));
 
-        return publish(new Pong($text));
+        return events(new Pong($text));
     }
 
     public static function getTimestamp(): DateTimeImmutable
@@ -41,13 +39,23 @@ final readonly class App
     }
 }
 
+$transport = new InMemoryTransport();
 $messageBus = new MessageBus(
-    commandHandler: new CommandHandlers()
-        ->with([Ping::class], new CallableCommandHandler(App::ping(...))),
-    eventListener: new EventListeners()
-        ->with([Pong::class], new CallableEventListener(App::onPong(...))),
-    callHandler: new CallHandlers()
-        ->with([GetTimestamp::class], new CallableCallHandler(App::getTimestamp(...))),
+    endpoints: [
+        'test' => new Handlers()
+            ->with([Ping::class], new CallableHandler(App::ping(...)))
+            ->with([Pong::class], new CallableHandler(App::onPong(...)))
+            ->with([GetTimestamp::class], new CallableHandler(App::getTimestamp(...))),
+    ],
+    sender: $transport,
+    publisher: $transport,
+    consumer: $transport,
+    router: new Router\Map([
+        Ping::class => 'test',
+        GetTimestamp::class => 'test',
+    ]),
 );
+$transport->subscribe('test', [Pong::class]);
+$messageBus->run('test');
 
 $messageBus->send(new Ping('Hello!'));

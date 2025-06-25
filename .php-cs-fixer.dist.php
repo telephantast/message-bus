@@ -17,7 +17,7 @@ $config = new Config()
                 __FILE__,
             ])
             ->notPath([
-                'HandlerContext.php',
+                'Invoker.php',
             ]),
     )
     ->setParallelConfig(ParallelConfigFactory::detect())

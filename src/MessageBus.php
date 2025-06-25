@@ -4,69 +4,111 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Call\CallHandler;
-use Thesis\MessageBus\Call\CallHandlers;
-use Thesis\MessageBus\Command\CommandHandler;
-use Thesis\MessageBus\Command\CommandHandlers;
-use Thesis\MessageBus\Event\EventListener;
-use Thesis\MessageBus\Event\EventListeners;
+use Thesis\Message\Command;
+use Thesis\Message\Event;
+use Thesis\MessageBus\Handler\CallDispatcher;
+use Thesis\MessageBus\Handler\Context;
+use Thesis\MessageBus\Handler\Endpoint;
+use Thesis\MessageBus\Transport\Client;
+use Thesis\MessageBus\Transport\Consumer;
+use Thesis\MessageBus\Transport\Fake;
+use Thesis\MessageBus\Transport\Publisher;
+use Thesis\MessageBus\Transport\RoutedCommand;
+use Thesis\MessageBus\Transport\Router;
+use Thesis\MessageBus\Transport\Sender;
 
-/**
- * @template-contravariant TCommands of object = never
- * @template-contravariant TCalls of Call = never
- * @extends Invoker<TCalls>
- */
-final class MessageBus extends Invoker
+final readonly class MessageBus
 {
+    private CallDispatcher $callDispatcher;
+
     /**
-     * @param CommandHandler<TCommands> $commandHandler
-     * @param EventListener<object> $eventListener
-     * @param CallHandler<TCalls> $callHandler
+     * @param array<non-empty-string, Handler<*>> $endpoints
      */
     public function __construct(
-        private readonly CommandHandler $commandHandler = new CommandHandlers(),
-        private readonly EventListener $eventListener = new EventListeners(),
-        private readonly CallHandler $callHandler = new CallHandlers(),
-    ) {}
-
-    public function send(object $command): void
-    {
-        if (!$command instanceof Envelope) {
-            $command = new Envelope($command);
-        }
-
-        $this->processResult($this->commandHandler->handle($command, $this));
+        private array $endpoints = [],
+        private Sender $sender = Fake::Instance,
+        private Publisher $publisher = Fake::Instance,
+        private Consumer $consumer = Fake::Instance,
+        private Client $client = Fake::Instance,
+        private Router $router = new Router\Map(),
+    ) {
+        $this->callDispatcher = new CallDispatcher(
+            endpoints: $this->endpoints,
+            router: $this->router,
+            client: $this->client,
+        );
     }
 
-    public function on(object $event): void
+    /**
+     * @no-named-arguments
+     * @param Command|Envelope<Command> ...$commands
+     */
+    public function send(Command|Envelope ...$commands): void
     {
-        if (!$event instanceof Envelope) {
-            $event = new Envelope($event);
+        if ($commands === []) {
+            return;
         }
 
-        $this->processResult($this->eventListener->on($event, $this));
+        $this->sender->send(array_map(
+            function (Command|Envelope $command): RoutedCommand {
+                $command = Envelope::wrap($command);
+
+                return new RoutedCommand(
+                    endpoint: $this->router->route($command)
+                        ?? throw new \LogicException(\sprintf('Failed to route `%s`', $command->messageClass)),
+                    envelope: $command,
+                );
+            },
+            $commands,
+        ));
     }
 
-    protected function invokeEnvelope(Envelope $call): mixed
+    /**
+     * @no-named-arguments
+     * @param Event|Envelope<Event> ...$events
+     */
+    public function publish(Event|Envelope ...$events): void
     {
-        return $this->processResult($this->callHandler->handle($call, $this));
+        if ($events === []) {
+            return;
+        }
+
+        $this->publisher->publish(array_map(Envelope::wrap(...), $events));
     }
 
     /**
      * @template TResult
-     * @param Result<TResult> $result
+     * @param (Call<TResult>)|Envelope<Call<TResult>> $call
      * @return TResult
      */
-    private function processResult(Result $result): mixed
+    public function invoke(Call|Envelope $call): mixed
     {
-        foreach ($result->commandEnvelopes as $commandEnvelope) {
-            $this->send($commandEnvelope);
-        }
+        $invoker = new Invoker($this->callDispatcher);
+        $result = $invoker->invoke($call);
 
-        foreach ($result->eventEnvelopes as $eventEnvelope) {
-            $this->on($eventEnvelope);
-        }
+        $this->send(...$invoker->commands);
+        $this->publish(...$invoker->events);
 
-        return $result->result;
+        return $result;
+    }
+
+    /**
+     * @no-named-arguments
+     * @param non-empty-string ...$endpoints
+     */
+    public function run(string ...$endpoints): void
+    {
+        foreach ($endpoints as $endpoint) {
+            $handler = $this->endpoints[$endpoint];
+            $context = new Context()->with(new Endpoint($endpoint));
+
+            $this->consumer->consume($endpoint, function (Envelope $envelope) use ($handler, $context): void {
+                $invoker = new Invoker($this->callDispatcher, $context);
+                /** @phpstan-ignore argument.type */
+                $result = $handler->handle($envelope, $context->with($invoker));
+                $this->send(...$invoker->commands, ...$result->commands);
+                $this->publish(...$invoker->events, ...$result->events);
+            });
+        }
     }
 }
