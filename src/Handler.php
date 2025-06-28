@@ -8,10 +8,15 @@ use Thesis\Message\Message;
 use Thesis\MessageBus\Handler\Context;
 
 /**
- * @template-contravariant TMessage of Message
+ * @template TMessage of Message
  */
 interface Handler
 {
+    /**
+     * @var list<class-string<TMessage>>
+     */
+    public array $messageClasses { get; }
+
     /**
      * @template TResult
      * @param Envelope<TMessage&Message<TResult>> $envelope

@@ -14,16 +14,21 @@ use Thesis\MessageBus\Result;
  * @template TMessage of Message
  * @implements Handler<TMessage>
  */
-final readonly class WithMiddleware implements Handler
+final class WithMiddleware implements Handler
 {
     /**
      * @param Handler<TMessage> $handler
      * @param iterable<Middleware> $middleware
      */
     public function __construct(
-        private Handler $handler,
-        private iterable $middleware,
+        private readonly Handler $handler,
+        private readonly iterable $middleware,
     ) {}
+
+    /**
+     * @var list<class-string<TMessage>>
+     */
+    public array $messageClasses { get => $this->handler->messageClasses; }
 
     public function handle(Envelope $envelope, Context $context): Result
     {

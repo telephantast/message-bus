@@ -9,7 +9,6 @@ use Thesis\MessageBus\Handler\Context;
 use Thesis\MessageBus\Handler\Endpoint;
 use Thesis\MessageBus\Handler\Middleware;
 use Thesis\MessageBus\Handler\Pipeline;
-use Thesis\MessageBus\Invoker;
 use Thesis\MessageBus\Result;
 
 final readonly class OutboxMiddleware implements Middleware
@@ -51,14 +50,12 @@ final readonly class OutboxMiddleware implements Middleware
 
             $result = $pipeline->continue($context);
 
-            $invoker = $context->find(Invoker::class);
-
             $transaction->insertOutbox(
                 new Outbox(
                     incomingMessageId: $envelope->messageId,
                     endpoint: $endpoint,
-                    commands: [...$result->commands, ...($invoker->commands ?? [])],
-                    events: [...$result->events, ...($invoker->events ?? [])],
+                    commands: $result->commands,
+                    events: $result->events,
                 ),
             );
         } catch (\Throwable $exception) {

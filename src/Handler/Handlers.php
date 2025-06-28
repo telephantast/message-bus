@@ -11,7 +11,7 @@ use Thesis\MessageBus\Handler;
 use Thesis\MessageBus\Result;
 
 /**
- * @template-contravariant TMessage of Message = Event
+ * @template TMessage of Message = Event
  * @implements Handler<TMessage>
  */
 final class Handlers implements Handler
@@ -23,27 +23,28 @@ final class Handlers implements Handler
 
     /**
      * @template TWithMessage of Message
-     * @param non-empty-list<class-string<TWithMessage>> $messages
      * @param Handler<TWithMessage> $handler
      * @return self<TMessage|TWithMessage>
      */
-    public function with(array $messages, Handler $handler): self
+    public function with(Handler $handler): self
     {
         $copy = clone $this;
 
-        foreach ($messages as $message) {
-            if (!is_a($message, Event::class, allow_string: true) && isset($copy->handlers[$message])) {
+        foreach ($handler->messageClasses as $messageClass) {
+            if (!is_a($messageClass, Event::class, allow_string: true) && isset($copy->handlers[$messageClass])) {
                 throw new \LogicException(\sprintf(
                     'Non event message `%s` already has a handler',
-                    $message,
+                    $messageClass,
                 ));
             }
 
-            $copy->handlers[$message][] = $handler;
+            $copy->handlers[$messageClass][] = $handler;
         }
 
         return $copy;
     }
+
+    public array $messageClasses { get => array_keys($this->handlers); }
 
     public function handle(Envelope $envelope, Context $context): Result
     {

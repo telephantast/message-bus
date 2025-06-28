@@ -12,7 +12,7 @@ use Thesis\MessageBus\Result;
 /**
  * @api
  * @template-covariant TResult
- * @template-contravariant TMessage of Message<TResult>
+ * @template TMessage of Message<TResult>
  */
 final class Pipeline
 {
@@ -40,7 +40,7 @@ final class Pipeline
         }
 
         /** @var self<THandleResult, THandleMessage> */
-        $pipeline = new self($handler, $middleware, $envelope, $context);
+        $pipeline = new self($handler, $middleware, $envelope, $context); /** @phpstan-ignore argument.type */
 
         return $pipeline->continue();
     }

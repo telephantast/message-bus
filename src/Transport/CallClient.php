@@ -7,7 +7,7 @@ namespace Thesis\MessageBus\Transport;
 use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Envelope;
 
-interface Client
+interface CallClient
 {
     /**
      * @template TResult

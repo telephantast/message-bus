@@ -12,15 +12,17 @@ use Thesis\MessageBus\Stamps;
 
 /**
  * @template-covariant TResult
- * @template-contravariant TMessage of Message
+ * @template TMessage of Message<TResult>
  * @implements Handler<TMessage>
  */
 final readonly class CallableHandler implements Handler
 {
     /**
+     * @param list<class-string<TMessage>> $messageClasses
      * @param callable(TMessage, Context, Stamps): (TResult|Result<TResult>) $handler
      */
     public function __construct(
+        public array $messageClasses,
         private mixed $handler,
     ) {}
 

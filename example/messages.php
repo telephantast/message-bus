@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Thesis\MessageBus\Example;
+
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Call;

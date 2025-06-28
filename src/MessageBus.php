@@ -6,37 +6,49 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Command;
 use Thesis\Message\Event;
-use Thesis\MessageBus\Handler\CallDispatcher;
-use Thesis\MessageBus\Handler\Context;
-use Thesis\MessageBus\Handler\Endpoint;
-use Thesis\MessageBus\Transport\Client;
-use Thesis\MessageBus\Transport\Consumer;
-use Thesis\MessageBus\Transport\Fake;
-use Thesis\MessageBus\Transport\Publisher;
-use Thesis\MessageBus\Transport\RoutedCommand;
-use Thesis\MessageBus\Transport\Router;
-use Thesis\MessageBus\Transport\Sender;
 
-final readonly class MessageBus
+/**
+ * @implements Invoker<Call>
+ */
+final readonly class MessageBus implements Invoker
 {
-    private CallDispatcher $callDispatcher;
+    /**
+     * @var array<non-empty-string, Endpoint>
+     */
+    private array $endpoints;
 
     /**
-     * @param array<non-empty-string, Handler<*>> $endpoints
+     * @param list<Endpoint> $endpoints
      */
-    public function __construct(
-        private array $endpoints = [],
-        private Sender $sender = Fake::Instance,
-        private Publisher $publisher = Fake::Instance,
-        private Consumer $consumer = Fake::Instance,
-        private Client $client = Fake::Instance,
-        private Router $router = new Router\Map(),
-    ) {
-        $this->callDispatcher = new CallDispatcher(
-            endpoints: $this->endpoints,
-            router: $this->router,
-            client: $this->client,
-        );
+    public function __construct(array $endpoints = [])
+    {
+        $this->endpoints = array_column($endpoints, null, 'name');
+    }
+
+    public function setup(): void
+    {
+        foreach ($this->endpoints as $endpoint) {
+            $endpoint->setup($this);
+        }
+    }
+
+    /**
+     * @param non-empty-string $endpoint
+     * @param non-empty-list<class-string<Event>> $toEvents
+     */
+    public function subscribe(string $endpoint, array $toEvents): void
+    {
+        foreach ($toEvents as $toEvent) {
+            foreach ($this->endpoints as $eachEndpoint) {
+                if ($eachEndpoint->publishesEvent($toEvent)) {
+                    $eachEndpoint->subscribe($endpoint, [$toEvent]);
+
+                    continue 2;
+                }
+            }
+
+            throw new \LogicException(\sprintf('Publisher of `%s` not found', $toEvent));
+        }
     }
 
     /**
@@ -45,51 +57,32 @@ final readonly class MessageBus
      */
     public function send(Command|Envelope ...$commands): void
     {
-        if ($commands === []) {
-            return;
+        foreach ($commands as $command) {
+            $command = Envelope::wrap($command);
+
+            foreach ($this->endpoints as $endpoint) {
+                if ($endpoint->handlesCommand($command->messageClass)) {
+                    $endpoint->send([$command]);
+
+                    continue 2;
+                }
+            }
+
+            throw new \LogicException(\sprintf('Failed to route command `%s`', $command->messageClass));
         }
-
-        $this->sender->send(array_map(
-            function (Command|Envelope $command): RoutedCommand {
-                $command = Envelope::wrap($command);
-
-                return new RoutedCommand(
-                    endpoint: $this->router->route($command)
-                        ?? throw new \LogicException(\sprintf('Failed to route `%s`', $command->messageClass)),
-                    envelope: $command,
-                );
-            },
-            $commands,
-        ));
     }
 
-    /**
-     * @no-named-arguments
-     * @param Event|Envelope<Event> ...$events
-     */
-    public function publish(Event|Envelope ...$events): void
-    {
-        if ($events === []) {
-            return;
-        }
-
-        $this->publisher->publish(array_map(Envelope::wrap(...), $events));
-    }
-
-    /**
-     * @template TResult
-     * @param (Call<TResult>)|Envelope<Call<TResult>> $call
-     * @return TResult
-     */
     public function invoke(Call|Envelope $call): mixed
     {
-        $invoker = new Invoker($this->callDispatcher);
-        $result = $invoker->invoke($call);
+        $call = Envelope::wrap($call);
 
-        $this->send(...$invoker->commands);
-        $this->publish(...$invoker->events);
+        foreach ($this->endpoints as $endpoint) {
+            if ($endpoint->handlesCall($call->messageClass)) {
+                return $endpoint->invoke($call, $this);
+            }
+        }
 
-        return $result;
+        throw new \LogicException(\sprintf('Failed to route call `%s`', $call->messageClass));
     }
 
     /**
@@ -98,17 +91,16 @@ final readonly class MessageBus
      */
     public function run(string ...$endpoints): void
     {
-        foreach ($endpoints as $endpoint) {
-            $handler = $this->endpoints[$endpoint];
-            $context = new Context()->with(new Endpoint($endpoint));
-
-            $this->consumer->consume($endpoint, function (Envelope $envelope) use ($handler, $context): void {
-                $invoker = new Invoker($this->callDispatcher, $context);
-                /** @phpstan-ignore argument.type */
-                $result = $handler->handle($envelope, $context->with($invoker));
-                $this->send(...$invoker->commands, ...$result->commands);
-                $this->publish(...$invoker->events, ...$result->events);
-            });
+        foreach ($endpoints as $name) {
+            $this->endpoint($name)->run($this);
         }
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    private function endpoint(string $name): Endpoint
+    {
+        return $this->endpoints[$name] ?? throw new \LogicException();
     }
 }
