@@ -18,11 +18,11 @@ final class WithMiddleware implements Handler
 {
     /**
      * @param Handler<TMessage> $handler
-     * @param iterable<Middleware> $middleware
+     * @param list<Middleware>|\Traversable<Middleware> $middleware
      */
     public function __construct(
         private readonly Handler $handler,
-        private readonly iterable $middleware,
+        private iterable $middleware,
     ) {}
 
     /**
@@ -32,11 +32,20 @@ final class WithMiddleware implements Handler
 
     public function handle(Envelope $envelope, Context $context): Result
     {
-        return Pipeline::handle(
-            handler: $this->handler,
+        if ($this->middleware instanceof \Traversable) {
+            $this->middleware = iterator_to_array($this->middleware, preserve_keys: false);
+        }
+
+        if ($this->middleware === []) {
+            return $this->handler->handle($envelope, $context);
+        }
+
+        /** @phpstan-ignore return.type */
+        return new Pipeline(
+            handler: $this->handler, /** @phpstan-ignore argument.type */
             middleware: $this->middleware,
             envelope: $envelope,
             context: $context,
-        );
+        )->continue();
     }
 }
