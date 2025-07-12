@@ -8,7 +8,7 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 
 /**
- * @template-covariant TResult = mixed
+ * @template-covariant TResult
  */
 final readonly class Result
 {

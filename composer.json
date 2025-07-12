@@ -15,7 +15,8 @@
     ],
     "require": {
         "php": "^8.4",
-        "thesis/message": "^0.3.0"
+        "thesis/message": "^0.3.0",
+        "typhoon/formatter": "^0.1@dev"
     },
     "require-dev": {
         "ext-pcntl": "*",

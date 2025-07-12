@@ -5,32 +5,48 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handler;
 
 use Thesis\Message\Message;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\Handler\CallableHandler\Parameters;
 use Thesis\MessageBus\Publisher;
 use Thesis\MessageBus\Result;
 use Thesis\MessageBus\Sender;
-use Thesis\MessageBus\Stamps;
 
 /**
- * @template-covariant TResult
- * @template TMessage of Message<TResult>
+ * @template TMessage of Message
  * @implements Handler<TMessage>
  */
-final readonly class CallableHandler implements Handler
+final class CallableHandler implements Handler
 {
     /**
-     * @param list<class-string<TMessage>> $messageClasses
-     * @param callable(TMessage, Context, Stamps): (TResult|Result<TResult>) $handler
+     * @param callable $handler
+     * @param ?list<class-string<TMessage>> $messageClasses
      */
     public function __construct(
-        public array $messageClasses,
-        private mixed $handler,
-    ) {}
+        private readonly mixed $handler,
+        ?array $messageClasses = null,
+    ) {
+        $this->_messageClasses = $messageClasses;
+    }
+
+    /**
+     * @var ?list<class-string<TMessage>>
+     */
+    private readonly ?array $_messageClasses;
+
+    public array $messageClasses { get => $this->_messageClasses ?? $this->parameters->messageClasses; }
+
+    private ?Parameters $_parameters = null;
+
+    private Parameters $parameters {
+        get => $this->_parameters ??= Parameters::from(new \ReflectionFunction(($this->handler)(...))->getParameters());
+    }
 
     public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
     {
-        $result = ($this->handler)($envelope->message, $context, $envelope->stamps);
+        $arguments = $this->parameters->resolveArguments($endpoint, $envelope, $context);
+        $result = ($this->handler)(...$arguments);
 
         if ($result instanceof Result) {
             $context->get(Sender::class)->send(...$result->commands);
@@ -39,7 +55,6 @@ final readonly class CallableHandler implements Handler
             return $result->result;
         }
 
-        /** @phpstan-ignore return.type */
         return $result;
     }
 }

@@ -6,6 +6,7 @@ namespace Thesis\MessageBus\Handler;
 
 use Thesis\Message\Event;
 use Thesis\Message\Message;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
 

@@ -6,8 +6,8 @@ namespace Thesis\MessageBus\Outbox;
 
 use Thesis\MessageBus\CollectingPublisher;
 use Thesis\MessageBus\CollectingSender;
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handler\Context;
 use Thesis\MessageBus\Handler\Middleware;
 use Thesis\MessageBus\Handler\Pipeline;
 use Thesis\MessageBus\Publisher;

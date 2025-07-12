@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\Handler\Context;
 
 /**
  * @template TMessage of Message

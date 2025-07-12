@@ -7,7 +7,6 @@ namespace Thesis\MessageBus;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Handler\Context;
 use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\MessageClassMatcher\Boolean;
 use Thesis\MessageBus\Transport\CommandReceiver;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Handler;
+namespace Thesis\MessageBus;
 
 final class Context
 {

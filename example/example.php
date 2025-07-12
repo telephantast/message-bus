@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Example;
 
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Handler\CallableHandler;
-use Thesis\MessageBus\Handler\Context;
 use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\MessageClassMatcher\Namespaced;
@@ -48,9 +48,9 @@ $messageBus = new MessageBus(
         new Endpoint(
             name: 'test',
             handler: new Handlers()
-                ->with(new CallableHandler([Ping::class], App::ping(...)))
-                ->with(new CallableHandler([Pong::class], App::onPong(...)))
-                ->with(new CallableHandler([GetTimestamp::class], App::getTimestamp(...))),
+                ->with(new CallableHandler(App::ping(...)))
+                ->with(new CallableHandler(App::onPong(...)))
+                ->with(new CallableHandler(App::getTimestamp(...), [GetTimestamp::class])),
             handlesCommand: new Namespaced(__NAMESPACE__),
             publishesEvent: new Namespaced(__NAMESPACE__),
             handlesCall: new Namespaced(__NAMESPACE__),

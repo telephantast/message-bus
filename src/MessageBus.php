@@ -6,7 +6,6 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Command;
 use Thesis\Message\Event;
-use Thesis\MessageBus\Handler\Context;
 
 /**
  * @implements Invoker<Call>
