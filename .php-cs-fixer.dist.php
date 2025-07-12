@@ -15,9 +15,6 @@ $config = new Config()
             ->in(__DIR__ . '/tests')
             ->append([
                 __FILE__,
-            ])
-            ->notPath([
-                'Invoker.php',
             ]),
     )
     ->setParallelConfig(ParallelConfigFactory::detect())
@@ -25,6 +22,9 @@ $config = new Config()
 
 new PhpCsFixerCodingStandard()->applyTo($config, [
     'psr_autoloading' => false,
+    'new_expression_parentheses' => [
+        'use_parentheses' => false,
+    ],
 ]);
 
 return $config;

@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Command;
-use Thesis\Message\Event;
-use Thesis\MessageBus\Handler\Context;
-
 /**
  * @api
  * @template-contravariant TCalls of Call = never

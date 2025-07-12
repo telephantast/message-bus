@@ -23,8 +23,8 @@
         "amphp/postgres": "^2.1.1",
         "amphp/sql": "^2.0.1",
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "phpunit/phpunit": "^12.2.5",
-        "symfony/var-dumper": "^6.4.15 || ^7.3.0"
+        "phpunit/phpunit": "^12.2.7",
+        "symfony/var-dumper": "^6.4.15 || ^7.3.1"
     },
     "autoload": {
         "psr-4": {
@@ -59,7 +59,7 @@
     },
     "scripts": {
         "analyse-deps": "tools/composer-dependency-analyser/vendor/bin/composer-dependency-analyser",
-        "fixcs": "PHP_CS_FIXER_IGNORE_ENV=1 tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --diff --verbose",
+        "fixcs": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --diff --verbose",
         "infection": "tools/infection/vendor/bin/infection --show-mutations",
         "normalize": "@composer bin composer-normalize normalize --diff ../../composer.json",
         "phpstan": "tools/phpstan/vendor/bin/phpstan analyze",

@@ -19,7 +19,7 @@ final class Handlers implements Handler
     /**
      * @var array<class-string<Message<*>>, non-empty-list<Handler<*>>>
      */
-    private(set) public array $handlers = [];
+    public private(set) array $handlers = [];
 
     /**
      * @template TWithMessage of Message
