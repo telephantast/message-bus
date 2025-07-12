@@ -8,7 +8,6 @@ use Thesis\Message\Event;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
-use Thesis\MessageBus\Result;
 
 /**
  * @template TMessage of Message = Event
@@ -46,7 +45,7 @@ final class Handlers implements Handler
 
     public array $messageClasses { get => array_keys($this->handlers); }
 
-    public function handle(Envelope $envelope, Context $context): Result
+    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
     {
         $handlers = $this->handlers[$envelope->messageClass] ?? [];
 
@@ -58,18 +57,16 @@ final class Handlers implements Handler
                 ));
             }
 
-            /** @phpstan-ignore argument.type, return.type */
-            return $handlers[0]->handle($envelope, $context);
+            /** @phpstan-ignore argument.type */
+            return $handlers[0]->handle($endpoint, $envelope, $context);
         }
-
-        $result = new Result();
 
         foreach ($this->handlers[$envelope->messageClass] ?? [] as $handler) {
             /** @phpstan-ignore argument.type */
-            $result = $result->merge($handler->handle($envelope, $context));
+            $handler->handle($endpoint, $envelope, $context);
         }
 
         /** @phpstan-ignore return.type */
-        return $result;
+        return null;
     }
 }

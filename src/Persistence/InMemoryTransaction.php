@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Persistence;
 
-use Thesis\MessageBus\Persistence\Outbox\Outbox;
-use Thesis\MessageBus\Persistence\Outbox\OutboxAlreadyExists;
-use Thesis\MessageBus\Persistence\Outbox\OutboxTransaction;
+use Thesis\MessageBus\Outbox\Outbox;
+use Thesis\MessageBus\Outbox\OutboxAlreadyExists;
+use Thesis\MessageBus\Outbox\OutboxTransaction;
 
 /**
  * @internal

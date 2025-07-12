@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Persistence\Outbox;
+namespace Thesis\MessageBus\Outbox;
 
 use Thesis\MessageBus\Persistence\Transaction;
 use Thesis\MessageBus\Persistence\TransactionClosed;

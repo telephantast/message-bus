@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\MessageBus\Handler\Context;
+
 /**
  * @api
  * @template-contravariant TCalls of Call = never
@@ -15,7 +17,7 @@ interface Invoker
      * @param (Call<TResult>&TCalls)|Envelope<Call<TResult>&TCalls> $call
      * @return TResult
      */
-    public function invoke(Call|Envelope $call): mixed;
+    public function invoke(Call|Envelope $call, Context $context = new Context()): mixed;
 }
 
 /**

@@ -7,7 +7,6 @@ namespace Thesis\MessageBus\Handler;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
-use Thesis\MessageBus\Result;
 
 /**
  * @api
@@ -30,18 +29,18 @@ final class WithMiddleware implements Handler
      */
     public array $messageClasses { get => $this->handler->messageClasses; }
 
-    public function handle(Envelope $envelope, Context $context): Result
+    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
     {
         if ($this->middleware instanceof \Traversable) {
             $this->middleware = iterator_to_array($this->middleware, preserve_keys: false);
         }
 
         if ($this->middleware === []) {
-            return $this->handler->handle($envelope, $context);
+            return $this->handler->handle($endpoint, $envelope, $context);
         }
 
-        /** @phpstan-ignore return.type */
         return new Pipeline(
+            endpoint: $endpoint,
             handler: $this->handler, /** @phpstan-ignore argument.type */
             middleware: $this->middleware,
             envelope: $envelope,

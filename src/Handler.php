@@ -19,8 +19,9 @@ interface Handler
 
     /**
      * @template TResult
+     * @param non-empty-string $endpoint
      * @param Envelope<TMessage&Message<TResult>> $envelope
-     * @return Result<TResult>
+     * @return TResult
      */
-    public function handle(Envelope $envelope, Context $context): Result;
+    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed;
 }

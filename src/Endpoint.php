@@ -8,7 +8,6 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Handler\Context;
-use Thesis\MessageBus\Handler\Endpoint as EndpointContextItem;
 use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\MessageClassMatcher\Boolean;
 use Thesis\MessageBus\Transport\CommandReceiver;
@@ -98,10 +97,10 @@ final readonly class Endpoint
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
-    public function invoke(Envelope $call, MessageBus $messageBus): mixed
+    public function invoke(Envelope $call, Context $context): mixed
     {
         // todo send via transport if cannot handle here
-        return $this->doHandle($call, $messageBus);
+        return $this->doHandle($call, $context);
     }
 
     /**
@@ -113,9 +112,9 @@ final readonly class Endpoint
         $this->eventPublisher->subscribe($endpoint, $toEvents);
     }
 
-    public function run(MessageBus $messageBus): void
+    public function run(Context $context): void
     {
-        $consumer = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $messageBus);
+        $consumer = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $context);
 
         /** @phpstan-ignore argument.type */
         $this->commandReceiver->consumeCommands($this->name, $consumer);
@@ -128,21 +127,19 @@ final readonly class Endpoint
      * @param Envelope<Message<TResult>> $envelope
      * @return TResult
      */
-    private function doHandle(Envelope $envelope, MessageBus $messageBus): mixed
+    private function doHandle(Envelope $envelope, Context $context): mixed
     {
-        $context = new Context()
-            ->with($messageBus, Invoker::class)
-            ->with(new EndpointContextItem($this->name));
+        $publisher = new CollectingPublisher();
+        $context = $context->with($publisher, Publisher::class);
 
         /** @phpstan-ignore argument.type */
-        $result = $this->handler->handle($envelope, $context);
+        $result = $this->handler->handle($this->name, $envelope, $context);
 
-        $messageBus->send(...$result->commands);
-
-        if ($result->events !== []) {
-            $this->eventPublisher->publish($this->name, $result->events);
+        if ($publisher->events !== []) {
+            $this->eventPublisher->publish($this->name, $publisher->events);
+            $publisher->clear();
         }
 
-        return $result->result;
+        return $result;
     }
 }

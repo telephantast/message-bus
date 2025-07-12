@@ -6,11 +6,12 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Command;
 use Thesis\Message\Event;
+use Thesis\MessageBus\Handler\Context;
 
 /**
  * @implements Invoker<Call>
  */
-final readonly class MessageBus implements Invoker
+final readonly class MessageBus implements Sender, Invoker
 {
     /**
      * @var array<non-empty-string, Endpoint>
@@ -72,13 +73,21 @@ final readonly class MessageBus implements Invoker
         }
     }
 
-    public function invoke(Call|Envelope $call): mixed
+    public function invoke(Call|Envelope $call, Context $context = new Context()): mixed
     {
         $call = Envelope::wrap($call);
 
+        if (!$context->has(Sender::class)) {
+            $context = $context->with($this, Sender::class);
+        }
+
+        if (!$context->has(Invoker::class)) {
+            $context = $context->with($this, Sender::class);
+        }
+
         foreach ($this->endpoints as $endpoint) {
             if ($endpoint->handlesCall($call->messageClass)) {
-                return $endpoint->invoke($call, $this);
+                return $endpoint->invoke($call, $context);
             }
         }
 
@@ -91,8 +100,10 @@ final readonly class MessageBus implements Invoker
      */
     public function run(string ...$endpoints): void
     {
+        $context = new Context()->with($this, Sender::class, Invoker::class);
+
         foreach ($endpoints as $name) {
-            $this->endpoint($name)->run($this);
+            $this->endpoint($name)->run($context);
         }
     }
 

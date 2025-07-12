@@ -7,7 +7,9 @@ namespace Thesis\MessageBus\Handler;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\Publisher;
 use Thesis\MessageBus\Result;
+use Thesis\MessageBus\Sender;
 use Thesis\MessageBus\Stamps;
 
 /**
@@ -26,16 +28,18 @@ final readonly class CallableHandler implements Handler
         private mixed $handler,
     ) {}
 
-    public function handle(Envelope $envelope, Context $context): Result
+    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
     {
         $result = ($this->handler)($envelope->message, $context, $envelope->stamps);
 
         if ($result instanceof Result) {
-            /** @phpstan-ignore return.type */
-            return $result;
+            $context->get(Sender::class)->send(...$result->commands);
+            $context->get(Publisher::class)->publish(...$result->events);
+
+            return $result->result;
         }
 
         /** @phpstan-ignore return.type */
-        return new Result($result);
+        return $result;
     }
 }

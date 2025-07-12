@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Persistence;
 
-use Thesis\MessageBus\Persistence\Outbox\Outbox;
-use Thesis\MessageBus\Persistence\Outbox\OutboxDoesNotExist;
-use Thesis\MessageBus\Persistence\Outbox\OutboxStorage;
-use Thesis\MessageBus\Persistence\Outbox\OutboxTransaction;
+use Thesis\MessageBus\Outbox\Outbox;
+use Thesis\MessageBus\Outbox\OutboxDoesNotExist;
+use Thesis\MessageBus\Outbox\OutboxStorage;
+use Thesis\MessageBus\Outbox\OutboxTransaction;
 
 /**
  * @api
@@ -28,27 +28,29 @@ final class InMemoryStorage implements OutboxStorage
         );
     }
 
-    public function findOutbox(string $incomingMessageId, string $endpoint): ?Outbox
+    public function findOutbox(string $endpoint, string $incomingMessageId): ?Outbox
     {
-        return $this->outboxes[$incomingMessageId][$endpoint] ?? null;
+        return $this->outboxes[$endpoint][$incomingMessageId] ?? null;
     }
 
     private function hasOutbox(Outbox $outbox): bool
     {
-        return isset($this->outboxes[$outbox->incomingMessageId][$outbox->endpoint]);
+        return isset($this->outboxes[$outbox->endpoint][$outbox->incomingMessageId]);
     }
 
     private function setOutbox(Outbox $outbox): void
     {
-        $this->outboxes[$outbox->incomingMessageId][$outbox->endpoint] = $outbox;
+        $this->outboxes[$outbox->endpoint][$outbox->incomingMessageId] = $outbox;
     }
 
-    public function updateOutbox(Outbox $outbox): void
+    public function completeOutbox(string $endpoint, string $incomingMessageId): void
     {
-        if ($this->hasOutbox($outbox)) {
+        $outbox = $this->findOutbox($endpoint, $incomingMessageId);
+
+        if ($outbox === null) {
             throw new OutboxDoesNotExist();
         }
 
-        $this->setOutbox($outbox);
+        $this->setOutbox($outbox->toEmpty());
     }
 }

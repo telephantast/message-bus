@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Persistence\Outbox;
+namespace Thesis\MessageBus\Outbox;
 
 use Thesis\MessageBus\Persistence\Storage;
 
@@ -19,13 +19,15 @@ interface OutboxStorage extends Storage
     public function beginTransaction(): OutboxTransaction;
 
     /**
-     * @param non-empty-string $incomingMessageId
      * @param non-empty-string $endpoint
+     * @param non-empty-string $incomingMessageId
      */
-    public function findOutbox(string $incomingMessageId, string $endpoint): ?Outbox;
+    public function findOutbox(string $endpoint, string $incomingMessageId): ?Outbox;
 
     /**
+     * @param non-empty-string $endpoint
+     * @param non-empty-string $incomingMessageId
      * @throws OutboxDoesNotExist
      */
-    public function updateOutbox(Outbox $outbox): void;
+    public function completeOutbox(string $endpoint, string $incomingMessageId): void;
 }
