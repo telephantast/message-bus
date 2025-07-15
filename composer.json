@@ -32,7 +32,6 @@
             "Thesis\\MessageBus\\": "src/"
         },
         "files": [
-            "src/Invoker.php",
             "src/Result.php"
         ]
     },

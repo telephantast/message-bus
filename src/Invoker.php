@@ -17,13 +17,3 @@ interface Invoker
      */
     public function invoke(Call|Envelope $call, Context $context = new Context()): mixed;
 }
-
-/**
- * @template TCall of Call
- * @param class-string<TCall> ...$call
- * @return class-string<Invoker<TCall>>
- */
-function invokerClass(string ...$call): string
-{
-    return Invoker::class;
-}
