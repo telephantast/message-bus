@@ -6,7 +6,7 @@ namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
 
-interface MessageClassMatcher
+interface MessageMatcher
 {
     /**
      * @param class-string<Message> $messageClass

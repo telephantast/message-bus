@@ -45,4 +45,9 @@ final class Envelope
         public readonly Message $message,
         public readonly Stamps $stamps = new Stamps(),
     ) {}
+
+    public function withStamps(Stamps $stamps): static
+    {
+        return new self($this->message, $stamps);
+    }
 }

@@ -6,12 +6,23 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @template-covariant TTransaction of object
  */
 interface Storage
 {
-    /**
-     * @return Transaction<TTransaction>
-     */
+    public function setup(): void;
+
     public function beginTransaction(): Transaction;
+
+    /**
+     * @param non-empty-string $endpoint
+     * @param non-empty-string $incomingMessageId
+     */
+    public function findOutbox(string $endpoint, string $incomingMessageId): ?Outbox;
+
+    /**
+     * @param non-empty-string $endpoint
+     * @param non-empty-string $incomingMessageId
+     * @throws OutboxDoesNotExist
+     */
+    public function markOutboxSent(string $endpoint, string $incomingMessageId): void;
 }

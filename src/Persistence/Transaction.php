@@ -6,14 +6,16 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
- * @template-covariant TTransaction of object
  */
 interface Transaction
 {
+    public object $wrappedTransaction { get; }
+
     /**
-     * @var TTransaction
+     * @throws OutboxAlreadyExists
+     * @throws TransactionClosed
      */
-    public object $wrappedTransaction { get; } /** @phpstan-ignore generics.variance */
+    public function insertOutbox(Outbox $outbox): void;
 
     /**
      * @throws TransactionClosed

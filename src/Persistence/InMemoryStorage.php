@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Persistence;
 
-use Thesis\MessageBus\Outbox\Outbox;
-use Thesis\MessageBus\Outbox\OutboxDoesNotExist;
-use Thesis\MessageBus\Outbox\OutboxStorage;
-use Thesis\MessageBus\Outbox\OutboxTransaction;
-
 /**
  * @api
- * @implements OutboxStorage<object>
  */
-final class InMemoryStorage implements OutboxStorage
+final class InMemoryStorage implements Storage
 {
     /**
      * @var array<non-empty-string, array<non-empty-string, Outbox>>
      */
     private array $outboxes = [];
 
-    public function beginTransaction(): OutboxTransaction
+    public function setup(): void {}
+
+    public function beginTransaction(): Transaction
     {
         return new InMemoryTransaction(
             hasOutbox: $this->hasOutbox(...),

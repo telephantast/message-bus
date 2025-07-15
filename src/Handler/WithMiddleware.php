@@ -30,18 +30,17 @@ final class WithMiddleware implements Handler
      */
     public array $messageClasses { get => $this->handler->messageClasses; }
 
-    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
+    public function handle(Envelope $envelope, Context $context): mixed
     {
         if ($this->middleware instanceof \Traversable) {
             $this->middleware = iterator_to_array($this->middleware, preserve_keys: false);
         }
 
         if ($this->middleware === []) {
-            return $this->handler->handle($endpoint, $envelope, $context);
+            return $this->handler->handle($envelope, $context);
         }
 
         return new Pipeline(
-            endpoint: $endpoint,
             handler: $this->handler, /** @phpstan-ignore argument.type */
             middleware: $this->middleware,
             envelope: $envelope,

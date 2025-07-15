@@ -2,50 +2,45 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus;
+namespace Thesis\MessageBus\Internal;
 
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Handler\Handlers;
-use Thesis\MessageBus\MessageClassMatcher\Boolean;
+use Thesis\MessageBus\Call;
+use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
+use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\MessageMatcher;
+use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Transport\CommandReceiver;
 use Thesis\MessageBus\Transport\CommandSender;
 use Thesis\MessageBus\Transport\EventPublisher;
 use Thesis\MessageBus\Transport\EventReceiver;
-use Thesis\MessageBus\Transport\Fake;
 
+/**
+ * @internal
+ */
 final readonly class Endpoint
 {
-    private CommandSender $commandSender;
-
-    private CommandReceiver $commandReceiver;
-
-    private EventPublisher $eventPublisher;
-
-    private EventReceiver $eventReceiver;
-
     /**
      * @param non-empty-string $name
      * @param Handler<*> $handler
      */
     public function __construct(
         public string $name,
-        private Handler $handler = new Handlers(),
-        private MessageClassMatcher $handlesCommand = Boolean::False,
-        private MessageClassMatcher $publishesEvent = Boolean::False,
-        private MessageClassMatcher $handlesCall = Boolean::False,
-        CommandSender|CommandReceiver|EventPublisher|EventReceiver $transport = Fake::Instance,
-        ?CommandSender $commandSender = null,
-        ?CommandReceiver $commandReceiver = null,
-        ?EventPublisher $eventPublisher = null,
-        ?EventReceiver $eventReceiver = null,
-    ) {
-        $this->commandSender = $commandSender ?? ($transport instanceof CommandSender ? $transport : Fake::Instance);
-        $this->commandReceiver = $commandReceiver ?? ($transport instanceof CommandReceiver ? $transport : Fake::Instance);
-        $this->eventPublisher = $eventPublisher ?? ($transport instanceof EventPublisher ? $transport : Fake::Instance);
-        $this->eventReceiver = $eventReceiver ?? ($transport instanceof EventReceiver ? $transport : Fake::Instance);
-    }
+        private Handler $handler,
+        private MessageMatcher $handlesCommand,
+        private MessageMatcher $publishesEvent,
+        private MessageMatcher $handlesCall,
+        private Storage $storage,
+        private OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        private CommandSender $commandSender,
+        private CommandReceiver $commandReceiver,
+        private EventPublisher $eventPublisher,
+        private EventReceiver $eventReceiver,
+    ) {}
 
     /**
      * @param class-string<Command> $messageClass
@@ -71,15 +66,17 @@ final readonly class Endpoint
         return $this->handlesCall->matches($messageClass);
     }
 
-    public function setup(MessageBus $messageBus): void
+    public function setup(Dispatcher $dispatcher): void
     {
+        $this->storage->setup();
+
         $events = array_filter(
             $this->handler->messageClasses,
             static fn(string $messageClass): bool => is_a($messageClass, Event::class, allow_string: true),
         );
 
         if ($events !== []) {
-            $messageBus->subscribe($this->name, array_values($events));
+            $dispatcher->dispatchSubscription($this->name, array_values($events));
         }
     }
 
@@ -96,10 +93,10 @@ final readonly class Endpoint
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
-    public function invoke(Envelope $call, Context $context): mixed
+    public function invoke(Envelope $call, Dispatcher $dispatcher, ?Context $parentContext): mixed
     {
         // todo send via transport if cannot handle here
-        return $this->doHandle($call, $context);
+        return $this->doHandle($call, $dispatcher, $parentContext);
     }
 
     /**
@@ -111,9 +108,9 @@ final readonly class Endpoint
         $this->eventPublisher->subscribe($endpoint, $toEvents);
     }
 
-    public function run(Context $context): void
+    public function run(Dispatcher $dispatcher): void
     {
-        $consumer = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $context);
+        $consumer = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $dispatcher);
 
         /** @phpstan-ignore argument.type */
         $this->commandReceiver->consumeCommands($this->name, $consumer);
@@ -126,19 +123,28 @@ final readonly class Endpoint
      * @param Envelope<Message<TResult>> $envelope
      * @return TResult
      */
-    private function doHandle(Envelope $envelope, Context $context): mixed
+    private function doHandle(Envelope $envelope, Dispatcher $dispatcher, ?Context $parentContext = null): mixed
     {
-        $publisher = new CollectingPublisher();
-        $context = $context->with($publisher, Publisher::class);
-
-        /** @phpstan-ignore argument.type */
-        $result = $this->handler->handle($this->name, $envelope, $context);
-
-        if ($publisher->events !== []) {
-            $this->eventPublisher->publish($this->name, $publisher->events);
-            $publisher->clear();
+        if ($parentContext !== null && $parentContext->endpoint === $this->name) {
+            return $this->handler->handle(
+                /** @phpstan-ignore argument.type */
+                envelope: $envelope,
+                context: new ChildContext(
+                    parent: $parentContext,
+                    outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                    envelope: $envelope,
+                ),
+            );
         }
 
-        return $result;
+        return RootContext::handle(
+            endpoint: $this->name,
+            storage: $this->storage,
+            dispatcher: $dispatcher,
+            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+            eventPublisher: $this->eventPublisher,
+            handler: $this->handler, /** @phpstan-ignore argument.type */
+            envelope: $envelope,
+        );
     }
 }

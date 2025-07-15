@@ -15,11 +15,11 @@ use Thesis\MessageBus\Stamps;
  * @template TMessage of Message<TResult>
  * @implements Handler<TMessage>
  */
-final readonly class CallableHandler implements Handler
+final readonly class ResultCallableHandler implements Handler
 {
     /**
      * @param non-empty-list<class-string<TMessage>> $messageClasses
-     * @param callable(TMessage, Context, Stamps): TResult $handler
+     * @param callable(TMessage, Context, Stamps): Result<TResult> $handler
      */
     public function __construct(
         public array $messageClasses,
@@ -28,7 +28,11 @@ final readonly class CallableHandler implements Handler
 
     public function handle(Envelope $envelope, Context $context): mixed
     {
+        $result = ($this->handler)($envelope->message, $context, $envelope->stamps);
+        $context->send(...$result->commands);
+        $context->publish(...$result->events);
+
         /** @phpstan-ignore return.type */
-        return ($this->handler)($envelope->message, $context, $envelope->stamps);
+        return $result->result;
     }
 }

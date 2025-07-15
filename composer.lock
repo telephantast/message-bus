@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0bd2165f8c3d324d46a8d7d739c503a",
+    "content-hash": "87a86b5201b5807cc4221f615225bc6f",
     "packages": [
+        {
+            "name": "psr/clock",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/clock.git",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Clock\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for reading the clock.",
+            "homepage": "https://github.com/php-fig/clock",
+            "keywords": [
+                "clock",
+                "now",
+                "psr",
+                "psr-20",
+                "time"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/clock/issues",
+                "source": "https://github.com/php-fig/clock/tree/1.0.0"
+            },
+            "time": "2022-11-25T14:36:26+00:00"
+        },
         {
             "name": "thesis/message",
             "version": "0.3.0",
@@ -65,78 +113,6 @@
                 }
             ],
             "time": "2025-04-05T12:22:22+00:00"
-        },
-        {
-            "name": "typhoon/formatter",
-            "version": "0.1.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/typhoon-php/formatter.git",
-                "reference": "023568a25e0485501cf7119f8d288b7fa8eaf1fa"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/typhoon-php/formatter/zipball/023568a25e0485501cf7119f8d288b7fa8eaf1fa",
-                "reference": "023568a25e0485501cf7119f8d288b7fa8eaf1fa",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^10.5.46",
-                "symfony/var-dumper": "^6.4.21 || ^7.2.3"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/format.fn.php",
-                    "src/formatClass.fn.php",
-                    "src/formatFunction.fn.php",
-                    "src/formatParameter.fn.php",
-                    "src/formatProperty.fn.php",
-                    "src/formatReflectedClass.fn.php",
-                    "src/formatReflectedFunction.fn.php",
-                    "src/formatReflectedParameter.fn.php",
-                    "src/formatReflectedProperty.fn.php",
-                    "src/formatReflectedType.fn.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Typhoon Team",
-                    "homepage": "https://github.com/orgs/typhoon-php/people"
-                }
-            ],
-            "description": "Typhoon Formatter",
-            "support": {
-                "issues": "https://github.com/typhoon-php/formatter/issues",
-                "source": "https://github.com/typhoon-php/formatter/tree/0.1.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-06-03T10:22:45+00:00"
         }
     ],
     "packages-dev": [
@@ -2448,9 +2424,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "typhoon/formatter": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

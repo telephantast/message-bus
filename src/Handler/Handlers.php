@@ -46,7 +46,7 @@ final class Handlers implements Handler
 
     public array $messageClasses { get => array_keys($this->handlers); }
 
-    public function handle(string $endpoint, Envelope $envelope, Context $context): mixed
+    public function handle(Envelope $envelope, Context $context): mixed
     {
         $handlers = $this->handlers[$envelope->messageClass] ?? [];
 
@@ -59,12 +59,12 @@ final class Handlers implements Handler
             }
 
             /** @phpstan-ignore argument.type */
-            return $handlers[0]->handle($endpoint, $envelope, $context);
+            return $handlers[0]->handle($envelope, $context);
         }
 
         foreach ($this->handlers[$envelope->messageClass] ?? [] as $handler) {
             /** @phpstan-ignore argument.type */
-            $handler->handle($endpoint, $envelope, $context);
+            $handler->handle($envelope, $context);
         }
 
         /** @phpstan-ignore return.type */

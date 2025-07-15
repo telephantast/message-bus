@@ -15,5 +15,5 @@ interface Invoker
      * @param (Call<TResult>&TCalls)|Envelope<Call<TResult>&TCalls> $call
      * @return TResult
      */
-    public function invoke(Call|Envelope $call, Context $context = new Context()): mixed;
+    public function invoke(Call|Envelope $call): mixed;
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Outbox;
+namespace Thesis\MessageBus\Persistence;
 
 use Thesis\MessageBus\MessageBusException;
 

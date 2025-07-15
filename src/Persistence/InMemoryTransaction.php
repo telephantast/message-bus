@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Persistence;
 
-use Thesis\MessageBus\Outbox\Outbox;
-use Thesis\MessageBus\Outbox\OutboxAlreadyExists;
-use Thesis\MessageBus\Outbox\OutboxTransaction;
-
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
- * @implements OutboxTransaction<object>
  */
-final class InMemoryTransaction implements OutboxTransaction
+final class InMemoryTransaction implements Transaction
 {
     private bool $closed = false;
 

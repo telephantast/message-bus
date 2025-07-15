@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+// todo array access
 final class Stamps
 {
     /**

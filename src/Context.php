@@ -4,55 +4,79 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-final class Context
+use Thesis\Message\Command;
+use Thesis\Message\Event;
+use Thesis\Message\Message;
+use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
+
+/**
+ * @api
+ * @implements Invoker<Call>
+ */
+abstract class Context implements Sender, Publisher, Invoker
 {
     /**
-     * @var array<class-string, object>
+     * @var non-empty-string
      */
-    private array $objects = [];
+    abstract public string $endpoint { get; }
+
+    abstract public object $transaction { get; }
 
     /**
-     * @param class-string $class
+     * @param Envelope<*> $envelope
      */
-    public function has(string $class): bool
-    {
-        return isset($this->objects[$class]);
-    }
+    public function __construct(
+        private readonly OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        private readonly Envelope $envelope,
+    ) {}
 
-    /**
-     * @template T of object
-     * @param class-string<T> $class
-     * @return T
-     */
-    public function get(string $class, ?string $notFoundMessage = null): object
+    final public function send(Envelope|Command ...$commands): void
     {
-        /** @var T */
-        return $this->objects[$class] ?? throw new \LogicException($notFoundMessage ?? "Value registered as `{$class}` not found");
-    }
-
-    /**
-     * @template T of object
-     * @param class-string<T> $class
-     * @return ?T
-     */
-    public function find(string $class): ?object
-    {
-        /** @var ?T */
-        return $this->objects[$class] ?? null;
-    }
-
-    /**
-     * @param class-string ...$as
-     */
-    public function with(object $value, string ...$as): self
-    {
-        $context = clone $this;
-
-        foreach ($as ?: [$value::class] as $class) {
-            \assert($value instanceof $class);
-            $context->objects[$class] = $value;
+        if ($commands === []) {
+            return;
         }
 
-        return $context;
+        $this->doSend(array_map($this->processOutgoingMessage(...), $commands));
+    }
+
+    final public function publish(Event|Envelope ...$events): void
+    {
+        if ($events === []) {
+            return;
+        }
+
+        $this->doPublish(array_map($this->processOutgoingMessage(...), $events));
+    }
+
+    final public function invoke(Call|Envelope $call): mixed
+    {
+        return $this->doInvoke($this->processOutgoingMessage($call));
+    }
+
+    /**
+     * @param non-empty-list<Envelope<Command>> $commands
+     */
+    abstract protected function doSend(array $commands): void;
+
+    /**
+     * @param non-empty-list<Envelope<Event>> $events
+     */
+    abstract protected function doPublish(array $events): void;
+
+    /**
+     * @template TResult
+     * @param Envelope<Call<TResult>> $call
+     * @return TResult
+     */
+    abstract protected function doInvoke(Envelope $call): mixed;
+
+    /**
+     * @template TMessage of Message
+     * @param TMessage|Envelope<TMessage> $envelope
+     * @return Envelope<TMessage>
+     */
+    private function processOutgoingMessage(Message|Envelope $envelope): Envelope
+    {
+        return $this->outgoingEnvelopeProcessor->process($this->endpoint, Envelope::wrap($envelope), $this->envelope);
     }
 }

@@ -21,7 +21,6 @@ $config = new Config()
     ->setCacheFile(__DIR__ . '/var/' . basename(__FILE__) . '.cache');
 
 new PhpCsFixerCodingStandard()->applyTo($config, [
-    '@PHP84Migration' => true,
     'new_expression_parentheses' => [
         'use_parentheses' => false,
     ],
