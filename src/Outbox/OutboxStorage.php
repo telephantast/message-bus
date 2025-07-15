@@ -29,5 +29,5 @@ interface OutboxStorage extends Storage
      * @param non-empty-string $incomingMessageId
      * @throws OutboxDoesNotExist
      */
-    public function completeOutbox(string $endpoint, string $incomingMessageId): void;
+    public function markOutboxSent(string $endpoint, string $incomingMessageId): void;
 }

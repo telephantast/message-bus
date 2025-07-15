@@ -43,7 +43,7 @@ final class InMemoryStorage implements OutboxStorage
         $this->outboxes[$outbox->endpoint][$outbox->incomingMessageId] = $outbox;
     }
 
-    public function completeOutbox(string $endpoint, string $incomingMessageId): void
+    public function markOutboxSent(string $endpoint, string $incomingMessageId): void
     {
         $outbox = $this->findOutbox($endpoint, $incomingMessageId);
 

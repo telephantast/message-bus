@@ -75,7 +75,7 @@ final readonly class OutboxMiddleware implements Middleware
         $originalSender->send(...$sender->commands);
         $originalPublisher->publish(...$publisher->events);
 
-        $this->storage->completeOutbox($endpoint, $envelope->messageId);
+        $this->storage->markOutboxSent($endpoint, $envelope->messageId);
 
         return $result;
     }
