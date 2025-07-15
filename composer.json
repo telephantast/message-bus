@@ -32,7 +32,7 @@
             "Thesis\\MessageBus\\": "src/"
         },
         "files": [
-            "src/Result.php"
+            "src/Handler/Result.php"
         ]
     },
     "autoload-dev": {

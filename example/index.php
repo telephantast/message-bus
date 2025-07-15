@@ -11,12 +11,12 @@ use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Handler\CallableHandler;
 use Thesis\MessageBus\Handler\CallableHandler\FromContext;
 use Thesis\MessageBus\Handler\Handlers;
+use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Invoker;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\MessageClassMatcher\Namespaced;
-use Thesis\MessageBus\Result;
 use Thesis\MessageBus\Transport\InMemoryTransport;
-use function Thesis\MessageBus\events;
+use function Thesis\MessageBus\Handler\events;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

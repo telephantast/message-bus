@@ -10,7 +10,6 @@ use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
 use Thesis\MessageBus\Handler\CallableHandler\Parameters;
 use Thesis\MessageBus\Publisher;
-use Thesis\MessageBus\Result;
 use Thesis\MessageBus\Sender;
 
 /**
