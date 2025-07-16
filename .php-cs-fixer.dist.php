@@ -20,10 +20,6 @@ $config = new Config()
     ->setParallelConfig(ParallelConfigFactory::detect())
     ->setCacheFile(__DIR__ . '/var/' . basename(__FILE__) . '.cache');
 
-new PhpCsFixerCodingStandard()->applyTo($config, [
-    'new_expression_parentheses' => [
-        'use_parentheses' => false,
-    ],
-]);
+new PhpCsFixerCodingStandard()->applyTo($config);
 
 return $config;
