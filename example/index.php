@@ -82,6 +82,6 @@ $messageBus = MessageBus::build(
 );
 
 $messageBus->setup();
-$messageBus->run('test');
+$messageBus->run();
 
 $messageBus->send(new Ping('Hello!'));

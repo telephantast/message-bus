@@ -14,10 +14,14 @@ use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
 use Thesis\MessageBus\MessageMatcher;
 use Thesis\MessageBus\Persistence\Storage;
+use Thesis\MessageBus\Run;
+use Thesis\MessageBus\Transport\CallClient;
+use Thesis\MessageBus\Transport\CallServer;
 use Thesis\MessageBus\Transport\CommandReceiver;
 use Thesis\MessageBus\Transport\CommandSender;
 use Thesis\MessageBus\Transport\EventPublisher;
 use Thesis\MessageBus\Transport\EventReceiver;
+use Thesis\MessageBus\Transport\Fake;
 
 /**
  * @internal
@@ -40,6 +44,8 @@ final readonly class Endpoint
         private CommandReceiver $commandReceiver,
         private EventPublisher $eventPublisher,
         private EventReceiver $eventReceiver,
+        private CallClient $callClient,
+        private CallServer $callServer,
     ) {}
 
     /**
@@ -95,7 +101,10 @@ final readonly class Endpoint
      */
     public function invoke(Envelope $call, Dispatcher $dispatcher, ?Context $parentContext): mixed
     {
-        // todo send via transport if cannot handle here
+        if ($this->callClient !== Fake::Instance) {
+            return $this->callClient->invoke($this->name, $call);
+        }
+
         return $this->doHandle($call, $dispatcher, $parentContext);
     }
 
@@ -108,14 +117,22 @@ final readonly class Endpoint
         $this->eventPublisher->subscribe($endpoint, $toEvents);
     }
 
-    public function run(Dispatcher $dispatcher): void
+    /**
+     * @param list<Run> $selector
+     */
+    public function run(Dispatcher $dispatcher, array $selector = []): void
     {
-        $consumer = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $dispatcher);
+        $handler = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $dispatcher);
 
-        /** @phpstan-ignore argument.type */
-        $this->commandReceiver->consumeCommands($this->name, $consumer);
-        /** @phpstan-ignore argument.type */
-        $this->eventReceiver->consumeEvents($this->name, $consumer);
+        foreach (array_unique($selector ?: Run::cases(), SORT_REGULAR) as $run) {
+            match ($run) {
+                /** @phpstan-ignore argument.type */
+                Run::Commands => $this->commandReceiver->consumeCommands($this->name, $handler),
+                /** @phpstan-ignore argument.type */
+                Run::Events => $this->eventReceiver->consumeEvents($this->name, $handler),
+                Run::Calls => $this->callServer->serve($this->name, $handler),
+            };
+        }
     }
 
     /**

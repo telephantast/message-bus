@@ -14,6 +14,8 @@ use Thesis\MessageBus\Tracing\AddCauseIdToOutgoingEnvelope;
 use Thesis\MessageBus\Tracing\AddConversationIdToOutgoingEnvelope;
 use Thesis\MessageBus\Tracing\AddMessageIdToOutgoingEnvelope;
 use Thesis\MessageBus\Tracing\AddTimestampToOutgoingEnvelope;
+use Thesis\MessageBus\Transport\CallClient;
+use Thesis\MessageBus\Transport\CallServer;
 use Thesis\MessageBus\Transport\CommandReceiver;
 use Thesis\MessageBus\Transport\CommandSender;
 use Thesis\MessageBus\Transport\EventPublisher;
@@ -32,6 +34,10 @@ final readonly class EndpointConfig
 
     public EventReceiver $eventReceiver;
 
+    public CallClient $callClient;
+
+    public CallServer $callServer;
+
     /**
      * @param Handler<*> $handler
      * @param list<OutgoingEnvelopeProcessor> $outgoingEnvelopeProcessors
@@ -48,16 +54,20 @@ final readonly class EndpointConfig
             new AddConversationIdToOutgoingEnvelope(),
             new AddCauseIdToOutgoingEnvelope(),
         ],
-        CommandSender|CommandReceiver|EventPublisher|EventReceiver $transport = Fake::Instance,
+        CommandSender|CommandReceiver|EventPublisher|EventReceiver|CallClient|CallServer $transport = Fake::Instance,
         ?CommandSender $commandSender = null,
         ?CommandReceiver $commandReceiver = null,
         ?EventPublisher $eventPublisher = null,
         ?EventReceiver $eventReceiver = null,
+        ?CallClient $callClient = null,
+        ?CallServer $callServer = null,
     ) {
         $this->outgoingEnvelopeProcessor = new OutgoingEnvelopeProcessors($outgoingEnvelopeProcessors);
         $this->commandSender = $commandSender ?? ($transport instanceof CommandSender ? $transport : Fake::Instance);
         $this->commandReceiver = $commandReceiver ?? ($transport instanceof CommandReceiver ? $transport : Fake::Instance);
         $this->eventPublisher = $eventPublisher ?? ($transport instanceof EventPublisher ? $transport : Fake::Instance);
         $this->eventReceiver = $eventReceiver ?? ($transport instanceof EventReceiver ? $transport : Fake::Instance);
+        $this->callClient = $callClient ?? ($transport instanceof CallClient ? $transport : Fake::Instance);
+        $this->callServer = $callServer ?? ($transport instanceof CallServer ? $transport : Fake::Instance);
     }
 }

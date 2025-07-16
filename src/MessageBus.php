@@ -50,6 +50,8 @@ final readonly class MessageBus implements Sender, Invoker
                 commandReceiver: $endpointConfig->commandReceiver,
                 eventPublisher: $endpointConfig->eventPublisher,
                 eventReceiver: $endpointConfig->eventReceiver,
+                callClient: $endpointConfig->callClient,
+                callServer: $endpointConfig->callServer,
             );
         }
 
@@ -103,25 +105,6 @@ final readonly class MessageBus implements Sender, Invoker
     }
 
     /**
-     * @no-named-arguments
-     * @param non-empty-string ...$endpoints
-     */
-    public function run(string ...$endpoints): void
-    {
-        foreach ($endpoints as $name) {
-            $this->endpoint($name)->run($this->dispatcher);
-        }
-    }
-
-    /**
-     * @param non-empty-string $name
-     */
-    private function endpoint(string $name): Endpoint
-    {
-        return $this->endpoints[$name] ?? throw new \LogicException();
-    }
-
-    /**
      * @template TMessage of Message
      * @param TMessage|Envelope<TMessage> $envelope
      * @return Envelope<TMessage>
@@ -129,5 +112,19 @@ final readonly class MessageBus implements Sender, Invoker
     private function prepareMessage(Message|Envelope $envelope): Envelope
     {
         return $this->outgoingEnvelopeProcessor->process($this->name, Envelope::wrap($envelope));
+    }
+
+    /**
+     * @param array<non-empty-string, list<Run>> $selector
+     */
+    public function run(array $selector = []): void
+    {
+        if ($selector === []) {
+            $selector = array_fill_keys(array_keys($this->endpoints), []);
+        }
+
+        foreach ($selector as $endpoint => $runs) {
+            ($this->endpoints[$endpoint] ?? throw new \LogicException())->run($this->dispatcher, $runs);
+        }
     }
 }
