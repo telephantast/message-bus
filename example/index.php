@@ -67,7 +67,7 @@ final readonly class App
 
 $transport = new InMemoryTransport();
 $messageBus = MessageBus::build(
-    endpoints: [
+    endpointConfigs: [
         'test' => new EndpointConfig(
             handler: new Handlers()
                 ->with(new ResultCallableHandler([Ping::class], App::ping(...)))

@@ -21,12 +21,12 @@ use Thesis\MessageBus\Tracing\AddTimestampToOutgoingEnvelope;
 final readonly class MessageBus implements Sender, Invoker
 {
     /**
-     * @param array<non-empty-string, EndpointConfig> $endpoints
+     * @param array<non-empty-string, EndpointConfig> $endpointConfigs
      * @param list<OutgoingEnvelopeProcessor> $outgoingEnvelopeProcessors
      * @param non-empty-string $messageBusEndpointName
      */
     public static function build(
-        array $endpoints,
+        array $endpointConfigs = [],
         array $outgoingEnvelopeProcessors = [
             new AddTimestampToOutgoingEnvelope(),
             new AddMessageIdToOutgoingEnvelope(),
@@ -35,27 +35,27 @@ final readonly class MessageBus implements Sender, Invoker
         ],
         string $messageBusEndpointName = 'message_bus',
     ): self {
-        $builtEndpoints = [];
+        $endpoints = [];
 
-        foreach ($endpoints as $name => $endpoint) {
-            $builtEndpoints[$name] = new Endpoint(
+        foreach ($endpointConfigs as $name => $endpointConfig) {
+            $endpoints[$name] = new Endpoint(
                 name: $name,
-                handler: $endpoint->handler,
-                handlesCommand: $endpoint->handlesCommand,
-                publishesEvent: $endpoint->publishesEvent,
-                handlesCall: $endpoint->handlesCall,
-                storage: $endpoint->storage,
-                outgoingEnvelopeProcessor: $endpoint->outgoingEnvelopeProcessor,
-                commandSender: $endpoint->commandSender,
-                commandReceiver: $endpoint->commandReceiver,
-                eventPublisher: $endpoint->eventPublisher,
-                eventReceiver: $endpoint->eventReceiver,
+                handler: $endpointConfig->handler,
+                handlesCommand: $endpointConfig->handlesCommand,
+                publishesEvent: $endpointConfig->publishesEvent,
+                handlesCall: $endpointConfig->handlesCall,
+                storage: $endpointConfig->storage,
+                outgoingEnvelopeProcessor: $endpointConfig->outgoingEnvelopeProcessor,
+                commandSender: $endpointConfig->commandSender,
+                commandReceiver: $endpointConfig->commandReceiver,
+                eventPublisher: $endpointConfig->eventPublisher,
+                eventReceiver: $endpointConfig->eventReceiver,
             );
         }
 
         return new self(
-            endpoints: $builtEndpoints,
-            dispatcher: new Dispatcher($builtEndpoints),
+            endpoints: $endpoints,
+            dispatcher: new Dispatcher($endpoints),
             outgoingEnvelopeProcessor: new OutgoingEnvelopeProcessors($outgoingEnvelopeProcessors),
             name: $messageBusEndpointName,
         );
