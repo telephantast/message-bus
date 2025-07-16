@@ -12,7 +12,6 @@ use Thesis\MessageBus\EndpointConfig;
 use Thesis\MessageBus\Handler\CallableHandler;
 use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\Handler\Result;
-use Thesis\MessageBus\Handler\ResultCallableHandler;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
 use Thesis\MessageBus\Stamps;
@@ -70,7 +69,7 @@ $messageBus = MessageBus::build(
     endpointConfigs: [
         'test' => new EndpointConfig(
             handler: new Handlers()
-                ->with(new ResultCallableHandler([Ping::class], App::ping(...)))
+                ->with(new CallableHandler([Ping::class], App::ping(...)))
                 ->with(new CallableHandler([Pong::class], App::onPong(...)))
                 ->with(new CallableHandler([GetTimestamp::class], App::getTimestamp(...))),
             handlesCommand: new Namespaced(__NAMESPACE__),

@@ -19,7 +19,7 @@ final readonly class CallableHandler implements Handler
 {
     /**
      * @param non-empty-list<class-string<TMessage>> $messageClasses
-     * @param callable(TMessage, Context, Stamps): TResult $handler
+     * @param callable(TMessage, Context, Stamps): (TResult|Result<TResult>) $handler
      */
     public function __construct(
         public array $messageClasses,
@@ -28,7 +28,16 @@ final readonly class CallableHandler implements Handler
 
     public function handle(Envelope $envelope, Context $context): mixed
     {
+        $result = ($this->handler)($envelope->message, $context, $envelope->stamps);
+
+        if ($result instanceof Result) {
+            $context->send(...$result->commands);
+            $context->publish(...$result->events);
+
+            return $result->result;
+        }
+
         /** @phpstan-ignore return.type */
-        return ($this->handler)($envelope->message, $context, $envelope->stamps);
+        return $result;
     }
 }
