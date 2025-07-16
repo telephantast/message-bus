@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5f4ec037e79952bf82d7493c52509da",
+    "content-hash": "e42ee6e04a6cdc2b1d17d753fbaa5780",
     "packages": [
         {
             "name": "psr/clock",
@@ -56,7 +56,7 @@
         },
         {
             "name": "thesis/message",
-            "version": "0.4.x-dev",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message.git",
@@ -104,7 +104,7 @@
             "description": "Thesis Message",
             "support": {
                 "issues": "https://github.com/thesis-php/message/issues",
-                "source": "https://github.com/thesis-php/message/tree/0.4.x"
+                "source": "https://github.com/thesis-php/message/tree/0.4.0"
             },
             "funding": [
                 {
@@ -2424,9 +2424,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "thesis/message": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
