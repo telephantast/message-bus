@@ -127,9 +127,9 @@ final class RootContext extends Context
         $this->events = [...$this->events, ...$events];
     }
 
-    protected function doInvoke(Envelope $call): mixed
+    protected function doInvoke(Envelope $call, Context $parentContext): mixed
     {
-        return $this->dispatcher->dispatchCall($call, $this);
+        return $this->dispatcher->dispatchCall($call, $parentContext);
     }
 
     private function close(): void

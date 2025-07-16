@@ -38,8 +38,8 @@ final class ChildContext extends Context
         $this->parent->doPublish($events);
     }
 
-    protected function doInvoke(Envelope $call): mixed
+    protected function doInvoke(Envelope $call, Context $parentContext): mixed
     {
-        return $this->parent->doInvoke($call);
+        return $this->parent->doInvoke($call, $parentContext);
     }
 }

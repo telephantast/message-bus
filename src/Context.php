@@ -50,7 +50,7 @@ abstract class Context implements Sender, Publisher, Invoker
 
     final public function invoke(Call|Envelope $call): mixed
     {
-        return $this->doInvoke($this->processOutgoingMessage($call));
+        return $this->doInvoke($this->processOutgoingMessage($call), $this);
     }
 
     /**
@@ -68,7 +68,7 @@ abstract class Context implements Sender, Publisher, Invoker
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
-    abstract protected function doInvoke(Envelope $call): mixed;
+    abstract protected function doInvoke(Envelope $call, self $parentContext): mixed;
 
     /**
      * @template TMessage of Message
