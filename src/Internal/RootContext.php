@@ -23,10 +23,10 @@ final class RootContext extends Context
 {
     /**
      * @template TResult
-     * @template TNewMessage of Message<TResult>
+     * @template TMessage of Message<TResult>
      * @param non-empty-string $endpoint
-     * @param Handler<TNewMessage> $handler
-     * @param Envelope<TNewMessage> $envelope
+     * @param Handler<TMessage> $handler
+     * @param Envelope<TMessage> $envelope
      * @return TResult
      */
     public static function handle(
