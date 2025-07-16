@@ -17,7 +17,7 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     private array $subscriptions = [];
 
     /**
-     * @var array<non-empty-string, callable(Envelope<Message>): void>
+     * @var array<non-empty-string, callable(Envelope<Message<*>>): void>
      */
     private array $consumers = [];
 

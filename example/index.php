@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Example;
 
+use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\EndpointConfig;
 use Thesis\MessageBus\Handler\CallableHandler;

@@ -11,7 +11,7 @@ interface CommandReceiver
 {
     /**
      * @param non-empty-string $endpoint
-     * @param callable(Envelope<Message>): void $consumer
+     * @param callable(Envelope<Message<*>>): void $consumer
      */
     public function consumeCommands(string $endpoint, callable $consumer): void;
 }

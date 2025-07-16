@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;

@@ -11,7 +11,7 @@ interface EventReceiver
 {
     /**
      * @param non-empty-string $endpoint
-     * @param callable(Envelope<Message>): void $consumer
+     * @param callable(Envelope<Message<*>>): void $consumer
      */
     public function consumeEvents(string $endpoint, callable $consumer): void;
 }

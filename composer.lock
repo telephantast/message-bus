@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87a86b5201b5807cc4221f615225bc6f",
+    "content-hash": "a5f4ec037e79952bf82d7493c52509da",
     "packages": [
         {
             "name": "psr/clock",
@@ -56,16 +56,16 @@
         },
         {
             "name": "thesis/message",
-            "version": "0.3.0",
+            "version": "0.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message.git",
-                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb"
+                "reference": "33c891c54f96c115e7c0f78150095488619630a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message/zipball/3859eb3094cd814989b4fd592eb73b2d237d7bdb",
-                "reference": "3859eb3094cd814989b4fd592eb73b2d237d7bdb",
+                "url": "https://api.github.com/repos/thesis-php/message/zipball/33c891c54f96c115e7c0f78150095488619630a5",
+                "reference": "33c891c54f96c115e7c0f78150095488619630a5",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
             "description": "Thesis Message",
             "support": {
                 "issues": "https://github.com/thesis-php/message/issues",
-                "source": "https://github.com/thesis-php/message/tree/0.3.0"
+                "source": "https://github.com/thesis-php/message/tree/0.4.x"
             },
             "funding": [
                 {
@@ -112,7 +112,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-04-05T12:22:22+00:00"
+            "time": "2025-07-16T22:53:52+00:00"
         }
     ],
     "packages-dev": [
@@ -2424,7 +2424,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "thesis/message": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

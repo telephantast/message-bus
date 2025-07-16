@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
+use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
