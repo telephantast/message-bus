@@ -17,19 +17,14 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     private array $subscriptions = [];
 
     /**
-     * @var array<non-empty-string, callable(Envelope<Message<*>>): void>
-     */
-    private array $consumers = [];
-
-    /**
      * @var array<non-empty-string, array<non-negative-int, Envelope<Command|Event>>>
      */
     private array $queues = [];
 
     /**
-     * @var array<non-empty-string>
+     * @var array<non-empty-string, callable(Envelope<Message<*>>): void>
      */
-    private array $queuesToDeliver = [];
+    private array $consumers = [];
 
     public function send(string $toEndpoint, array $commands): void
     {
@@ -38,8 +33,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         foreach ($commands as $command) {
             $this->queues[$queue][] = $command;
         }
-
-        $this->queuesToDeliver[] = $queue;
 
         $this->deliver();
     }
@@ -53,7 +46,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         }
 
         $this->consumers[$queue] = $consumer;
-        $this->queuesToDeliver[] = $queue;
 
         $this->deliver();
     }
@@ -72,7 +64,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         foreach ($events as $event) {
             foreach ($this->subscriptions[$event->messageClass] ?? [] as $queue) {
                 $this->queues[$queue][] = $event;
-                $this->queuesToDeliver[] = $queue;
             }
         }
 
@@ -88,7 +79,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         }
 
         $this->consumers[$queue] = $consumer;
-        $this->queuesToDeliver[] = $queue;
 
         $this->deliver();
     }
@@ -103,20 +93,16 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
 
         $this->delivering = true;
 
-        while ($queue = array_shift($this->queuesToDeliver)) {
-            $consumer = $this->consumers[$queue] ?? null;
-
-            if ($consumer === null) {
-                return;
+        try {
+            foreach ($this->consumers as $queue => $consumer) {
+                foreach ($this->queues[$queue] ?? [] as $key => $message) {
+                    $consumer($message);
+                    unset($this->queues[$queue][$key]);
+                }
             }
-
-            foreach ($this->queues[$queue] ?? [] as $key => $message) {
-                $consumer($message);
-                unset($this->queues[$queue][$key]);
-            }
+        } finally {
+            $this->delivering = false;
         }
-
-        $this->delivering = false;
     }
 
     /**
