@@ -16,11 +16,16 @@ final class InMemoryStorage implements Storage
 
     public function setup(): void {}
 
-    public function beginTransaction(): Transaction
+    public function beginTransaction(string $endpoint, string $incomingMessageId): Transaction
     {
         return new InMemoryTransaction(
-            hasOutbox: $this->hasOutbox(...),
-            setOutbox: $this->setOutbox(...),
+            function (Outbox $outbox) use ($endpoint, $incomingMessageId): void {
+                if (isset($this->outboxes[$endpoint][$incomingMessageId])) {
+                    throw new OutboxAlreadyExists();
+                }
+
+                $this->outboxes[$endpoint][$incomingMessageId] = $outbox;
+            },
         );
     }
 
@@ -29,24 +34,16 @@ final class InMemoryStorage implements Storage
         return $this->outboxes[$endpoint][$incomingMessageId] ?? null;
     }
 
-    private function hasOutbox(Outbox $outbox): bool
-    {
-        return isset($this->outboxes[$outbox->endpoint][$outbox->incomingMessageId]);
-    }
-
-    private function setOutbox(Outbox $outbox): void
-    {
-        $this->outboxes[$outbox->endpoint][$outbox->incomingMessageId] = $outbox;
-    }
-
     public function markOutboxSent(string $endpoint, string $incomingMessageId): void
     {
         $outbox = $this->findOutbox($endpoint, $incomingMessageId);
 
-        if ($outbox === null) {
-            throw new OutboxDoesNotExist();
+        if ($outbox !== null) {
+            $this->outboxes[$endpoint][$incomingMessageId] = new Outbox(
+                result: $outbox->result,
+                commands: [],
+                events: [],
+            );
         }
-
-        $this->setOutbox($outbox->toEmpty());
     }
 }

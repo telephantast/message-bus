@@ -10,46 +10,38 @@ namespace Thesis\MessageBus\Persistence;
  */
 final class InMemoryTransaction implements Transaction
 {
+    public self $wrappedTransaction { get => $this; }
+
     private bool $closed = false;
 
-    /**
-     * @var array<non-empty-string, array<non-empty-string, Outbox>>
-     */
-    private array $outboxes = [];
+    private ?Outbox $outbox = null;
 
     /**
-     * @param \Closure(Outbox): bool $hasOutbox
-     * @param \Closure(Outbox): void $setOutbox
+     * @param \Closure(Outbox): void $insertOutbox
      */
     public function __construct(
-        private readonly \Closure $hasOutbox,
-        private readonly \Closure $setOutbox,
+        private readonly \Closure $insertOutbox,
     ) {}
-
-    public self $wrappedTransaction { get => $this; }
 
     public function insertOutbox(Outbox $outbox): void
     {
         $this->ensureNotClosed();
 
-        if (($this->hasOutbox)($outbox) || isset($this->outboxes[$outbox->incomingMessageId][$outbox->endpoint])) {
+        if ($this->outbox !== null) {
             throw new OutboxAlreadyExists();
         }
 
-        $this->outboxes[$outbox->incomingMessageId][$outbox->endpoint] = $outbox;
+        $this->outbox = $outbox;
     }
 
     public function commit(): void
     {
         $this->ensureNotClosed();
 
-        foreach ($this->outboxes as $outboxes) {
-            foreach ($outboxes as $outbox) {
-                ($this->setOutbox)($outbox);
-            }
+        if ($this->outbox !== null) {
+            ($this->insertOutbox)($this->outbox);
         }
 
-        $this->outboxes = [];
         $this->closed = true;
     }
 
@@ -57,7 +49,7 @@ final class InMemoryTransaction implements Transaction
     {
         $this->ensureNotClosed();
 
-        $this->outboxes = [];
+        $this->outbox = null;
         $this->closed = true;
     }
 

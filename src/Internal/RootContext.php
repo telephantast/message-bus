@@ -38,56 +38,63 @@ final class RootContext extends Context
         Handler $handler,
         Envelope $envelope,
     ): mixed {
-        $context = new self(
+        $outbox = $storage->findOutbox(
             endpoint: $endpoint,
-            storage: $storage,
-            dispatcher: $dispatcher,
-            outgoingEnvelopeProcessor: $outgoingEnvelopeProcessor,
-            envelope: $envelope,
+            incomingMessageId: $envelope->messageId,
         );
 
-        try {
-            $result = $handler->handle($envelope, $context);
+        if ($outbox === null) {
+            $context = new self(
+                endpoint: $endpoint,
+                incomingMessageId: $envelope->messageId,
+                storage: $storage,
+                dispatcher: $dispatcher,
+                outgoingEnvelopeProcessor: $outgoingEnvelopeProcessor,
+                envelope: $envelope,
+            );
 
-            if ($context->commands !== [] || $context->events !== []) {
-                $context->beginTransaction()->insertOutbox(
-                    new Outbox(
-                        endpoint: $endpoint,
-                        incomingMessageId: $envelope->messageId,
-                        commands: $context->commands,
-                        events: $context->events,
-                    ),
+            try {
+                $outbox = new Outbox(
+                    result: $handler->handle($envelope, $context),
+                    commands: $context->commands,
+                    events: $context->events,
                 );
+
+                if ($outbox->commands !== [] || $outbox->events !== []) {
+                    $context->beginTransaction()->insertOutbox($outbox);
+                }
+
+                $context->storageTransaction?->commit();
+            } catch (\Throwable $exception) {
+                $context->storageTransaction?->rollback();
+
+                throw $exception;
+            } finally {
+                $context->close();
             }
-
-            $context->storageTransaction?->commit();
-            $commands = $context->commands;
-            $events = $context->events;
-        } catch (\Throwable $exception) {
-            $context->storageTransaction?->rollback();
-
-            throw $exception;
-        } finally {
-            $context->close();
         }
 
-        if ($commands !== []) {
-            $dispatcher->dispatchCommands($commands);
+        if ($outbox->commands !== []) {
+            $dispatcher->dispatchCommands($outbox->commands);
         }
 
-        if ($events !== []) {
-            $eventPublisher->publish($endpoint, $events);
+        if ($outbox->events !== []) {
+            $eventPublisher->publish($endpoint, $outbox->events);
         }
 
-        return $result;
+        $storage->markOutboxSent($endpoint, $envelope->messageId);
+
+        return $outbox->result;
     }
 
     /**
      * @param non-empty-string $endpoint
+     * @param non-empty-string $incomingMessageId
      * @param Envelope<*> $envelope
      */
     private function __construct(
         public readonly string $endpoint,
+        private readonly string $incomingMessageId,
         private readonly Storage $storage,
         private readonly Dispatcher $dispatcher,
         OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
@@ -104,7 +111,10 @@ final class RootContext extends Context
 
     private function beginTransaction(): Transaction
     {
-        return $this->storageTransaction ??= $this->storage->beginTransaction();
+        return $this->storageTransaction ??= $this->storage->beginTransaction(
+            endpoint: $this->endpoint,
+            incomingMessageId: $this->incomingMessageId,
+        );
     }
 
     /**
