@@ -83,10 +83,6 @@ final readonly class MessageBus implements Sender, Invoker
         }
     }
 
-    /**
-     * @no-named-arguments
-     * @param Command|Envelope<Command> ...$commands
-     */
     public function send(Command|Envelope ...$commands): void
     {
         if ($commands === []) {
@@ -96,11 +92,6 @@ final readonly class MessageBus implements Sender, Invoker
         $this->dispatcher->dispatchCommands(array_map($this->createEnvelope(...), $commands));
     }
 
-    /**
-     * @template TResult
-     * @param Call<TResult>|Envelope<Call<TResult>> $call
-     * @return TResult
-     */
     public function invoke(Call|Envelope $call): mixed
     {
         return $this->dispatcher->dispatchCall($this->createEnvelope($call));
@@ -126,7 +117,15 @@ final readonly class MessageBus implements Sender, Invoker
         }
 
         foreach ($selector as $endpoint => $runs) {
-            ($this->endpoints[$endpoint] ?? throw new \LogicException())->run($this->dispatcher, $runs);
+            $this->endpoint($endpoint)->run($this->dispatcher, $runs);
         }
+    }
+
+    /**
+     * @param non-empty-string $name
+     */
+    private function endpoint(string $name): Endpoint
+    {
+        return $this->endpoints[$name] ?? throw new \LogicException();
     }
 }

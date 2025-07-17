@@ -16,10 +16,12 @@ use Thesis\MessageBus\Handler;
  */
 final class Handlers implements Handler
 {
+    public array $messageClasses { get => array_keys($this->handlers); }
+
     /**
      * @var array<class-string<Message<*>>, non-empty-list<Handler<*>>>
      */
-    public private(set) array $handlers = [];
+    private array $handlers = [];
 
     /**
      * @template TWithMessage of Message
@@ -43,8 +45,6 @@ final class Handlers implements Handler
 
         return $copy;
     }
-
-    public array $messageClasses { get => array_keys($this->handlers); }
 
     public function handle(Envelope $envelope, Context $context): mixed
     {

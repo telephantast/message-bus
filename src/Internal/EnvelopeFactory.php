@@ -32,7 +32,7 @@ final readonly class EnvelopeFactory
     /**
      * @template TMessage of Message
      * @param non-empty-string $endpoint
-     * @param Message|Envelope<TMessage> $message
+     * @param TMessage|Envelope<TMessage> $message
      * @param ?Envelope<*> $cause
      * @return Envelope<TMessage>
      */
