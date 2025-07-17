@@ -9,7 +9,7 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\MessageMatcher;
 use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Run;
@@ -28,11 +28,10 @@ final readonly class Endpoint
 {
     /**
      * @param non-empty-string $name
-     * @param Handler<*> $handler
      */
     public function __construct(
         public string $name,
-        private Handler $handler,
+        private Handlers $handlers,
         private MessageMatcher $handlesCommand,
         private MessageMatcher $publishesEvent,
         private MessageMatcher $handlesCall,
@@ -74,13 +73,8 @@ final readonly class Endpoint
     {
         $this->storage->setup();
 
-        $events = array_filter(
-            $this->handler->messageClasses,
-            static fn(string $messageClass): bool => is_a($messageClass, Event::class, allow_string: true),
-        );
-
-        if ($events !== []) {
-            $dispatcher->dispatchSubscription($this->name, array_values($events));
+        if ($this->handlers->events !== []) {
+            $dispatcher->dispatchSubscription($this->name, $this->handlers->events);
         }
     }
 
@@ -104,8 +98,7 @@ final readonly class Endpoint
         }
 
         if ($parentContext !== null && $parentContext->endpoint === $this->name) {
-            /** @phpstan-ignore argument.type */
-            return $this->handler->handle($call, new ChildContext(
+            return $this->handlers->handleCall($call, new ChildContext(
                 parent: $parentContext,
                 envelopeFactory: $this->envelopeFactory,
                 envelope: $call,
@@ -118,7 +111,7 @@ final readonly class Endpoint
             dispatcher: $dispatcher,
             envelopeFactory: $this->envelopeFactory,
             eventPublisher: $this->eventPublisher,
-            handler: $this->handler,
+            handlers: $this->handlers,
             call: $call,
         );
     }
@@ -148,7 +141,7 @@ final readonly class Endpoint
                             dispatcher: $dispatcher,
                             envelopeFactory: $this->envelopeFactory,
                             eventPublisher: $this->eventPublisher,
-                            handler: $this->handler,
+                            handler: $this->handlers->handleCommand(...),
                             envelope: $command,
                         );
                     },
@@ -162,7 +155,7 @@ final readonly class Endpoint
                             dispatcher: $dispatcher,
                             envelopeFactory: $this->envelopeFactory,
                             eventPublisher: $this->eventPublisher,
-                            handler: $this->handler,
+                            handler: $this->handlers->handleEvent(...),
                             envelope: $event,
                         );
                     },

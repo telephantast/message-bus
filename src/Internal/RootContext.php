@@ -9,7 +9,7 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handler;
+use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\Persistence\DispatchOutbox;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
@@ -23,9 +23,10 @@ use function Amp\delay;
 final class RootContext extends Context
 {
     /**
+     * @template TMessage of Command|Event
      * @param non-empty-string $endpoint
-     * @param Handler<*> $handler
-     * @param Envelope<Command|Event> $envelope
+     * @param Envelope<TMessage> $envelope
+     * @param \Closure(Envelope<TMessage>, Context): void $handler
      */
     public static function handleCommandOrEvent(
         string $endpoint,
@@ -33,7 +34,7 @@ final class RootContext extends Context
         Dispatcher $dispatcher,
         EnvelopeFactory $envelopeFactory,
         EventPublisher $eventPublisher,
-        Handler $handler,
+        \Closure $handler,
         Envelope $envelope,
     ): void {
         if ($envelope->message instanceof DispatchOutbox) {
@@ -66,8 +67,7 @@ final class RootContext extends Context
             $transaction = $context->beginTransaction();
 
             try {
-                /** @phpstan-ignore argument.type */
-                $handler->handle($envelope, $context);
+                $handler($envelope, $context);
 
                 $outbox = new Outbox($context->commands, $context->events);
 
@@ -99,7 +99,6 @@ final class RootContext extends Context
 
     /**
      * @template TResult
-     * @param Handler<*> $handler
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
@@ -109,7 +108,7 @@ final class RootContext extends Context
         Dispatcher $dispatcher,
         EnvelopeFactory $envelopeFactory,
         EventPublisher $eventPublisher,
-        Handler $handler,
+        Handlers $handlers,
         Envelope $call,
     ): mixed {
         $context = new self(
@@ -122,8 +121,7 @@ final class RootContext extends Context
         );
 
         try {
-            /** @phpstan-ignore argument.type */
-            $result = $handler->handle($call, $context);
+            $result = $handlers->handleCall($call, $context);
             $commands = $context->commands;
             $events = $context->events;
             $useOutbox = $commands !== [] || $events !== [];
@@ -175,6 +173,7 @@ final class RootContext extends Context
         EventPublisher $eventPublisher,
     ): void {
         while (null === $outbox = $storage->findOutbox($endpoint, $incomingMessageId)) {
+            // todo transport delay
             delay(1);
         }
 

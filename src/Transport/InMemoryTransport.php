@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport;
 
-use Amp\Interval;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
-use function Amp\weakClosure;
 
 final class InMemoryTransport implements CommandSender, CommandReceiver, EventPublisher, EventReceiver
 {
@@ -29,14 +27,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     private array $consumers = [];
 
     public bool $delivered { get => array_filter($this->queues) === []; }
-
-    /** @phpstan-ignore property.onlyWritten */
-    private readonly Interval $interval;
-
-    public function __construct()
-    {
-        $this->interval = new Interval(0, weakClosure($this->deliver(...)));
-    }
 
     public function send(string $toEndpoint, array $commands): void
     {
@@ -91,7 +81,7 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
 
     private bool $delivering = false;
 
-    private function deliver(): void
+    public function deliver(): void
     {
         if ($this->delivering) {
             return;

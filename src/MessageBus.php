@@ -42,7 +42,7 @@ final readonly class MessageBus implements Sender, Invoker
         foreach ($endpointConfigs as $name => $endpointConfig) {
             $endpoints[$name] = new Endpoint(
                 name: $name,
-                handler: $endpointConfig->handler,
+                handlers: $endpointConfig->handlers,
                 handlesCommand: $endpointConfig->handlesCommand,
                 publishesEvent: $endpointConfig->publishesEvent,
                 handlesCall: $endpointConfig->handlesCall,

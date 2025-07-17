@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\Message\Call;
+use Thesis\Message\Command;
+use Thesis\Message\Event;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope\MessageId;
 
 /**
+ * @todo check $message is correct via MessageClass::from()
  * @template-covariant TMessage of Message
  */
 final class Envelope
@@ -42,6 +46,18 @@ final class Envelope
 
     public \DateTimeImmutable $timestamp {
         get => $this->stamps->find(\DateTimeImmutable::class) ?? throw new \LogicException('No timestamp');
+    }
+
+    public bool $isCommand {
+        get => is_a($this->message::class, Command::class, allow_string: true);
+    }
+
+    public bool $isEvent {
+        get => is_a($this->message::class, Event::class, allow_string: true);
+    }
+
+    public bool $isCall {
+        get => is_a($this->message::class, Call::class, allow_string: true);
     }
 
     public Stamps $stamps;

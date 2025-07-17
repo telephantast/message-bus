@@ -8,6 +8,7 @@ use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
+use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 
 /**
@@ -30,6 +31,19 @@ abstract class Context implements Sender, Publisher, Invoker
         private readonly EnvelopeFactory $envelopeFactory,
         private readonly Envelope $envelope,
     ) {}
+
+    /**
+     * @template TResult
+     * @param Result<TResult> $result
+     * @return TResult
+     */
+    final public function processResult(Result $result): mixed
+    {
+        $this->send(...$result->commands);
+        $this->publish(...$result->events);
+
+        return $result->result;
+    }
 
     final public function send(Envelope|Command ...$commands): void
     {

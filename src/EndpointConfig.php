@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\MessageMatcher\Boolean;
 use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Persistence\Storage;
@@ -30,11 +29,8 @@ final readonly class EndpointConfig
 
     public CallServer $callServer;
 
-    /**
-     * @param Handler<*> $handler
-     */
     public function __construct(
-        public Handler $handler = new Handlers(),
+        public Handlers $handlers = new Handlers(),
         public MessageMatcher $handlesCommand = Boolean::False,
         public MessageMatcher $publishesEvent = Boolean::False,
         public MessageMatcher $handlesCall = Boolean::False,

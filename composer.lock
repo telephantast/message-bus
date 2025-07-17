@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0fe6560f42e3e388af5fb55c4fe6488",
+    "content-hash": "ebb1ae6aa6460459fb1bb5ed2025156a",
     "packages": [
         {
             "name": "amphp/amp",
@@ -266,6 +266,78 @@
                 }
             ],
             "time": "2025-07-16T22:53:52+00:00"
+        },
+        {
+            "name": "typhoon/formatter",
+            "version": "0.1.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhoon-php/formatter.git",
+                "reference": "023568a25e0485501cf7119f8d288b7fa8eaf1fa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhoon-php/formatter/zipball/023568a25e0485501cf7119f8d288b7fa8eaf1fa",
+                "reference": "023568a25e0485501cf7119f8d288b7fa8eaf1fa",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8.2",
+                "phpunit/phpunit": "^10.5.46",
+                "symfony/var-dumper": "^6.4.21 || ^7.2.3"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": false,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/format.fn.php",
+                    "src/formatClass.fn.php",
+                    "src/formatFunction.fn.php",
+                    "src/formatParameter.fn.php",
+                    "src/formatProperty.fn.php",
+                    "src/formatReflectedClass.fn.php",
+                    "src/formatReflectedFunction.fn.php",
+                    "src/formatReflectedParameter.fn.php",
+                    "src/formatReflectedProperty.fn.php",
+                    "src/formatReflectedType.fn.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Udaltsov",
+                    "email": "udaltsov.valentin@gmail.com"
+                },
+                {
+                    "name": "Typhoon Team",
+                    "homepage": "https://github.com/orgs/typhoon-php/people"
+                }
+            ],
+            "description": "Typhoon Formatter",
+            "support": {
+                "issues": "https://github.com/typhoon-php/formatter/issues",
+                "source": "https://github.com/typhoon-php/formatter/tree/0.1.x"
+            },
+            "funding": [
+                {
+                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-06-03T10:22:45+00:00"
         }
     ],
     "packages-dev": [
@@ -2492,7 +2564,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "thesis/message-bus-persistence-postgres": 20
+        "thesis/message-bus-persistence-postgres": 20,
+        "typhoon/formatter": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
