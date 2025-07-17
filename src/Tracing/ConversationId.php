@@ -12,9 +12,9 @@ use Thesis\MessageBus\Stamp;
 final readonly class ConversationId implements Stamp
 {
     /**
-     * @param non-empty-string $correlationId
+     * @param non-empty-string $conversationId
      */
     public function __construct(
-        public string $correlationId,
+        public string $conversationId,
     ) {}
 }
