@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Example;
 
+use Amp\Postgres\PostgresConfig;
+use Amp\Postgres\PostgresConnectionPool;
 use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
@@ -14,13 +16,18 @@ use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\MessageBus;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
+use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemoryTransport;
+use function Amp\delay;
 use function Thesis\MessageBus\Handler\events;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-final readonly class Ping implements Command
+/**
+ * @implements Call<null>
+ */
+final readonly class Ping implements Command, Call
 {
     public function __construct(
         public string $text,
@@ -38,7 +45,6 @@ final readonly class Pong implements Event
  * @implements Call<\DateTimeImmutable>
  */
 final readonly class GetTimestamp implements Call {}
-
 
 final readonly class App
 {
@@ -75,6 +81,11 @@ $messageBus = MessageBus::build(
             handlesCommand: new Namespaced(__NAMESPACE__),
             publishesEvent: new Namespaced(__NAMESPACE__),
             handlesCall: new Namespaced(__NAMESPACE__),
+            storage: new PostgresStorage(
+                new PostgresConnectionPool(
+                    PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
+                ),
+            ),
             transport: $transport,
         ),
     ],
@@ -83,4 +94,9 @@ $messageBus = MessageBus::build(
 $messageBus->setup();
 $messageBus->run();
 
-$messageBus->send(new Ping('Hello!'));
+$messageBus->send(new Ping('As command'));
+$messageBus->invoke(new Ping('As call'));
+
+while (!$transport->delivered) {
+    delay(0);
+}
