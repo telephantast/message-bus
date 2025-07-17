@@ -15,7 +15,7 @@ interface Transaction
      * @throws OutboxAlreadyExists
      * @throws TransactionClosed
      */
-    public function insertOutbox(Outbox $outbox): void;
+    public function recordOutbox(Outbox $outbox): void;
 
     /**
      * @throws TransactionClosed

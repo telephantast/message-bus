@@ -72,7 +72,7 @@ final class RootContext extends Context
 
                 $outbox = new Outbox($context->commands, $context->events);
 
-                $transaction->insertOutbox($outbox);
+                $transaction->recordOutbox($outbox);
                 $transaction->commit();
             } catch (\Throwable $exception) {
                 $transaction->rollback();
@@ -130,7 +130,7 @@ final class RootContext extends Context
             $useOutbox = $commands !== [] || $events !== [];
 
             if ($useOutbox) {
-                $context->beginTransaction()->insertOutbox(new Outbox($commands, $events));
+                $context->beginTransaction()->recordOutbox(new Outbox($commands, $events));
 
                 // todo Sender::sendTo()?
                 $endpoint->send([$context->prepareOutgoingEnvelope(new DispatchOutbox($call->messageId))]);

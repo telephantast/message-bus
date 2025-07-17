@@ -23,7 +23,7 @@ final class InMemoryTransaction implements Transaction
         private readonly \Closure $insertOutbox,
     ) {}
 
-    public function insertOutbox(Outbox $outbox): void
+    public function recordOutbox(Outbox $outbox): void
     {
         $this->ensureNotClosed();
 
