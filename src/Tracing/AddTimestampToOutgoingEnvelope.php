@@ -19,11 +19,11 @@ final readonly class AddTimestampToOutgoingEnvelope implements OutgoingEnvelopeP
 
     public function process(string $endpoint, Envelope $envelope, ?Envelope $cause = null): Envelope
     {
-        if ($envelope->stamps->has(Timestamp::class)) {
+        if ($envelope->stamps->has(\DateTimeImmutable::class)) {
             return $envelope;
         }
 
-        $stamp = new Timestamp($this->clock?->now() ?? new \DateTimeImmutable());
+        $stamp = $this->clock?->now() ?? new \DateTimeImmutable();
 
         return $envelope->withStamps($envelope->stamps->with($stamp));
     }
