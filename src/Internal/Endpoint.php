@@ -8,7 +8,6 @@ use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
 use Thesis\MessageBus\MessageMatcher;
@@ -38,7 +37,7 @@ final readonly class Endpoint
         private MessageMatcher $publishesEvent,
         private MessageMatcher $handlesCall,
         private Storage $storage,
-        private OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        private EnvelopeFactory $envelopeFactory,
         private CommandSender $commandSender,
         private CommandReceiver $commandReceiver,
         private EventPublisher $eventPublisher,
@@ -108,7 +107,7 @@ final readonly class Endpoint
             /** @phpstan-ignore argument.type */
             return $this->handler->handle($call, new ChildContext(
                 parent: $parentContext,
-                outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                envelopeFactory: $this->envelopeFactory,
                 envelope: $call,
             ));
         }
@@ -117,7 +116,7 @@ final readonly class Endpoint
             endpoint: $this,
             storage: $this->storage,
             dispatcher: $dispatcher,
-            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+            envelopeFactory: $this->envelopeFactory,
             eventPublisher: $this->eventPublisher,
             handler: $this->handler,
             call: $call,
@@ -147,7 +146,7 @@ final readonly class Endpoint
                             endpoint: $this->name,
                             storage: $this->storage,
                             dispatcher: $dispatcher,
-                            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                            envelopeFactory: $this->envelopeFactory,
                             eventPublisher: $this->eventPublisher,
                             handler: $this->handler,
                             envelope: $command,
@@ -161,7 +160,7 @@ final readonly class Endpoint
                             endpoint: $this->name,
                             storage: $this->storage,
                             dispatcher: $dispatcher,
-                            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                            envelopeFactory: $this->envelopeFactory,
                             eventPublisher: $this->eventPublisher,
                             handler: $this->handler,
                             envelope: $event,

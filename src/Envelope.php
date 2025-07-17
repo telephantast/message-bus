@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Message\Message;
-use Thesis\MessageBus\Tracing\MessageId;
+use Thesis\MessageBus\Envelope\MessageId;
 
 /**
  * @template-covariant TMessage of Message
@@ -29,7 +29,9 @@ final class Envelope
     /**
      * @var class-string<TMessage>
      */
-    public string $messageClass { get => $this->message::class; } /** @phpstan-ignore generics.variance */
+    public string $messageClass { /** @phpstan-ignore generics.variance */
+        get => $this->message::class;
+    }
 
     /**
      * @var non-empty-string
@@ -38,13 +40,32 @@ final class Envelope
         get => $this->stamps->find(MessageId::class)->messageId ?? throw new \LogicException('No message ID');
     }
 
+    public \DateTimeImmutable $timestamp {
+        get => $this->stamps->find(\DateTimeImmutable::class) ?? throw new \LogicException('No timestamp');
+    }
+
+    public Stamps $stamps;
+
     /**
      * @param TMessage $message
+     * @param Stamps|list<Stamp> $stamps
      */
     public function __construct(
         public readonly Message $message,
-        public readonly Stamps $stamps = new Stamps(),
-    ) {}
+        array|Stamps $stamps = new Stamps(),
+    ) {
+        $this->stamps = $stamps instanceof Stamps ? $stamps : new Stamps($stamps);
+    }
+
+    /**
+     * @template TNewMessage of Message
+     * @param TNewMessage $message
+     * @return self<TNewMessage>
+     */
+    public function withMessage(Message $message): self
+    {
+        return new self($message, $this->stamps);
+    }
 
     public function withStamps(Stamps $stamps): static
     {

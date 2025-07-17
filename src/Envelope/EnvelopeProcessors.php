@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Dispatching;
+namespace Thesis\MessageBus\Envelope;
 
 use Thesis\MessageBus\Envelope;
 
 /**
  * @api
  */
-final readonly class OutgoingEnvelopeProcessors implements OutgoingEnvelopeProcessor
+final readonly class EnvelopeProcessors implements EnvelopeProcessor
 {
     /**
-     * @param iterable<OutgoingEnvelopeProcessor> $processors
+     * @param iterable<EnvelopeProcessor> $processors
      */
     public function __construct(
         public iterable $processors,

@@ -8,7 +8,6 @@ use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler;
 use Thesis\MessageBus\Persistence\DispatchOutbox;
@@ -32,7 +31,7 @@ final class RootContext extends Context
         string $endpoint,
         Storage $storage,
         Dispatcher $dispatcher,
-        OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        EnvelopeFactory $envelopeFactory,
         EventPublisher $eventPublisher,
         Handler $handler,
         Envelope $envelope,
@@ -60,7 +59,7 @@ final class RootContext extends Context
                 incomingMessageId: $envelope->messageId,
                 storage: $storage,
                 dispatcher: $dispatcher,
-                outgoingEnvelopeProcessor: $outgoingEnvelopeProcessor,
+                envelopeFactory: $envelopeFactory,
                 envelope: $envelope,
             );
 
@@ -108,7 +107,7 @@ final class RootContext extends Context
         Endpoint $endpoint,
         Storage $storage,
         Dispatcher $dispatcher,
-        OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        EnvelopeFactory $envelopeFactory,
         EventPublisher $eventPublisher,
         Handler $handler,
         Envelope $call,
@@ -118,7 +117,7 @@ final class RootContext extends Context
             incomingMessageId: $call->messageId,
             storage: $storage,
             dispatcher: $dispatcher,
-            outgoingEnvelopeProcessor: $outgoingEnvelopeProcessor,
+            envelopeFactory: $envelopeFactory,
             envelope: $call,
         );
 
@@ -133,7 +132,7 @@ final class RootContext extends Context
                 $context->beginTransaction()->recordOutbox(new Outbox($commands, $events));
 
                 // todo Sender::sendTo()?
-                $endpoint->send([$context->prepareOutgoingEnvelope(new DispatchOutbox($call->messageId))]);
+                $endpoint->send([$context->createEnvelope(new DispatchOutbox($call->messageId))]);
             }
 
             $context->storageTransaction?->commit();
@@ -204,10 +203,10 @@ final class RootContext extends Context
         private readonly string $incomingMessageId,
         private readonly Storage $storage,
         private readonly Dispatcher $dispatcher,
-        OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        EnvelopeFactory $envelopeFactory,
         Envelope $envelope,
     ) {
-        parent::__construct($outgoingEnvelopeProcessor, $envelope);
+        parent::__construct($envelopeFactory, $envelope);
     }
 
     private ?Transaction $storageTransaction = null;

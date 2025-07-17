@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Dispatching;
+namespace Thesis\MessageBus\Envelope;
 
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
@@ -10,7 +10,7 @@ use Thesis\MessageBus\Envelope;
 /**
  * @api
  */
-interface OutgoingEnvelopeProcessor
+interface EnvelopeProcessor
 {
     /**
      * @template TMessage of Message

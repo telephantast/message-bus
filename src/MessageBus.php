@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Psr\Clock\ClockInterface;
 use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessors;
+use Thesis\MessageBus\Envelope\EnvelopeProcessor;
+use Thesis\MessageBus\Envelope\MessageIdGenerator;
+use Thesis\MessageBus\Envelope\RandomMessageIdGenerator;
 use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\Endpoint;
-use Thesis\MessageBus\Tracing\AddCauseIdToOutgoingEnvelope;
-use Thesis\MessageBus\Tracing\AddConversationIdToOutgoingEnvelope;
-use Thesis\MessageBus\Tracing\AddMessageIdToOutgoingEnvelope;
-use Thesis\MessageBus\Tracing\AddTimestampToOutgoingEnvelope;
+use Thesis\MessageBus\Internal\EnvelopeFactory;
 
 /**
  * @implements Invoker<Call>
@@ -23,19 +22,21 @@ final readonly class MessageBus implements Sender, Invoker
 {
     /**
      * @param array<non-empty-string, EndpointConfig> $endpointConfigs
-     * @param list<OutgoingEnvelopeProcessor> $outgoingEnvelopeProcessors
+     * @param list<EnvelopeProcessor> $outgoingEnvelopeProcessors
      * @param non-empty-string $messageBusEndpointName
      */
     public static function build(
         array $endpointConfigs = [],
-        array $outgoingEnvelopeProcessors = [
-            new AddTimestampToOutgoingEnvelope(),
-            new AddMessageIdToOutgoingEnvelope(),
-            new AddConversationIdToOutgoingEnvelope(),
-            new AddCauseIdToOutgoingEnvelope(),
-        ],
+        array $outgoingEnvelopeProcessors = [],
+        MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
+        ?ClockInterface $clock = null,
         string $messageBusEndpointName = 'message_bus',
     ): self {
+        $envelopeFactory = new EnvelopeFactory(
+            processors: $outgoingEnvelopeProcessors,
+            messageIdGenerator: $messageIdGenerator,
+            clock: $clock,
+        );
         $endpoints = [];
 
         foreach ($endpointConfigs as $name => $endpointConfig) {
@@ -46,7 +47,7 @@ final readonly class MessageBus implements Sender, Invoker
                 publishesEvent: $endpointConfig->publishesEvent,
                 handlesCall: $endpointConfig->handlesCall,
                 storage: $endpointConfig->storage,
-                outgoingEnvelopeProcessor: $endpointConfig->outgoingEnvelopeProcessor,
+                envelopeFactory: $envelopeFactory,
                 commandSender: $endpointConfig->commandSender,
                 commandReceiver: $endpointConfig->commandReceiver,
                 eventPublisher: $endpointConfig->eventPublisher,
@@ -59,7 +60,7 @@ final readonly class MessageBus implements Sender, Invoker
         return new self(
             endpoints: $endpoints,
             dispatcher: new Dispatcher($endpoints),
-            outgoingEnvelopeProcessor: new OutgoingEnvelopeProcessors($outgoingEnvelopeProcessors),
+            envelopeFactory: $envelopeFactory,
             name: $messageBusEndpointName,
         );
     }
@@ -71,7 +72,7 @@ final readonly class MessageBus implements Sender, Invoker
     private function __construct(
         private array $endpoints,
         private Dispatcher $dispatcher,
-        private OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        private EnvelopeFactory $envelopeFactory,
         private string $name,
     ) {}
 
@@ -92,7 +93,7 @@ final readonly class MessageBus implements Sender, Invoker
             return;
         }
 
-        $this->dispatcher->dispatchCommands(array_map($this->prepareMessage(...), $commands));
+        $this->dispatcher->dispatchCommands(array_map($this->createEnvelope(...), $commands));
     }
 
     /**
@@ -102,17 +103,17 @@ final readonly class MessageBus implements Sender, Invoker
      */
     public function invoke(Call|Envelope $call): mixed
     {
-        return $this->dispatcher->dispatchCall($this->prepareMessage($call));
+        return $this->dispatcher->dispatchCall($this->createEnvelope($call));
     }
 
     /**
      * @template TMessage of Message
-     * @param TMessage|Envelope<TMessage> $envelope
+     * @param TMessage|Envelope<TMessage> $message
      * @return Envelope<TMessage>
      */
-    private function prepareMessage(Message|Envelope $envelope): Envelope
+    private function createEnvelope(Message|Envelope $message): Envelope
     {
-        return $this->outgoingEnvelopeProcessor->process($this->name, Envelope::wrap($envelope));
+        return $this->envelopeFactory->create($this->name, $message);
     }
 
     /**

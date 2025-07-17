@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Tracing;
+namespace Thesis\MessageBus\Envelope;
 
 use Thesis\MessageBus\Stamp;
 

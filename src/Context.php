@@ -8,7 +8,7 @@ use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
+use Thesis\MessageBus\Internal\EnvelopeFactory;
 
 /**
  * @api
@@ -27,7 +27,7 @@ abstract class Context implements Sender, Publisher, Invoker
      * @param Envelope<*> $envelope
      */
     public function __construct(
-        private readonly OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        private readonly EnvelopeFactory $envelopeFactory,
         private readonly Envelope $envelope,
     ) {}
 
@@ -37,7 +37,7 @@ abstract class Context implements Sender, Publisher, Invoker
             return;
         }
 
-        $this->doSend(array_map($this->prepareOutgoingEnvelope(...), $commands));
+        $this->doSend(array_map($this->createEnvelope(...), $commands));
     }
 
     final public function publish(Event|Envelope ...$events): void
@@ -46,12 +46,12 @@ abstract class Context implements Sender, Publisher, Invoker
             return;
         }
 
-        $this->doPublish(array_map($this->prepareOutgoingEnvelope(...), $events));
+        $this->doPublish(array_map($this->createEnvelope(...), $events));
     }
 
     final public function invoke(Call|Envelope $call): mixed
     {
-        return $this->doInvoke($this->prepareOutgoingEnvelope($call), $this);
+        return $this->doInvoke($this->createEnvelope($call), $this);
     }
 
     /**
@@ -73,11 +73,11 @@ abstract class Context implements Sender, Publisher, Invoker
 
     /**
      * @template TMessage of Message
-     * @param TMessage|Envelope<TMessage> $envelope
+     * @param TMessage|Envelope<TMessage> $message
      * @return Envelope<TMessage>
      */
-    final protected function prepareOutgoingEnvelope(Message|Envelope $envelope): Envelope
+    final protected function createEnvelope(Message|Envelope $message): Envelope
     {
-        return $this->outgoingEnvelopeProcessor->process($this->endpoint, Envelope::wrap($envelope), $this->envelope);
+        return $this->envelopeFactory->create($this->endpoint, $message, $this->envelope);
     }
 }

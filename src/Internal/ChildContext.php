@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\Context;
-use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -18,10 +17,10 @@ final class ChildContext extends Context
      */
     public function __construct(
         private readonly Context $parent,
-        OutgoingEnvelopeProcessor $outgoingEnvelopeProcessor,
+        EnvelopeFactory $envelopeFactory,
         Envelope $envelope,
     ) {
-        parent::__construct($outgoingEnvelopeProcessor, $envelope);
+        parent::__construct($envelopeFactory, $envelope);
     }
 
     public string $endpoint { get => $this->parent->endpoint; }

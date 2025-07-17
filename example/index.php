@@ -11,6 +11,8 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\EndpointConfig;
+use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Envelope\MessageId;
 use Thesis\MessageBus\Handler\CallableHandler;
 use Thesis\MessageBus\Handler\Handlers;
 use Thesis\MessageBus\Handler\Result;
@@ -94,8 +96,16 @@ $messageBus = MessageBus::build(
 $messageBus->setup();
 $messageBus->run();
 
-$messageBus->send(new Ping('As command'));
-$messageBus->invoke(new Ping('As call'));
+$messageBus->send(
+    new Envelope(new Ping('Hello!'), [
+        new MessageId('ping_as_command.' . bin2hex(random_bytes(10))),
+    ]),
+);
+$messageBus->send(
+    new Envelope(new Ping('Hello!'), [
+        new MessageId('ping_as_call.' . bin2hex(random_bytes(10))),
+    ]),
+);
 
 while (!$transport->delivered) {
     delay(0);
