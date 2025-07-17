@@ -34,16 +34,12 @@ final class InMemoryStorage implements Storage
         return $this->outboxes[$endpoint][$incomingMessageId] ?? null;
     }
 
-    public function markOutboxSent(string $endpoint, string $incomingMessageId): void
+    public function markOutboxDispatched(string $endpoint, string $incomingMessageId): void
     {
         $outbox = $this->findOutbox($endpoint, $incomingMessageId);
 
         if ($outbox !== null) {
-            $this->outboxes[$endpoint][$incomingMessageId] = new Outbox(
-                result: $outbox->result,
-                commands: [],
-                events: [],
-            );
+            $this->outboxes[$endpoint][$incomingMessageId] = $outbox->toDispatched();
         }
     }
 }

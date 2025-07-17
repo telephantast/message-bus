@@ -7,7 +7,6 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
-use Thesis\Message\Message;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Dispatching\OutgoingEnvelopeProcessor;
 use Thesis\MessageBus\Envelope;
@@ -99,13 +98,30 @@ final readonly class Endpoint
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
-    public function invoke(Envelope $call, Dispatcher $dispatcher, ?Context $parentContext): mixed
+    public function invoke(Envelope $call, Dispatcher $dispatcher, ?Context $parentContext = null): mixed
     {
         if ($this->callClient !== Fake::Instance) {
             return $this->callClient->invoke($this->name, $call);
         }
 
-        return $this->doHandle($call, $dispatcher, $parentContext);
+        if ($parentContext !== null && $parentContext->endpoint === $this->name) {
+            /** @phpstan-ignore argument.type */
+            return $this->handler->handle($call, new ChildContext(
+                parent: $parentContext,
+                outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                envelope: $call,
+            ));
+        }
+
+        return RootContext::handleCall(
+            endpoint: $this,
+            storage: $this->storage,
+            dispatcher: $dispatcher,
+            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+            eventPublisher: $this->eventPublisher,
+            handler: $this->handler,
+            call: $call,
+        );
     }
 
     /**
@@ -122,46 +138,41 @@ final readonly class Endpoint
      */
     public function run(Dispatcher $dispatcher, array $selector = []): void
     {
-        $handler = fn(Envelope $envelope): mixed => $this->doHandle($envelope, $dispatcher);
-
         foreach (array_unique($selector ?: Run::cases(), SORT_REGULAR) as $run) {
             match ($run) {
-                /** @phpstan-ignore argument.type */
-                Run::Commands => $this->commandReceiver->consumeCommands($this->name, $handler),
-                /** @phpstan-ignore argument.type */
-                Run::Events => $this->eventReceiver->consumeEvents($this->name, $handler),
-                Run::Calls => $this->callServer->serve($this->name, $handler),
+                Run::Commands => $this->commandReceiver->consumeCommands(
+                    endpoint: $this->name,
+                    consumer: function (Envelope $command) use ($dispatcher): void {
+                        RootContext::handleCommandOrEvent(
+                            endpoint: $this->name,
+                            storage: $this->storage,
+                            dispatcher: $dispatcher,
+                            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                            eventPublisher: $this->eventPublisher,
+                            handler: $this->handler,
+                            envelope: $command,
+                        );
+                    },
+                ),
+                Run::Events => $this->eventReceiver->consumeEvents(
+                    endpoint: $this->name,
+                    consumer: function (Envelope $event) use ($dispatcher): void {
+                        RootContext::handleCommandOrEvent(
+                            endpoint: $this->name,
+                            storage: $this->storage,
+                            dispatcher: $dispatcher,
+                            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
+                            eventPublisher: $this->eventPublisher,
+                            handler: $this->handler,
+                            envelope: $event,
+                        );
+                    },
+                ),
+                Run::Calls => $this->callServer->serve(
+                    endpoint: $this->name,
+                    handler: fn(Envelope $call): mixed => $this->invoke($call, $dispatcher),
+                ),
             };
         }
-    }
-
-    /**
-     * @template TResult
-     * @param Envelope<Message<TResult>> $envelope
-     * @return TResult
-     */
-    private function doHandle(Envelope $envelope, Dispatcher $dispatcher, ?Context $parentContext = null): mixed
-    {
-        if ($parentContext !== null && $parentContext->endpoint === $this->name) {
-            return $this->handler->handle(
-                /** @phpstan-ignore argument.type */
-                envelope: $envelope,
-                context: new ChildContext(
-                    parent: $parentContext,
-                    outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
-                    envelope: $envelope,
-                ),
-            );
-        }
-
-        return RootContext::handle(
-            endpoint: $this->name,
-            storage: $this->storage,
-            dispatcher: $dispatcher,
-            outgoingEnvelopeProcessor: $this->outgoingEnvelopeProcessor,
-            eventPublisher: $this->eventPublisher,
-            handler: $this->handler, /** @phpstan-ignore argument.type */
-            envelope: $envelope,
-        );
     }
 }

@@ -13,13 +13,26 @@ use Thesis\MessageBus\Envelope;
  */
 final readonly class Outbox
 {
+    public bool $dispatched;
+
     /**
      * @param list<Envelope<Command>> $commands
      * @param list<Envelope<Event>> $events
      */
     public function __construct(
-        public mixed $result,
         public array $commands,
         public array $events,
-    ) {}
+        bool $dispatched = false,
+    ) {
+        $this->dispatched = $dispatched || ($commands === [] && $events === []);
+    }
+
+    public function toDispatched(): self
+    {
+        return new self(
+            commands: $this->commands,
+            events: $this->events,
+            dispatched: true,
+        );
+    }
 }
