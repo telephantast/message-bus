@@ -31,7 +31,7 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     public bool $delivered { get => array_filter($this->queues) === []; }
 
     /** @phpstan-ignore property.onlyWritten */
-    private Interval $interval;
+    private readonly Interval $interval;
 
     public function __construct()
     {

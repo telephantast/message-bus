@@ -78,20 +78,4 @@ final readonly class Dispatcher
 
         throw new \LogicException(\sprintf('Failed to route call `%s`', $call->messageClass));
     }
-
-    /**
-     * @template TResult
-     * @param Envelope<Call<TResult>> $call
-     * @return TResult
-     */
-    public function dispatchChildCall(Envelope $call, Context $parentContext): mixed
-    {
-        foreach ($this->endpoints as $endpoint) {
-            if ($endpoint->handlesCall($call->messageClass)) {
-                return $endpoint->invoke($call, $this, $parentContext);
-            }
-        }
-
-        throw new \LogicException(\sprintf('Failed to route call `%s`', $call->messageClass));
-    }
 }

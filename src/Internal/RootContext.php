@@ -156,7 +156,7 @@ final class RootContext extends Context
                 }
 
                 $storage->markOutboxDispatched($endpoint->name, $call->messageId);
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 // todo log
             }
         }
