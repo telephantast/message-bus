@@ -37,7 +37,7 @@ abstract class Context implements Sender, Publisher, Invoker
             return;
         }
 
-        $this->doSend(array_map($this->processOutgoingMessage(...), $commands));
+        $this->doSend(array_map($this->prepareOutgoingEnvelope(...), $commands));
     }
 
     final public function publish(Event|Envelope ...$events): void
@@ -46,12 +46,12 @@ abstract class Context implements Sender, Publisher, Invoker
             return;
         }
 
-        $this->doPublish(array_map($this->processOutgoingMessage(...), $events));
+        $this->doPublish(array_map($this->prepareOutgoingEnvelope(...), $events));
     }
 
     final public function invoke(Call|Envelope $call): mixed
     {
-        return $this->doInvoke($this->processOutgoingMessage($call), $this);
+        return $this->doInvoke($this->prepareOutgoingEnvelope($call), $this);
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class Context implements Sender, Publisher, Invoker
      * @param TMessage|Envelope<TMessage> $envelope
      * @return Envelope<TMessage>
      */
-    private function processOutgoingMessage(Message|Envelope $envelope): Envelope
+    final protected function prepareOutgoingEnvelope(Message|Envelope $envelope): Envelope
     {
         return $this->outgoingEnvelopeProcessor->process($this->endpoint, Envelope::wrap($envelope), $this->envelope);
     }
