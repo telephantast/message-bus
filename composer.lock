@@ -2427,12 +2427,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thesis-php/message-bus-persistence-postgres.git",
-                "reference": "0e9c0eff2f496d2a7840e6c9d98e34ac90fd8104"
+                "reference": "485aeb24a9ae65eb5dbf9fe8b0ac2bd066d7421e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message-bus-persistence-postgres/zipball/0e9c0eff2f496d2a7840e6c9d98e34ac90fd8104",
-                "reference": "0e9c0eff2f496d2a7840e6c9d98e34ac90fd8104",
+                "url": "https://api.github.com/repos/thesis-php/message-bus-persistence-postgres/zipball/485aeb24a9ae65eb5dbf9fe8b0ac2bd066d7421e",
+                "reference": "485aeb24a9ae65eb5dbf9fe8b0ac2bd066d7421e",
                 "shasum": ""
             },
             "require": {
@@ -2486,7 +2486,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-07-17T04:20:00+00:00"
+            "time": "2025-07-17T12:42:13+00:00"
         }
     ],
     "aliases": [],
