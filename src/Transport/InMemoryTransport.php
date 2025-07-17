@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport;
 
+use Amp\Interval;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
+use function Amp\weakClosure;
 
 final class InMemoryTransport implements CommandSender, CommandReceiver, EventPublisher, EventReceiver
 {
@@ -26,6 +28,16 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
      */
     private array $consumers = [];
 
+    public bool $delivered { get => array_filter($this->queues) === []; }
+
+    /** @phpstan-ignore property.onlyWritten */
+    private Interval $interval;
+
+    public function __construct()
+    {
+        $this->interval = new Interval(0, weakClosure($this->deliver(...)));
+    }
+
     public function send(string $toEndpoint, array $commands): void
     {
         $queue = self::commandsQueue($toEndpoint);
@@ -33,8 +45,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         foreach ($commands as $command) {
             $this->queues[$queue][] = $command;
         }
-
-        $this->deliver();
     }
 
     public function consumeCommands(string $endpoint, callable $consumer): void
@@ -45,9 +55,8 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
             throw new \LogicException();
         }
 
+        /** @phpstan-ignore assign.propertyType */
         $this->consumers[$queue] = $consumer;
-
-        $this->deliver();
     }
 
     public function subscribe(string $endpoint, array $toEvents): void
@@ -66,8 +75,6 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
                 $this->queues[$queue][] = $event;
             }
         }
-
-        $this->deliver();
     }
 
     public function consumeEvents(string $endpoint, callable $consumer): void
@@ -78,9 +85,8 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
             throw new \LogicException();
         }
 
+        /** @phpstan-ignore assign.propertyType */
         $this->consumers[$queue] = $consumer;
-
-        $this->deliver();
     }
 
     private bool $delivering = false;
