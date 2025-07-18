@@ -86,7 +86,7 @@ final class Handlers
      * @param non-empty-list<MessageClass<TMessage>> $messageClasses
      * @param ?non-empty-string $id
      */
-    public function withSimpleCallable(callable $handler, array $middleware = [], ?array $messageClasses = null, ?string $id = null): self
+    public function withBasic(callable $handler, array $middleware = [], ?array $messageClasses = null, ?string $id = null): self
     {
         $reflection = new \ReflectionFunction($handler(...));
 

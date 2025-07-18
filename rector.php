@@ -8,7 +8,7 @@ use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRecto
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/example',
+        __DIR__ . '/examples',
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Example;
+namespace Thesis\MessageBus\Examples\Combo;
 
 use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
@@ -11,10 +11,6 @@ use Thesis\Message\Command;
 use Thesis\Message\Event;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\EndpointConfig;
-use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handler\Mapping\Id;
-use Thesis\MessageBus\Handler\Middleware;
-use Thesis\MessageBus\Handler\Pipeline;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\MessageBus;
@@ -22,10 +18,9 @@ use Thesis\MessageBus\MessageMatcher\Namespaced;
 use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemoryTransport;
-use function Amp\delay;
 use function Thesis\MessageBus\Handler\events;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 final readonly class Ping implements Command
 {
@@ -64,21 +59,11 @@ final readonly class App
         return new \DateTimeImmutable();
     }
 
-    #[Id('pong_handler')]
     public static function onPong(Pong $pong, Context $context, Stamps $stamps): void
     {
         dump($pong, $stamps);
     }
 }
-
-$dumpHandlerIdMiddleware = new class implements Middleware {
-    public function handle(Envelope $envelope, Context $context, Pipeline $pipeline): mixed
-    {
-        dump($pipeline->handlerId);
-
-        return $pipeline->continue();
-    }
-};
 
 $storage = new PostgresStorage(
     new PostgresConnectionPool(
@@ -88,21 +73,19 @@ $storage = new PostgresStorage(
 
 $transport = new InMemoryTransport();
 
-$messageBus = MessageBus::build(
-    endpointConfigs: [
-        'test' => new EndpointConfig(
-            handlers: new Handlers()
-                ->withSimpleCallable(App::ping(...), [$dumpHandlerIdMiddleware])
-                ->withSimpleCallable(App::onPong(...), [$dumpHandlerIdMiddleware])
-                ->withSimpleCallable(App::getTimestamp(...), [$dumpHandlerIdMiddleware]),
-            handlesCommand: new Namespaced(__NAMESPACE__),
-            publishesEvent: new Namespaced(__NAMESPACE__),
-            handlesCall: new Namespaced(__NAMESPACE__),
-            storage: $storage,
-            transport: $transport,
-        ),
-    ],
-);
+$messageBus = MessageBus::build([
+    'test' => new EndpointConfig(
+        handlers: new Handlers()
+            ->withBasic(App::ping(...))
+            ->withBasic(App::onPong(...))
+            ->withBasic(App::getTimestamp(...)),
+        handlesCommand: new Namespaced(__NAMESPACE__),
+        publishesEvent: new Namespaced(__NAMESPACE__),
+        handlesCall: new Namespaced(__NAMESPACE__),
+        storage: $storage,
+        transport: $transport,
+    ),
+]);
 
 $messageBus->setup();
 $messageBus->run();
@@ -111,5 +94,4 @@ $messageBus->send(new Ping('Hello!'));
 
 while (!$transport->delivered) {
     $transport->deliver();
-    delay(0);
 }

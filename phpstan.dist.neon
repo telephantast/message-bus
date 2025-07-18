@@ -1,13 +1,10 @@
 parameters:
     level: max
     paths:
-        - example
+        - examples
         - src
         - tests
     checkBenevolentUnionTypes: true
-    #ignoreErrors:
-    #    - { identifier: missingType.generics }
-    #    - { identifier: return.unusedType }
     editorUrl: ''
     editorUrlTitle: '%%file%%:%%line%%'
     tmpDir: ./var/phpstan
