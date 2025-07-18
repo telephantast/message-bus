@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Handler;
 
-use Thesis\Message\Message;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 
 /**
  * @api
  * @template-covariant TResult
- * @template TMessage of Message<TResult>
+ * @template TMessage of object
  * @template TTransaction of object
  */
 final class Pipeline
 {
     /**
-     * @param non-empty-string $handlerId
      * @param callable(Envelope<TMessage>, Context<TTransaction>): TResult $handler
      * @param list<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
      * @param Context<TTransaction> $context
      */
     public function __construct(
-        public readonly string $handlerId,
         private readonly mixed $handler,
         private array $middleware,
         private Envelope $envelope,

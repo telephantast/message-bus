@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Handler;
 
-use Thesis\Message\Command;
-use Thesis\Message\Event;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -15,8 +13,8 @@ final readonly class Result
 {
     /**
      * @param TResult $result
-     * @param list<Envelope<Command>> $commands
-     * @param list<Envelope<Event>> $events
+     * @param list<Envelope> $commands
+     * @param list<Envelope> $events
      */
     public function __construct(
         public mixed $result = null,
@@ -40,9 +38,8 @@ final readonly class Result
 
     /**
      * @no-named-arguments
-     * @param Command|Envelope<Command> ...$commands
      */
-    public function commands(Command|Envelope ...$commands): static
+    public function commands(object ...$commands): static
     {
         return new self(
             result: $this->result,
@@ -53,9 +50,8 @@ final readonly class Result
 
     /**
      * @no-named-arguments
-     * @param Event|Envelope<Event> ...$events
      */
-    public function events(Event|Envelope ...$events): static
+    public function events(object ...$events): static
     {
         return new self(
             result: $this->result,
@@ -91,20 +87,18 @@ function result(mixed $result = null): Result
 
 /**
  * @no-named-arguments
- * @param Command|Envelope<Command> ...$commands
  * @return Result<null>
  */
-function commands(Command|Envelope ...$commands): Result
+function commands(object ...$commands): Result
 {
     return new Result(commands: array_map(Envelope::wrap(...), $commands));
 }
 
 /**
  * @no-named-arguments
- * @param Event|Envelope<Event> ...$events
  * @return Result<null>
  */
-function events(Event|Envelope ...$events): Result
+function events(object ...$events): Result
 {
     return new Result(events: array_map(Envelope::wrap(...), $events));
 }

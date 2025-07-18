@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Call;
-use Thesis\Message\Command;
-use Thesis\Message\Event;
-use Thesis\Message\Message;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 
@@ -33,7 +29,7 @@ abstract class Context implements Sender, Publisher, Invoker
      */
     public function __construct(
         private readonly EnvelopeFactory $envelopeFactory,
-        private readonly Envelope $envelope,
+        protected readonly Envelope $envelope,
     ) {}
 
     /**
@@ -49,7 +45,7 @@ abstract class Context implements Sender, Publisher, Invoker
         return $result->result;
     }
 
-    final public function send(Envelope|Command ...$commands): void
+    final public function send(object ...$commands): void
     {
         if ($commands === []) {
             return;
@@ -58,7 +54,7 @@ abstract class Context implements Sender, Publisher, Invoker
         $this->doSend(array_map($this->createEnvelope(...), $commands));
     }
 
-    final public function publish(Event|Envelope ...$events): void
+    final public function publish(object ...$events): void
     {
         if ($events === []) {
             return;
@@ -73,12 +69,12 @@ abstract class Context implements Sender, Publisher, Invoker
     }
 
     /**
-     * @param non-empty-list<Envelope<Command>> $commands
+     * @param non-empty-list<Envelope> $commands
      */
     abstract protected function doSend(array $commands): void;
 
     /**
-     * @param non-empty-list<Envelope<Event>> $events
+     * @param non-empty-list<Envelope> $events
      */
     abstract protected function doPublish(array $events): void;
 
@@ -91,11 +87,11 @@ abstract class Context implements Sender, Publisher, Invoker
     abstract protected function doInvoke(Envelope $call, self $parentContext): mixed;
 
     /**
-     * @template TMessage of Message
+     * @template TMessage of object
      * @param TMessage|Envelope<TMessage> $message
      * @return Envelope<TMessage>
      */
-    final protected function createEnvelope(Message|Envelope $message): Envelope
+    final protected function createEnvelope(object $message): Envelope
     {
         return $this->envelopeFactory->create($this->endpoint, $message, $this->envelope);
     }

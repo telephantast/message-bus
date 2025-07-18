@@ -15,10 +15,8 @@
     ],
     "require": {
         "php": "^8.4",
-        "amphp/amp": "^3.1",
         "psr/clock": "^1.0",
-        "thesis/message": "^0.4.0",
-        "typhoon/formatter": "^0.1@dev"
+        "revolt/event-loop": "^1.0"
     },
     "require-dev": {
         "ext-pcntl": "*",

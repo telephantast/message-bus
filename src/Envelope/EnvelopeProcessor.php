@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Envelope;
 
-use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -13,7 +12,7 @@ use Thesis\MessageBus\Envelope;
 interface EnvelopeProcessor
 {
     /**
-     * @template TMessage of Message
+     * @template TMessage of object
      * @param non-empty-string $endpoint
      * @param Envelope<TMessage> $envelope
      * @param ?Envelope<*> $cause

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Persistence;
 
-use Thesis\Message\Command;
-use Thesis\Message\Event;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -16,8 +14,8 @@ final readonly class Outbox
     public bool $dispatched;
 
     /**
-     * @param list<Envelope<Command>> $commands
-     * @param list<Envelope<Event>> $events
+     * @param list<Envelope> $commands
+     * @param list<Envelope> $events
      */
     public function __construct(
         public array $commands,

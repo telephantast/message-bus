@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport;
 
-use Thesis\Message\Command;
 use Thesis\MessageBus\Envelope;
 
 interface CommandReceiver
 {
     /**
      * @param non-empty-string $endpoint
-     * @param callable(Envelope<Command>): void $consumer
+     * @param callable(Envelope): void $handler
      */
-    public function consumeCommands(string $endpoint, callable $consumer): void;
+    public function startCommandConsumer(string $endpoint, callable $handler): Canceller;
 }

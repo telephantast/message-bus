@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport;
 
-use Thesis\Message\Event;
 use Thesis\MessageBus\Envelope;
 
 interface EventPublisher
 {
     /**
-     * @param non-empty-string $endpoint
-     * @param non-empty-list<class-string<Event>> $toEvents
+     * @param non-empty-string $subscription
+     * @param list<class-string> $toEventClasses
      */
-    public function subscribe(string $endpoint, array $toEvents): void;
+    public function subscribe(string $subscription, array $toEventClasses): void;
 
     /**
-     * @param non-empty-string $atEndpoint
-     * @param non-empty-list<Envelope<Event>> $events
+     * @param non-empty-string $subscription
+     * @param callable(Envelope<object>): void $handler
      */
-    public function publish(string $atEndpoint, array $events): void;
+    public function startSubscription(string $subscription, callable $handler): Canceller;
+
+    /**
+     * @param non-empty-string $publisher
+     * @param non-empty-list<Envelope<object>> $events
+     */
+    public function publish(string $publisher, array $events): void;
 }

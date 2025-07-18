@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Handler;
 
-use Thesis\Message\Message;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 
@@ -12,7 +11,7 @@ interface Middleware
 {
     /**
      * @template TResult
-     * @template TMessage of Message<TResult>
+     * @template TMessage of object
      * @template TTransaction of object
      * @param Envelope<TMessage> $envelope
      * @param Context<TTransaction> $context

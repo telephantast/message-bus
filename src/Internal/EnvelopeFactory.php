@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Psr\Clock\ClockInterface;
-use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Envelope\CauseId;
 use Thesis\MessageBus\Envelope\ConversationId;
@@ -30,13 +29,13 @@ final readonly class EnvelopeFactory
     ) {}
 
     /**
-     * @template TMessage of Message
+     * @template TMessage of object
      * @param non-empty-string $endpoint
      * @param TMessage|Envelope<TMessage> $message
      * @param ?Envelope<*> $cause
      * @return Envelope<TMessage>
      */
-    public function create(string $endpoint, Message|Envelope $message, ?Envelope $cause = null): Envelope
+    public function create(string $endpoint, object $message, ?Envelope $cause = null): Envelope
     {
         if (!$message instanceof Envelope) {
             $messageId = $this->messageIdGenerator->generateMessageId();
@@ -55,6 +54,7 @@ final readonly class EnvelopeFactory
             return $envelope;
         }
 
+        /** @var Envelope<TMessage> $message */
         $stamps = $message->stamps;
         $newStamps = [];
 

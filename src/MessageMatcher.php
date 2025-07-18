@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Message;
-
+/**
+ * @todo rename to class matcher?
+ */
 interface MessageMatcher
 {
     /**
-     * @param class-string<Message<*>> $messageClass
+     * @param class-string $messageClass
      */
     public function matches(string $messageClass): bool;
 }

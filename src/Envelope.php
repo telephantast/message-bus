@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\Message\Call;
-use Thesis\Message\Command;
-use Thesis\Message\Event;
-use Thesis\Message\Message;
 use Thesis\MessageBus\Envelope\MessageId;
 
 /**
- * @todo check $message is correct via MessageClass::from()
- * @template-covariant TMessage of Message
+ * @template-covariant TMessage of object = object
  */
 final class Envelope
 {
     /**
-     * @template TWrappedMessage of Message
+     * @template TWrappedMessage of object
      * @param TWrappedMessage|self<TWrappedMessage> $message
      * @return self<TWrappedMessage>
      */
-    public static function wrap(Message|self $message): self
+    public static function wrap(object $message): self
     {
         if ($message instanceof self) {
             return $message;
@@ -48,18 +43,6 @@ final class Envelope
         get => $this->stamps->find(\DateTimeImmutable::class) ?? throw new \LogicException('No timestamp');
     }
 
-    public bool $isCommand {
-        get => is_a($this->message::class, Command::class, allow_string: true);
-    }
-
-    public bool $isEvent {
-        get => is_a($this->message::class, Event::class, allow_string: true);
-    }
-
-    public bool $isCall {
-        get => is_a($this->message::class, Call::class, allow_string: true);
-    }
-
     public Stamps $stamps;
 
     /**
@@ -67,18 +50,18 @@ final class Envelope
      * @param Stamps|list<Stamp> $stamps
      */
     public function __construct(
-        public readonly Message $message,
+        public readonly object $message,
         array|Stamps $stamps = new Stamps(),
     ) {
         $this->stamps = $stamps instanceof Stamps ? $stamps : new Stamps($stamps);
     }
 
     /**
-     * @template TNewMessage of Message
+     * @template TNewMessage of object
      * @param TNewMessage $message
      * @return self<TNewMessage>
      */
-    public function withMessage(Message $message): self
+    public function withMessage(object $message): self
     {
         return new self($message, $this->stamps);
     }
