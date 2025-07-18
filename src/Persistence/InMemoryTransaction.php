@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Persistence;
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
+ * @implements Transaction<object>
  */
 final class InMemoryTransaction implements Transaction
 {

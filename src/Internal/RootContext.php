@@ -19,14 +19,18 @@ use function Amp\delay;
 
 /**
  * @internal
+ * @template TTransaction of object
+ * @extends Context<TTransaction>
  */
 final class RootContext extends Context
 {
     /**
+     * @template TStorageTransaction of object
      * @template TMessage of Command|Event
      * @param non-empty-string $endpoint
+     * @param Storage<TStorageTransaction> $storage
      * @param Envelope<TMessage> $envelope
-     * @param \Closure(Envelope<TMessage>, Context): void $handler
+     * @param \Closure(Envelope<TMessage>, Context<TStorageTransaction>): void $handler
      */
     public static function handleCommandOrEvent(
         string $endpoint,
@@ -98,7 +102,11 @@ final class RootContext extends Context
     }
 
     /**
+     * @template TStorageTransaction of object
      * @template TResult
+     * @param Endpoint<TStorageTransaction> $endpoint
+     * @param Storage<TStorageTransaction> $storage
+     * @param Handlers<TStorageTransaction> $handlers
      * @param Envelope<Call<TResult>> $call
      * @return TResult
      */
@@ -163,6 +171,7 @@ final class RootContext extends Context
 
     /**
      * @param non-empty-string $endpoint
+     * @param Storage<*> $storage
      * @param non-empty-string $incomingMessageId
      */
     private static function handleDispatchOutbox(
@@ -195,6 +204,7 @@ final class RootContext extends Context
     /**
      * @param non-empty-string $endpoint
      * @param non-empty-string $incomingMessageId
+     * @param Storage<TTransaction> $storage
      * @param Envelope<*> $envelope
      */
     private function __construct(
@@ -208,12 +218,18 @@ final class RootContext extends Context
         parent::__construct($envelopeFactory, $envelope);
     }
 
+    /**
+     * @var ?Transaction<TTransaction>
+     */
     private ?Transaction $storageTransaction = null;
 
     public object $transaction {
         get => $this->beginTransaction()->wrappedTransaction;
     }
 
+    /**
+     * @return Transaction<TTransaction>
+     */
     private function beginTransaction(): Transaction
     {
         return $this->storageTransaction ??= $this->storage->beginTransaction(

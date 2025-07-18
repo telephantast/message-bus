@@ -16,7 +16,7 @@ use Thesis\MessageBus\Envelope;
 final readonly class Dispatcher
 {
     /**
-     * @param array<non-empty-string, Endpoint> $endpoints
+     * @param array<non-empty-string, Endpoint<*>> $endpoints
      */
     public function __construct(
         private array $endpoints = [],
@@ -66,6 +66,7 @@ final readonly class Dispatcher
     /**
      * @template TResult
      * @param Envelope<Call<TResult>> $call
+     * @param ?Context<*> $parentContext
      * @return TResult
      */
     public function dispatchCall(Envelope $call, ?Context $parentContext = null): mixed

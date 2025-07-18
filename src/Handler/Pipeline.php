@@ -12,14 +12,16 @@ use Thesis\MessageBus\Envelope;
  * @api
  * @template-covariant TResult
  * @template TMessage of Message<TResult>
+ * @template TTransaction of object
  */
 final class Pipeline
 {
     /**
      * @param non-empty-string $handlerId
-     * @param callable(Envelope<TMessage>, Context): TResult $handler
+     * @param callable(Envelope<TMessage>, Context<TTransaction>): TResult $handler
      * @param list<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
+     * @param Context<TTransaction> $context
      */
     public function __construct(
         public readonly string $handlerId,

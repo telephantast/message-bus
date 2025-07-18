@@ -14,12 +14,13 @@ use Thesis\MessageBus\Handler\Pipeline;
  * @internal
  * @template-covariant TResult
  * @template TMessage of Message<TResult>
+ * @template TTransaction of object
  */
 final readonly class Handler
 {
     /**
      * @param non-empty-string $id
-     * @param callable(Envelope<TMessage>, Context): TResult $handler
+     * @param callable(Envelope<TMessage>, Context<TTransaction>): TResult $handler
      * @param list<Middleware> $middleware
      */
     public function __construct(
@@ -30,6 +31,7 @@ final readonly class Handler
 
     /**
      * @param Envelope<TMessage> $envelope
+     * @param Context<TTransaction> $context
      * @return TResult
      */
     public function handle(Envelope $envelope, Context $context): mixed

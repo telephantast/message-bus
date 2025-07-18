@@ -23,11 +23,14 @@ use Thesis\MessageBus\Transport\Fake;
 
 /**
  * @internal
+ * @template TTransaction of object
  */
 final readonly class Endpoint
 {
     /**
      * @param non-empty-string $name
+     * @param Handlers<TTransaction> $handlers
+     * @param Storage<TTransaction> $storage
      */
     public function __construct(
         public string $name,
@@ -89,6 +92,7 @@ final readonly class Endpoint
     /**
      * @template TResult
      * @param Envelope<Call<TResult>> $call
+     * @param ?Context<*> $parentContext
      * @return TResult
      */
     public function invoke(Envelope $call, Dispatcher $dispatcher, ?Context $parentContext = null): mixed
@@ -98,6 +102,7 @@ final readonly class Endpoint
         }
 
         if ($parentContext !== null && $parentContext->endpoint === $this->name) {
+            /** @var Context<TTransaction> $parentContext */
             return $this->handlers->handleCall($call, new ChildContext(
                 parent: $parentContext,
                 envelopeFactory: $this->envelopeFactory,

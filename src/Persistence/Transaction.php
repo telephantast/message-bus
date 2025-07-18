@@ -6,9 +6,14 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
+ * @template-covariant TTransaction of object
  */
 interface Transaction
 {
+    /**
+     * @var TTransaction
+     * @phpstan-ignore generics.variance
+     */
     public object $wrappedTransaction { get; }
 
     /**

@@ -13,8 +13,10 @@ interface Middleware
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
+     * @template TTransaction of object
      * @param Envelope<TMessage> $envelope
-     * @param Pipeline<TResult, TMessage> $pipeline
+     * @param Context<TTransaction> $context
+     * @param Pipeline<TResult, TMessage, TTransaction> $pipeline
      * @return TResult
      */
     public function handle(Envelope $envelope, Context $context, Pipeline $pipeline): mixed;

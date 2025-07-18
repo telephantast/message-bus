@@ -16,15 +16,29 @@ use Thesis\MessageBus\Internal\Handler;
 use function Typhoon\Formatter\formatFunction;
 use function Typhoon\Formatter\formatReflectedFunction;
 
+/**
+ * @template TTransaction of object
+ */
 final class Handlers
 {
     /**
-     * @var array<class-string<Command>, Handler<null, Command>>
+     * @template TNewTransaction of object
+     * @param class-string<TNewTransaction> $transactionClass
+     * @return self<TNewTransaction>
+     */
+    public static function of(string $transactionClass): self
+    {
+        /** @var self<TNewTransaction> */
+        return new self();
+    }
+
+    /**
+     * @var array<class-string<Command>, Handler<null, Command, TTransaction>>
      */
     private array $commandHandlers = [];
 
     /**
-     * @var array<class-string<Event>, non-empty-list<Handler<null, Event>>>
+     * @var array<class-string<Event>, non-empty-list<Handler<null, Event, TTransaction>>>
      */
     private array $eventHandlers = [];
 
@@ -34,7 +48,7 @@ final class Handlers
     public array $events { get => array_keys($this->eventHandlers); }
 
     /**
-     * @var array<class-string<Call<*>>, Handler<*, Call<*>>>
+     * @var array<class-string<Call<*>>, Handler<*, Call<*>, TTransaction>>
      */
     private array $callHandlers = [];
 
@@ -42,11 +56,11 @@ final class Handlers
      * @template TResult
      * @template TMessage of Message<TResult>
      * @param non-empty-list<MessageClass<TMessage>> $messageClasses
-     * @param callable(Envelope<TMessage>, Context): TResult $handler
+     * @param callable(Envelope<TMessage>, Context<TTransaction>): TResult $handler
      * @param ?non-empty-string $id
      * @param list<Middleware> $middleware
      */
-    public function with(array $messageClasses, callable $handler, array $middleware = [], ?string $id = null): self
+    public function with(array $messageClasses, callable $handler, array $middleware = [], ?string $id = null): static
     {
         $copy = clone $this;
 
@@ -81,12 +95,12 @@ final class Handlers
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param callable(TMessage, Context, Stamps): (TResult|Result<TResult>) $handler
+     * @param callable(TMessage, Context<TTransaction>, Stamps): (TResult|Result<TResult>) $handler
      * @param list<Middleware> $middleware
      * @param non-empty-list<MessageClass<TMessage>> $messageClasses
      * @param ?non-empty-string $id
      */
-    public function withBasic(callable $handler, array $middleware = [], ?array $messageClasses = null, ?string $id = null): self
+    public function withBasic(callable $handler, array $middleware = [], ?array $messageClasses = null, ?string $id = null): static
     {
         $reflection = new \ReflectionFunction($handler(...));
 
@@ -119,6 +133,7 @@ final class Handlers
 
     /**
      * @param Envelope<Command> $command
+     * @param Context<TTransaction> $context
      */
     public function handleCommand(Envelope $command, Context $context): void
     {
@@ -127,6 +142,7 @@ final class Handlers
 
     /**
      * @param Envelope<Event> $event
+     * @param Context<TTransaction> $context
      */
     public function handleEvent(Envelope $event, Context $context): void
     {
@@ -138,6 +154,7 @@ final class Handlers
     /**
      * @template TResult
      * @param Envelope<Call<TResult>> $call
+     * @param Context<TTransaction> $context
      * @return TResult
      */
     public function handleCall(Envelope $call, Context $context): mixed

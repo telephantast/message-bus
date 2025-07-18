@@ -9,10 +9,13 @@ use Thesis\MessageBus\Envelope;
 
 /**
  * @internal
+ * @template TTransaction of object
+ * @extends Context<TTransaction>
  */
 final class ChildContext extends Context
 {
     /**
+     * @param Context<TTransaction> $parent
      * @param Envelope<*> $envelope
      */
     public function __construct(

@@ -15,6 +15,9 @@ use Thesis\MessageBus\Transport\EventPublisher;
 use Thesis\MessageBus\Transport\EventReceiver;
 use Thesis\MessageBus\Transport\Fake;
 
+/**
+ * @template TTransaction of object
+ */
 final readonly class EndpointConfig
 {
     public CommandSender $commandSender;
@@ -29,6 +32,10 @@ final readonly class EndpointConfig
 
     public CallServer $callServer;
 
+    /**
+     * @param Handlers<TTransaction> $handlers
+     * @param Storage<TTransaction> $storage
+     */
     public function __construct(
         public Handlers $handlers = new Handlers(),
         public MessageMatcher $handlesCommand = Boolean::False,

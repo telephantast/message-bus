@@ -21,7 +21,7 @@ use Thesis\MessageBus\Internal\EnvelopeFactory;
 final readonly class MessageBus implements Sender, Invoker
 {
     /**
-     * @param array<non-empty-string, EndpointConfig> $endpointConfigs
+     * @param array<non-empty-string, EndpointConfig<*>> $endpointConfigs
      * @param list<EnvelopeProcessor> $outgoingEnvelopeProcessors
      * @param non-empty-string $messageBusEndpointName
      */
@@ -42,6 +42,7 @@ final readonly class MessageBus implements Sender, Invoker
         foreach ($endpointConfigs as $name => $endpointConfig) {
             $endpoints[$name] = new Endpoint(
                 name: $name,
+                /** @phpstan-ignore argument.type */
                 handlers: $endpointConfig->handlers,
                 handlesCommand: $endpointConfig->handlesCommand,
                 publishesEvent: $endpointConfig->publishesEvent,
@@ -66,7 +67,7 @@ final readonly class MessageBus implements Sender, Invoker
     }
 
     /**
-     * @param array<non-empty-string, Endpoint> $endpoints
+     * @param array<non-empty-string, Endpoint<*>> $endpoints
      * @param non-empty-string $name
      */
     private function __construct(
@@ -123,6 +124,7 @@ final readonly class MessageBus implements Sender, Invoker
 
     /**
      * @param non-empty-string $name
+     * @return Endpoint<*>
      */
     private function endpoint(string $name): Endpoint
     {

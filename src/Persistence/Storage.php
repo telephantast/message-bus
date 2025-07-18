@@ -6,6 +6,7 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
+ * @template-covariant TTransaction of object
  */
 interface Storage
 {
@@ -14,6 +15,7 @@ interface Storage
     /**
      * @param non-empty-string $endpoint
      * @param non-empty-string $incomingMessageId
+     * @return Transaction<TTransaction>
      */
     public function beginTransaction(string $endpoint, string $incomingMessageId): Transaction;
 

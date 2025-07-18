@@ -6,6 +6,7 @@ namespace Thesis\MessageBus\Persistence;
 
 /**
  * @api
+ * @implements Storage<object>
  */
 final class InMemoryStorage implements Storage
 {

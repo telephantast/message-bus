@@ -14,6 +14,7 @@ use Thesis\MessageBus\Internal\EnvelopeFactory;
 /**
  * @api
  * @implements Invoker<Call>
+ * @template TTransaction of object
  */
 abstract class Context implements Sender, Publisher, Invoker
 {
@@ -22,6 +23,9 @@ abstract class Context implements Sender, Publisher, Invoker
      */
     abstract public string $endpoint { get; }
 
+    /**
+     * @var TTransaction
+     */
     abstract public object $transaction { get; }
 
     /**
@@ -81,6 +85,7 @@ abstract class Context implements Sender, Publisher, Invoker
     /**
      * @template TResult
      * @param Envelope<Call<TResult>> $call
+     * @param Context<*> $parentContext
      * @return TResult
      */
     abstract protected function doInvoke(Envelope $call, self $parentContext): mixed;

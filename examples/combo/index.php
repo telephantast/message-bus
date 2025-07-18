@@ -6,6 +6,7 @@ namespace Thesis\MessageBus\Examples\Combo;
 
 use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
+use Amp\Postgres\PostgresTransaction;
 use Thesis\Message\Call;
 use Thesis\Message\Command;
 use Thesis\Message\Event;
@@ -44,6 +45,7 @@ final readonly class GetTimestamp implements Call {}
 final readonly class App
 {
     /**
+     * @param Context<PostgresTransaction> $context
      * @return Result<null>
      */
     public static function ping(Ping $ping, Context $context): Result
@@ -59,6 +61,9 @@ final readonly class App
         return new \DateTimeImmutable();
     }
 
+    /**
+     * @param Context<PostgresTransaction> $context
+     */
     public static function onPong(Pong $pong, Context $context, Stamps $stamps): void
     {
         dump($pong, $stamps);
@@ -75,7 +80,7 @@ $transport = new InMemoryTransport();
 
 $messageBus = MessageBus::build([
     'test' => new EndpointConfig(
-        handlers: new Handlers()
+        handlers: Handlers::of(PostgresTransaction::class)
             ->withBasic(App::ping(...))
             ->withBasic(App::onPong(...))
             ->withBasic(App::getTimestamp(...)),
