@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport;
 
-interface Canceller
+interface Run
 {
-    public function cancel(): void;
+    public function stop(): void;
 }

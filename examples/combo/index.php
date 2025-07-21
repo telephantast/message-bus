@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Examples\Combo;
 
-use Amp\Postgres\PostgresConfig;
-use Amp\Postgres\PostgresConnectionPool;
 use Thesis\MessageBus\Call;
-use Thesis\MessageBus\CommandHandlers;
-use Thesis\MessageBus\EventListeners;
+use Thesis\MessageBus\Handler\CommandHandlers;
+use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\MessageBusBuilder;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
-use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
+use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Transport\InMemory\InMemoryTransport;
 use function Amp\trapSignal;
 use function Thesis\MessageBus\Handler\events;
@@ -38,16 +36,17 @@ final readonly class Pong
  */
 final readonly class GetTimestamp implements Call {}
 
-$postgresStorage = new PostgresStorage(
+/*$storage = new PostgresStorage(
     new PostgresConnectionPool(
         PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
     ),
-);
+);*/
+$storage = new InMemoryStorage();
 
-$inMemoryTransport = new InMemoryTransport();
+$transport = new InMemoryTransport();
 
 $messageBus = new MessageBusBuilder()
-    ->localCommandEndpoint(
+    ->queue(
         name: 'commands',
         handlers: new CommandHandlers()
             ->withFeatured(
@@ -58,15 +57,14 @@ $messageBus = new MessageBusBuilder()
                     return events(new Pong($text));
                 },
             ),
-        storage: $postgresStorage,
-        receiver: $inMemoryTransport,
+        storage: $storage,
+        receiver: $transport,
     )
-    ->eventPublisher(
-        name: 'publisher',
+    ->publisher(
         events: new Namespaced(__NAMESPACE__),
-        publisher: $inMemoryTransport,
+        publisher: $transport,
     )
-    ->eventSubscription(
+    ->subscription(
         name: 'subscription',
         listeners: new EventListeners()
             ->withFeatured(
@@ -74,7 +72,7 @@ $messageBus = new MessageBusBuilder()
                     dump($pong);
                 },
             ),
-        storage: $postgresStorage,
+        storage: $storage,
     )
     ->build();
 
@@ -82,13 +80,8 @@ $messageBus->setup();
 
 $messageBus->send(new Ping('Hello!'));
 
-$cancellers = [
-    $messageBus->startCommandConsumer('commands'),
-    $messageBus->startSubscription('subscription'),
-];
+$run = $messageBus->start();
 
 trapSignal(SIGINT);
 
-foreach ($cancellers as $canceller) {
-    $canceller->cancel();
-}
+$run->stop();

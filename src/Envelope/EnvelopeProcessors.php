@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Envelope;
 
+use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -18,7 +19,7 @@ final readonly class EnvelopeProcessors implements EnvelopeProcessor
         public iterable $processors,
     ) {}
 
-    public function process(string $endpoint, Envelope $envelope, ?Envelope $cause = null): Envelope
+    public function process(Endpoint $endpoint, Envelope $envelope, ?Envelope $cause = null): Envelope
     {
         foreach ($this->processors as $processor) {
             $envelope = $processor->process($endpoint, $envelope, $cause);

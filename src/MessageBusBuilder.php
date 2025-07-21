@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\MessageBus\Handler\CommandHandlers;
+use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Internal\CommandDispatcher;
-use Thesis\MessageBus\Internal\CommandEndpoint;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 use Thesis\MessageBus\Internal\EventDispatcher;
+use Thesis\MessageBus\Internal\Queue;
 use Thesis\MessageBus\Internal\Router;
 use Thesis\MessageBus\Internal\Subscription;
 use Thesis\MessageBus\MessageMatcher\AnyOf;
@@ -21,51 +23,43 @@ final class MessageBusBuilder
     /**
      * @var non-empty-string
      */
-    private string $endpoint = 'message_bus';
+    private string $name = 'message_bus';
 
     /**
-     * @param non-empty-string|Name $name
+     * @param non-empty-string $name
      */
-    public function messageBusEndpointName(string|Name $name): self
+    public function endpointName(string $name): self
     {
-        if ($name instanceof Name) {
-            $name = $name->toString();
-        }
-
-        $this->endpoint = $name;
+        $this->name = $name;
 
         return $this;
     }
 
     /**
-     * @var array<non-empty-string, CommandEndpoint<*>>
+     * @var array<non-empty-string, Queue<*>>
      */
-    private array $commandEndpoints = [];
+    private array $queues = [];
 
     /**
      * @template TTransaction of object
-     * @param non-empty-string|Name $name
+     * @param non-empty-string $name
      * @param CommandHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
      */
-    public function localCommandEndpoint(
-        string|Name $name,
+    public function queue(
+        string $name,
         CommandHandlers $handlers,
         Storage $storage,
         CommandReceiver $receiver,
         null|false|CommandSender $sender = null,
     ): self {
-        if ($name instanceof Name) {
-            $name = $name->toString();
-        }
-
-        $this->commandEndpoints[$name] = new CommandEndpoint($name, $handlers, $receiver, $storage);
+        $this->queues[$name] = new Queue($name, $handlers, $receiver, $storage);
 
         if ($handlers->commandClasses !== []) {
             if ($sender instanceof CommandSender) {
-                $this->remoteCommandEndpoint($name, new AnyOf($handlers->commandClasses), $sender);
+                $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $sender);
             } elseif ($sender === null && $receiver instanceof CommandSender) {
-                $this->remoteCommandEndpoint($name, new AnyOf($handlers->commandClasses), $receiver);
+                $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $receiver);
             }
         }
 
@@ -83,14 +77,10 @@ final class MessageBusBuilder
     private array $commandSenders = [];
 
     /**
-     * @param non-empty-string|Name $name
+     * @param non-empty-string $name
      */
-    public function remoteCommandEndpoint(string|Name $name, MessageMatcher $commands, CommandSender $sender): self
+    public function remoteQueue(string $name, MessageMatcher $commands, CommandSender $sender): self
     {
-        if ($name instanceof Name) {
-            $name = $name->toString();
-        }
-
         $this->commandMatchers[$name] = $commands;
         $this->commandSenders[$name] = $sender;
 
@@ -98,26 +88,19 @@ final class MessageBusBuilder
     }
 
     /**
-     * @var array<non-empty-string, EventPublisher>
+     * @var list<EventPublisher>
      */
     private array $eventPublishers = [];
 
     /**
-     * @var array<non-empty-string, MessageMatcher>
+     * @var list<MessageMatcher>
      */
     private array $eventMatchers = [];
 
-    /**
-     * @param non-empty-string|Name $name
-     */
-    public function eventPublisher(string|Name $name, MessageMatcher $events, EventPublisher $publisher): self
+    public function publisher(MessageMatcher $events, EventPublisher $publisher): self
     {
-        if ($name instanceof Name) {
-            $name = $name->toString();
-        }
-
-        $this->eventMatchers[$name] = $events;
-        $this->eventPublishers[$name] = $publisher;
+        $this->eventMatchers[] = $events;
+        $this->eventPublishers[] = $publisher;
 
         return $this;
     }
@@ -129,16 +112,12 @@ final class MessageBusBuilder
 
     /**
      * @template TTransaction of object
-     * @param non-empty-string|Name $name
+     * @param non-empty-string $name
      * @param EventListeners<TTransaction> $listeners
      * @param Storage<TTransaction> $storage
      */
-    public function eventSubscription(string|Name $name, EventListeners $listeners, Storage $storage): self
+    public function subscription(string $name, EventListeners $listeners, Storage $storage): self
     {
-        if ($name instanceof Name) {
-            $name = $name->toString();
-        }
-
         $this->subscriptions[$name] = [$listeners, $storage];
 
         return $this;
@@ -176,7 +155,7 @@ final class MessageBusBuilder
         }
 
         return new MessageBus(
-            endpoint: $this->endpoint,
+            endpoint: Endpoint::service($this->name),
             commandDispatcher: new CommandDispatcher(
                 router: new Router($this->commandMatchers),
                 senders: $this->commandSenders,
@@ -186,7 +165,7 @@ final class MessageBusBuilder
                 publishers: $this->eventPublishers,
             ),
             envelopeFactory: new EnvelopeFactory(),
-            commandEndpoints: $this->commandEndpoints,
+            queues: $this->queues,
             subscriptions: $subscriptions,
         );
     }

@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Thesis\MessageBus\CommandHandlers;
+use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Transport\Canceller;
 use Thesis\MessageBus\Transport\CommandReceiver;
+use Thesis\MessageBus\Transport\Run;
 
 /**
  * @template TTransaction of object
  */
-final readonly class CommandEndpoint
+final readonly class Queue
 {
     /**
      * @param non-empty-string $name
@@ -33,13 +34,15 @@ final readonly class CommandEndpoint
         $this->storage->setup();
     }
 
-    public function startConsumer(EnvelopeFactory $envelopeFactory, CommandDispatcher $commandDispatcher, EventDispatcher $eventDispatcher): Canceller
+    public function start(EnvelopeFactory $envelopeFactory, CommandDispatcher $commandDispatcher, EventDispatcher $eventDispatcher): Run
     {
-        return $this->receiver->startCommandConsumer(
-            endpoint: $this->name,
-            handler: function (Envelope $command) use ($envelopeFactory, $commandDispatcher, $eventDispatcher): void {
+        $endpoint = Endpoint::queue($this->name);
+
+        return $this->receiver->startQueue(
+            queue: $this->name,
+            handler: function (Envelope $command) use ($endpoint, $envelopeFactory, $commandDispatcher, $eventDispatcher): void {
                 $outbox = $this->storage->findOutbox(
-                    endpoint: $this->name,
+                    endpoint: $endpoint,
                     incomingMessageId: $command->messageId,
                 );
 
@@ -47,13 +50,13 @@ final readonly class CommandEndpoint
                     $context = null;
 
                     $transaction = $this->storage->beginTransaction(
-                        endpoint: $this->name,
+                        endpoint: $endpoint,
                         incomingMessageId: $command->messageId,
                     );
 
                     try {
                         $context = new CollectingContext(
-                            endpoint: $this->name,
+                            endpoint: $endpoint,
                             transaction: $transaction->wrappedTransaction,
                             envelopeFactory: $envelopeFactory,
                             envelope: $command,
@@ -87,7 +90,7 @@ final readonly class CommandEndpoint
                 }
 
                 $this->storage->markOutboxDispatched(
-                    endpoint: $this->name,
+                    endpoint: $endpoint,
                     incomingMessageId: $command->messageId,
                 );
             },

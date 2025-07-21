@@ -9,8 +9,8 @@ use Thesis\MessageBus\Envelope;
 interface CommandSender
 {
     /**
-     * @param non-empty-string $endpoint
+     * @param non-empty-string $queue
      * @param non-empty-list<Envelope> $commands
      */
-    public function send(string $endpoint, array $commands): void;
+    public function send(string $queue, array $commands): void;
 }

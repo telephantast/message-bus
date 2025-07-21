@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
+use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\EventListeners;
+use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Transport\Canceller;
 use Thesis\MessageBus\Transport\EventPublisher;
+use Thesis\MessageBus\Transport\Run;
 
 /**
  * @template TTransaction of object
@@ -38,12 +39,14 @@ final readonly class Subscription
         EnvelopeFactory $envelopeFactory,
         CommandDispatcher $commandDispatcher,
         EventDispatcher $eventDispatcher,
-    ): Canceller {
+    ): Run {
+        $endpoint = Endpoint::subscription($this->name);
+
         return $this->publisher->startSubscription(
-            subscription: $this->name,
-            handler: function (Envelope $command) use ($envelopeFactory, $commandDispatcher, $eventDispatcher): void {
+            subscriptionName: $this->name,
+            handler: function (Envelope $command) use ($endpoint, $envelopeFactory, $commandDispatcher, $eventDispatcher): void {
                 $outbox = $this->storage->findOutbox(
-                    endpoint: $this->name,
+                    endpoint: $endpoint,
                     incomingMessageId: $command->messageId,
                 );
 
@@ -51,13 +54,13 @@ final readonly class Subscription
                     $context = null;
 
                     $transaction = $this->storage->beginTransaction(
-                        endpoint: $this->name,
+                        endpoint: $endpoint,
                         incomingMessageId: $command->messageId,
                     );
 
                     try {
                         $context = new CollectingContext(
-                            endpoint: $this->name,
+                            endpoint: $endpoint,
                             transaction: $transaction->wrappedTransaction,
                             envelopeFactory: $envelopeFactory,
                             envelope: $command,
@@ -91,7 +94,7 @@ final readonly class Subscription
                 }
 
                 $this->storage->markOutboxDispatched(
-                    endpoint: $this->name,
+                    endpoint: $endpoint,
                     incomingMessageId: $command->messageId,
                 );
             },

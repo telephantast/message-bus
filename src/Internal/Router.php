@@ -7,17 +7,17 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\MessageMatcher;
 
 /**
- * @todo add generic?
+ * @template TKey of int|string
  */
 final class Router
 {
     /**
-     * @var array<class-string, non-empty-string>
+     * @var array<class-string, TKey>
      */
-    private array $commandEndpoints = [];
+    private array $destination = [];
 
     /**
-     * @param array<non-empty-string, MessageMatcher> $matchers
+     * @param array<TKey, MessageMatcher> $matchers
      */
     public function __construct(
         private readonly array $matchers,
@@ -25,31 +25,31 @@ final class Router
 
     /**
      * @param class-string $messageClass
-     * @return non-empty-string
+     * @return TKey
      */
-    public function route(string $messageClass): string
+    public function route(string $messageClass): int|string
     {
-        return $this->commandEndpoints[$messageClass] ??= $this->resolve($messageClass);
+        return $this->destination[$messageClass] ??= $this->resolve($messageClass);
     }
 
     /**
      * @param class-string $messageClass
-     * @return non-empty-string
+     * @return TKey
      */
-    private function resolve(string $messageClass): string
+    private function resolve(string $messageClass): int|string
     {
-        $endpoints = [];
+        $keys = [];
 
-        foreach ($this->matchers as $endpoint => $matcher) {
+        foreach ($this->matchers as $key => $matcher) {
             if ($matcher->matches($messageClass)) {
-                $endpoints[] = $endpoint;
+                $keys[] = $key;
             }
         }
 
-        if (\count($endpoints) !== 1) {
+        if (\count($keys) !== 1) {
             throw new \LogicException();
         }
 
-        return $endpoints[0];
+        return $keys[0];
     }
 }

@@ -9,20 +9,19 @@ use Thesis\MessageBus\Envelope;
 interface EventPublisher
 {
     /**
-     * @param non-empty-string $subscription
+     * @param non-empty-string $subscriptionName
      * @param list<class-string> $toEventClasses
      */
-    public function subscribe(string $subscription, array $toEventClasses): void;
+    public function subscribe(string $subscriptionName, array $toEventClasses): void;
 
     /**
-     * @param non-empty-string $subscription
+     * @param non-empty-string $subscriptionName
      * @param callable(Envelope<object>): void $handler
      */
-    public function startSubscription(string $subscription, callable $handler): Canceller;
+    public function startSubscription(string $subscriptionName, callable $handler): Run;
 
     /**
-     * @param non-empty-string $publisher
      * @param non-empty-list<Envelope<object>> $events
      */
-    public function publish(string $publisher, array $events): void;
+    public function publish(array $events): void;
 }

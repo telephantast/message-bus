@@ -10,7 +10,8 @@ use Thesis\MessageBus\Transport\EventPublisher;
 final readonly class EventDispatcher
 {
     /**
-     * @param array<non-empty-string, EventPublisher> $publishers
+     * @param Router<non-negative-int> $router
+     * @param list<EventPublisher> $publishers
      */
     public function __construct(
         private Router $router,
@@ -18,28 +19,19 @@ final readonly class EventDispatcher
     ) {}
 
     /**
-     * @param class-string $eventClass
-     * @return non-empty-string
-     */
-    public function route(string $eventClass): string
-    {
-        return $this->router->route($eventClass);
-    }
-
-    /**
-     * @param non-empty-string $subscription
+     * @param non-empty-string $subscriptionName
      * @param non-empty-list<class-string> $toEventClasses
      */
-    public function subscribe(string $subscription, array $toEventClasses): void
+    public function subscribe(string $subscriptionName, array $toEventClasses): void
     {
-        $routedEventsByEndpoint = [];
+        $routedEventsByKey = [];
 
         foreach ($toEventClasses as $eventClass) {
-            $routedEventsByEndpoint[$this->router->route($eventClass)][] = $eventClass;
+            $routedEventsByKey[$this->router->route($eventClass)][] = $eventClass;
         }
 
-        foreach ($routedEventsByEndpoint as $endpoint => $routedEvents) {
-            $this->publishers[$endpoint]->subscribe($subscription, $routedEvents);
+        foreach ($routedEventsByKey as $key => $routedEvents) {
+            $this->publishers[$key]->subscribe($subscriptionName, $routedEvents);
         }
     }
 
@@ -48,14 +40,14 @@ final readonly class EventDispatcher
      */
     public function publish(array $events): void
     {
-        $routedEventsByPublisher = [];
+        $routedEventsByKey = [];
 
         foreach ($events as $event) {
-            $routedEventsByPublisher[$this->router->route($event->messageClass)][] = $event;
+            $routedEventsByKey[$this->router->route($event->messageClass)][] = $event;
         }
 
-        foreach ($routedEventsByPublisher as $publisher => $routedEvents) {
-            $this->publishers[$publisher]->publish($publisher, $routedEvents);
+        foreach ($routedEventsByKey as $key => $routedEvents) {
+            $this->publishers[$key]->publish($routedEvents);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace Thesis\MessageBus\Transport\InMemory;
 
 use Revolt\EventLoop;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Transport\CallableCanceller;
-use Thesis\MessageBus\Transport\Canceller;
+use Thesis\MessageBus\Transport\CallableRun;
+use Thesis\MessageBus\Transport\Run;
 
 final class Queue
 {
@@ -41,7 +41,7 @@ final class Queue
     /**
      * @param callable(Envelope): void $handler
      */
-    public function startConsumer(callable $handler): Canceller
+    public function startConsumer(callable $handler): Run
     {
         $consumer = new Consumer($this->queue, $handler);
         $this->consumers[] = $consumer;
@@ -49,7 +49,7 @@ final class Queue
 
         $this->deliver();
 
-        return new CallableCanceller(function () use ($key): void {
+        return new CallableRun(function () use ($key): void {
             unset($this->consumers[$key]);
         });
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -15,12 +16,11 @@ use Thesis\MessageBus\Envelope;
 final class CollectingContext extends Context
 {
     /**
-     * @param non-empty-string $endpoint
      * @param TTransaction $transaction
      * @param Envelope<*> $envelope
      */
     public function __construct(
-        public readonly string $endpoint,
+        public readonly Endpoint $endpoint,
         public readonly object $transaction,
         EnvelopeFactory $envelopeFactory,
         Envelope $envelope,

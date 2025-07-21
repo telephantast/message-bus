@@ -14,10 +14,7 @@ use Thesis\MessageBus\Internal\EnvelopeFactory;
  */
 abstract class Context implements Sender, Publisher, Invoker
 {
-    /**
-     * @var non-empty-string
-     */
-    abstract public string $endpoint { get; }
+    abstract public Endpoint $endpoint { get; }
 
     /**
      * @var TTransaction

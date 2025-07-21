@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus;
+namespace Thesis\MessageBus\Handler;
 
-use Thesis\MessageBus\Handler\Middleware;
-use Thesis\MessageBus\Handler\Result;
+use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Internal\FeaturedHandlerFactory;
+use Thesis\MessageBus\Stamps;
 
 /**
  * @template TTransaction of object = never

@@ -5,32 +5,32 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\MessageBus\Internal\CommandDispatcher;
-use Thesis\MessageBus\Internal\CommandEndpoint;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 use Thesis\MessageBus\Internal\EventDispatcher;
+use Thesis\MessageBus\Internal\Queue;
 use Thesis\MessageBus\Internal\Subscription;
-use Thesis\MessageBus\Transport\Canceller;
+use Thesis\MessageBus\Transport\Run;
+use Thesis\MessageBus\Transport\Runs;
 
 final readonly class MessageBus implements Sender, Publisher
 {
     /**
-     * @param non-empty-string $endpoint
-     * @param array<non-empty-string, CommandEndpoint<*>> $commandEndpoints
+     * @param array<non-empty-string, Queue<*>> $queues
      * @param array<non-empty-string, Subscription<*>> $subscriptions
      */
     public function __construct(
-        private string $endpoint,
+        private Endpoint $endpoint,
         private CommandDispatcher $commandDispatcher,
         private EventDispatcher $eventDispatcher,
         private EnvelopeFactory $envelopeFactory,
-        private array $commandEndpoints,
+        private array $queues,
         private array $subscriptions,
     ) {}
 
     public function setup(): void
     {
-        foreach ($this->commandEndpoints as $commandEndpoint) {
-            $commandEndpoint->setup();
+        foreach ($this->queues as $queue) {
+            $queue->setup();
         }
 
         foreach ($this->subscriptions as $subscription) {
@@ -67,35 +67,29 @@ final readonly class MessageBus implements Sender, Publisher
     }
 
     /**
-     * @param non-empty-string|Name $endpoint
+     * @todo filter by endpoints
      */
-    public function startCommandConsumer(string|Name $endpoint): Canceller
+    public function start(): Run
     {
-        if ($endpoint instanceof Name) {
-            $endpoint = $endpoint->toString();
+        $runs = [];
+
+        foreach ($this->queues as $queue) {
+            $runs[] = $queue->start(
+                envelopeFactory: $this->envelopeFactory,
+                commandDispatcher: $this->commandDispatcher,
+                eventDispatcher: $this->eventDispatcher,
+            );
         }
 
-        return ($this->commandEndpoints[$endpoint] ?? throw new \LogicException())->startConsumer(
-            envelopeFactory: $this->envelopeFactory,
-            commandDispatcher: $this->commandDispatcher,
-            eventDispatcher: $this->eventDispatcher,
-        );
-    }
-
-    /**
-     * @param non-empty-string|Name $name
-     */
-    public function startSubscription(string|Name $name): Canceller
-    {
-        if ($name instanceof Name) {
-            $name = $name->toString();
+        foreach ($this->subscriptions as $subscription) {
+            $runs[] = $subscription->start(
+                envelopeFactory: $this->envelopeFactory,
+                commandDispatcher: $this->commandDispatcher,
+                eventDispatcher: $this->eventDispatcher,
+            );
         }
 
-        return ($this->subscriptions[$name] ?? throw new \LogicException())->start(
-            envelopeFactory: $this->envelopeFactory,
-            commandDispatcher: $this->commandDispatcher,
-            eventDispatcher: $this->eventDispatcher,
-        );
+        return new Runs($runs);
     }
 
     /**
