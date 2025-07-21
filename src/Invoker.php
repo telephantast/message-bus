@@ -6,14 +6,14 @@ namespace Thesis\MessageBus;
 
 /**
  * @api
- * @template-contravariant TCalls of Call = never
+ * @template-contravariant TSupportedCalls of object = never
  */
 interface Invoker
 {
     /**
      * @template TResult
-     * @param (Call<TResult>&TCalls)|Envelope<Call<TResult>&TCalls> $call
-     * @return TResult
+     * @param TSupportedCalls|Envelope<TSupportedCalls> $call
+     * @return ($call is (Call<TResult>|Envelope<Call<TResult>>) ? TResult : mixed)
      */
-    public function invoke(Call|Envelope $call): mixed;
+    public function invoke(object $call): mixed;
 }

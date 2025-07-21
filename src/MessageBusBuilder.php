@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\MessageBus\Handler\CallHandlers;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
-use Thesis\MessageBus\Internal\CommandDispatcher;
+use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
-use Thesis\MessageBus\Internal\EventDispatcher;
 use Thesis\MessageBus\Internal\Queue;
 use Thesis\MessageBus\Internal\Router;
+use Thesis\MessageBus\Internal\Service;
 use Thesis\MessageBus\Internal\Subscription;
 use Thesis\MessageBus\MessageMatcher\AnyOf;
 use Thesis\MessageBus\Persistence\Storage;
@@ -51,16 +52,12 @@ final class MessageBusBuilder
         CommandHandlers $handlers,
         Storage $storage,
         CommandReceiver $receiver,
-        null|false|CommandSender $sender = null,
+        ?CommandSender $sender = null,
     ): self {
         $this->queues[$name] = new Queue($name, $handlers, $receiver, $storage);
 
-        if ($handlers->commandClasses !== []) {
-            if ($sender instanceof CommandSender) {
-                $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $sender);
-            } elseif ($sender === null && $receiver instanceof CommandSender) {
-                $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $receiver);
-            }
+        if ($sender !== null && $handlers->commandClasses !== []) {
+            $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $sender);
         }
 
         return $this;
@@ -74,7 +71,7 @@ final class MessageBusBuilder
     /**
      * @var array<non-empty-string, CommandSender>
      */
-    private array $commandSenders = [];
+    private array $senders = [];
 
     /**
      * @param non-empty-string $name
@@ -82,7 +79,7 @@ final class MessageBusBuilder
     public function remoteQueue(string $name, MessageMatcher $commands, CommandSender $sender): self
     {
         $this->commandMatchers[$name] = $commands;
-        $this->commandSenders[$name] = $sender;
+        $this->senders[$name] = $sender;
 
         return $this;
     }
@@ -90,7 +87,7 @@ final class MessageBusBuilder
     /**
      * @var list<EventPublisher>
      */
-    private array $eventPublishers = [];
+    private array $publishers = [];
 
     /**
      * @var list<MessageMatcher>
@@ -100,7 +97,7 @@ final class MessageBusBuilder
     public function publisher(MessageMatcher $events, EventPublisher $publisher): self
     {
         $this->eventMatchers[] = $events;
-        $this->eventPublishers[] = $publisher;
+        $this->publishers[] = $publisher;
 
         return $this;
     }
@@ -123,17 +120,75 @@ final class MessageBusBuilder
         return $this;
     }
 
+    /**
+     * @var array<non-empty-string, Service<*>>
+     */
+    private array $services = [];
+
+    /**
+     * @template TTransaction of object
+     * @param non-empty-string $name
+     * @param CallHandlers<TTransaction> $handlers
+     * @param Storage<TTransaction> $storage
+     */
+    public function service(
+        string $name,
+        CallHandlers $handlers,
+        Storage $storage,
+    ): self {
+        $this->services[$name] = new Service(
+            name: $name,
+            handlers: $handlers,
+            storage: $storage,
+        );
+
+        if ($handlers->callClasses !== []) {
+            $this->callMatchers[$name] = new AnyOf($handlers->callClasses);
+        }
+
+        // todo
+
+        return $this;
+    }
+
+    /**
+     * @var array<non-empty-string, MessageMatcher>
+     */
+    private array $callMatchers = [];
+
     public function build(): MessageBus
     {
         $eventRouter = new Router($this->eventMatchers);
 
+        return new MessageBus(
+            name: $this->name,
+            dispatcher: new Dispatcher(
+                commandRouter: new Router($this->commandMatchers),
+                senders: $this->senders,
+                eventRouter: $eventRouter,
+                publishers: $this->publishers,
+                callRouter: new Router($this->callMatchers),
+                services: $this->services,
+            ),
+            envelopeFactory: new EnvelopeFactory(),
+            queues: $this->queues,
+            subscriptions: $this->buildSubscriptions($eventRouter),
+        );
+    }
+
+    /**
+     * @param Router<non-negative-int> $eventRouter
+     * @return array<non-empty-string, Subscription<*>>
+     */
+    private function buildSubscriptions(Router $eventRouter): array
+    {
         $subscriptions = [];
 
         foreach ($this->subscriptions as $name => [$listeners, $storage]) {
             $publisher = null;
 
             foreach ($listeners->eventClasses as $eventClass) {
-                $matchedPublisher = $this->eventPublishers[$eventRouter->route($eventClass)];
+                $matchedPublisher = $this->publishers[$eventRouter->route($eventClass)];
 
                 if ($publisher !== null && $publisher !== $matchedPublisher) {
                     throw new \LogicException();
@@ -154,19 +209,6 @@ final class MessageBusBuilder
             );
         }
 
-        return new MessageBus(
-            endpoint: Endpoint::service($this->name),
-            commandDispatcher: new CommandDispatcher(
-                router: new Router($this->commandMatchers),
-                senders: $this->commandSenders,
-            ),
-            eventDispatcher: new EventDispatcher(
-                router: new Router($this->eventMatchers),
-                publishers: $this->eventPublishers,
-            ),
-            envelopeFactory: new EnvelopeFactory(),
-            queues: $this->queues,
-            subscriptions: $subscriptions,
-        );
+        return $subscriptions;
     }
 }

@@ -4,28 +4,34 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Internal\CommandDispatcher;
+use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
-use Thesis\MessageBus\Internal\EventDispatcher;
 use Thesis\MessageBus\Internal\Queue;
 use Thesis\MessageBus\Internal\Subscription;
 use Thesis\MessageBus\Transport\Run;
 use Thesis\MessageBus\Transport\Runs;
 
-final readonly class MessageBus implements Sender, Publisher
+/**
+ * @implements Invoker<object>
+ */
+final readonly class MessageBus implements Sender, Publisher, Invoker
 {
+    private Endpoint $endpoint;
+
     /**
+     * @param non-empty-string $name
      * @param array<non-empty-string, Queue<*>> $queues
      * @param array<non-empty-string, Subscription<*>> $subscriptions
      */
     public function __construct(
-        private Endpoint $endpoint,
-        private CommandDispatcher $commandDispatcher,
-        private EventDispatcher $eventDispatcher,
+        string $name,
+        private Dispatcher $dispatcher,
         private EnvelopeFactory $envelopeFactory,
         private array $queues,
         private array $subscriptions,
-    ) {}
+    ) {
+        $this->endpoint = Endpoint::service($name);
+    }
 
     public function setup(): void
     {
@@ -44,7 +50,7 @@ final readonly class MessageBus implements Sender, Publisher
             return;
         }
 
-        $this->commandDispatcher->send(
+        $this->dispatcher->send(
             array_map(
                 $this->createEnvelope(...),
                 $commands,
@@ -58,12 +64,17 @@ final readonly class MessageBus implements Sender, Publisher
             return;
         }
 
-        $this->eventDispatcher->publish(
+        $this->dispatcher->publish(
             array_map(
                 $this->createEnvelope(...),
                 $events,
             ),
         );
+    }
+
+    public function invoke(object $call): mixed
+    {
+        return $this->dispatcher->invoke($this->createEnvelope($call), $this->envelopeFactory);
     }
 
     /**
@@ -74,19 +85,11 @@ final readonly class MessageBus implements Sender, Publisher
         $runs = [];
 
         foreach ($this->queues as $queue) {
-            $runs[] = $queue->start(
-                envelopeFactory: $this->envelopeFactory,
-                commandDispatcher: $this->commandDispatcher,
-                eventDispatcher: $this->eventDispatcher,
-            );
+            $runs[] = $queue->start($this->envelopeFactory, $this->dispatcher);
         }
 
         foreach ($this->subscriptions as $subscription) {
-            $runs[] = $subscription->start(
-                envelopeFactory: $this->envelopeFactory,
-                commandDispatcher: $this->commandDispatcher,
-                eventDispatcher: $this->eventDispatcher,
-            );
+            $runs[] = $subscription->start($this->envelopeFactory, $this->dispatcher);
         }
 
         return new Runs($runs);

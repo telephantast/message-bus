@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Examples\Combo;
 
 use Thesis\MessageBus\Call;
+use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Handler\CallHandlers;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\MessageBusBuilder;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
 use Thesis\MessageBus\Persistence\InMemoryStorage;
+use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemory\InMemoryTransport;
 use function Amp\trapSignal;
 use function Thesis\MessageBus\Handler\events;
@@ -36,6 +39,34 @@ final readonly class Pong
  */
 final readonly class GetTimestamp implements Call {}
 
+final readonly class App
+{
+    /**
+     * @param Context<object> $context
+     * @return Result<null>
+     */
+    public static function ping(Ping $ping, Context $context): Result
+    {
+        $now = $context->invoke(new GetTimestamp());
+        $text = \sprintf('Received "%s" at %s.', $ping->text, $now->format('c'));
+
+        return events(new Pong($text));
+    }
+
+    public static function getTimestamp(GetTimestamp $_): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable();
+    }
+
+    /**
+     * @param Context<object> $context
+     */
+    public static function onPong(Pong $pong, Context $context, Stamps $stamps): void
+    {
+        dump($pong, $stamps);
+    }
+}
+
 /*$storage = new PostgresStorage(
     new PostgresConnectionPool(
         PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
@@ -48,17 +79,10 @@ $transport = new InMemoryTransport();
 $messageBus = new MessageBusBuilder()
     ->queue(
         name: 'commands',
-        handlers: new CommandHandlers()
-            ->withFeatured(
-                static function (Ping $ping): Result {
-                    $now = new \DateTimeImmutable(); // $context->invoke(new GetTimestamp());
-                    $text = \sprintf('Received "%s" at %s.', $ping->text, $now->format('c'));
-
-                    return events(new Pong($text));
-                },
-            ),
+        handlers: new CommandHandlers()->withFeatured(App::ping(...)),
         storage: $storage,
         receiver: $transport,
+        sender: $transport,
     )
     ->publisher(
         events: new Namespaced(__NAMESPACE__),
@@ -66,12 +90,12 @@ $messageBus = new MessageBusBuilder()
     )
     ->subscription(
         name: 'subscription',
-        listeners: new EventListeners()
-            ->withFeatured(
-                static function (Pong $pong): void {
-                    dump($pong);
-                },
-            ),
+        listeners: new EventListeners()->withFeatured(App::onPong(...)),
+        storage: $storage,
+    )
+    ->service(
+        name: 'calls',
+        handlers: new CallHandlers()->withFeatured(App::getTimestamp(...)),
         storage: $storage,
     )
     ->build();

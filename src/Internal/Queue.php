@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
+use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler\CommandHandlers;
-use Thesis\MessageBus\Persistence\Outbox;
+use Thesis\MessageBus\Persistence\OutboxBuilder;
 use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Transport\CommandReceiver;
 use Thesis\MessageBus\Transport\Run;
@@ -17,54 +18,57 @@ use Thesis\MessageBus\Transport\Run;
  */
 final readonly class Queue
 {
+    private Endpoint $endpoint;
+
     /**
      * @param non-empty-string $name
      * @param CommandHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
      */
     public function __construct(
-        private string $name,
+        string $name,
         private CommandHandlers $handlers,
         private CommandReceiver $receiver,
         private Storage $storage,
-    ) {}
+    ) {
+        $this->endpoint = Endpoint::queue($name);
+    }
 
     public function setup(): void
     {
         $this->storage->setup();
     }
 
-    public function start(EnvelopeFactory $envelopeFactory, CommandDispatcher $commandDispatcher, EventDispatcher $eventDispatcher): Run
+    public function start(EnvelopeFactory $envelopeFactory, Dispatcher $dispatcher): Run
     {
-        $endpoint = Endpoint::queue($this->name);
-
         return $this->receiver->startQueue(
-            queue: $this->name,
-            handler: function (Envelope $command) use ($endpoint, $envelopeFactory, $commandDispatcher, $eventDispatcher): void {
+            queue: $this->endpoint->name,
+            handler: function (Envelope $command) use ($envelopeFactory, $dispatcher): void {
                 $outbox = $this->storage->findOutbox(
-                    endpoint: $endpoint,
+                    endpoint: $this->endpoint,
                     incomingMessageId: $command->messageId,
                 );
 
                 if ($outbox === null) {
-                    $context = null;
-
                     $transaction = $this->storage->beginTransaction(
-                        endpoint: $endpoint,
+                        endpoint: $this->endpoint,
                         incomingMessageId: $command->messageId,
                     );
 
                     try {
-                        $context = new CollectingContext(
-                            endpoint: $endpoint,
-                            transaction: $transaction->wrappedTransaction,
-                            envelopeFactory: $envelopeFactory,
+                        $outboxBuilder = new OutboxBuilder();
+                        $context = new Context(
+                            endpoint: $this->endpoint,
                             envelope: $command,
+                            transactionFactory: static fn(): object => $transaction->wrappedTransaction,
+                            envelopeFactory: $envelopeFactory,
+                            outboxBuilder: $outboxBuilder,
+                            dispatcher: $dispatcher,
                         );
 
                         $this->handlers->handle($command, $context);
 
-                        $outbox = new Outbox($context->commands, $context->events);
+                        $outbox = $outboxBuilder->build();
 
                         $transaction->recordOutbox($outbox);
                         $transaction->commit();
@@ -72,8 +76,6 @@ final readonly class Queue
                         $transaction->rollback();
 
                         throw $exception;
-                    } finally {
-                        $context?->close();
                     }
                 }
 
@@ -82,15 +84,15 @@ final readonly class Queue
                 }
 
                 if ($outbox->commands !== []) {
-                    $commandDispatcher->send($outbox->commands);
+                    $dispatcher->send($outbox->commands);
                 }
 
                 if ($outbox->events !== []) {
-                    $eventDispatcher->publish($outbox->events);
+                    $dispatcher->publish($outbox->events);
                 }
 
                 $this->storage->markOutboxDispatched(
-                    endpoint: $endpoint,
+                    endpoint: $this->endpoint,
                     incomingMessageId: $command->messageId,
                 );
             },

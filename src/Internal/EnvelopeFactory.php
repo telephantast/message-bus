@@ -32,7 +32,6 @@ final readonly class EnvelopeFactory
     /**
      * @template TMessage of object
      * @param TMessage|Envelope<TMessage> $message
-     * @param ?Envelope<*> $cause
      * @return Envelope<TMessage>
      */
     public function create(Endpoint $endpoint, object $message, ?Envelope $cause = null): Envelope

@@ -20,7 +20,7 @@ final class Router
      * @param array<TKey, MessageMatcher> $matchers
      */
     public function __construct(
-        private readonly array $matchers,
+        private readonly array $matchers = [],
     ) {}
 
     /**

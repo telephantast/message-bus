@@ -36,10 +36,10 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
      */
     private array $eventQueues = [];
 
-    public function subscribe(string $subscriptionName, array $toEventClasses): void
+    public function subscribe(string $subscription, array $eventClasses): void
     {
-        foreach ($toEventClasses as $eventClass) {
-            $this->subscriptions[$eventClass][] = $subscriptionName;
+        foreach ($eventClasses as $eventClass) {
+            $this->subscriptions[$eventClass][] = $subscription;
         }
     }
 
@@ -52,8 +52,8 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         }
     }
 
-    public function startSubscription(string $subscriptionName, callable $handler): Run
+    public function startSubscription(string $subscription, callable $handler): Run
     {
-        return ($this->eventQueues[$subscriptionName] ??= new Queue())->startConsumer($handler);
+        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($handler);
     }
 }

@@ -5,91 +5,80 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\MessageBus\Handler\Result;
+use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
+use Thesis\MessageBus\Persistence\OutboxBuilder;
 
 /**
- * @api
- * @implements Invoker<Call>
  * @template TTransaction of object
+ * @implements Invoker<object>
  */
-abstract class Context implements Sender, Publisher, Invoker
+final class Context implements Sender, Publisher, Invoker
 {
-    abstract public Endpoint $endpoint { get; }
+    /**
+     * @param callable(): TTransaction $transactionFactory
+     */
+    public function __construct(
+        public Endpoint $endpoint,
+        private readonly Envelope $envelope,
+        private readonly mixed $transactionFactory,
+        private readonly EnvelopeFactory $envelopeFactory,
+        private readonly OutboxBuilder $outboxBuilder,
+        private readonly Dispatcher $dispatcher,
+    ) {}
 
     /**
      * @var TTransaction
      */
-    abstract public object $transaction { get; }
+    public object $transaction { get => ($this->transactionFactory)(); }
 
-    /**
-     * @param Envelope<*> $envelope
-     */
-    public function __construct(
-        private readonly EnvelopeFactory $envelopeFactory,
-        protected readonly Envelope $envelope,
-    ) {}
-
-    /**
-     * @template TResult
-     * @param Result<TResult> $result
-     * @return TResult
-     */
-    final public function processResult(Result $result): mixed
+    public function send(object ...$commands): void
     {
-        $this->send(...$result->commands);
-        $this->publish(...$result->events);
-
-        return $result->result;
+        $this->outboxBuilder->addCommands(array_map($this->createEnvelope(...), $commands));
     }
 
-    final public function send(object ...$commands): void
+    public function publish(object ...$events): void
     {
-        if ($commands === []) {
-            return;
-        }
-
-        $this->doSend(array_map($this->createEnvelope(...), $commands));
+        $this->outboxBuilder->addEvents(array_map($this->createEnvelope(...), $events));
     }
 
-    final public function publish(object ...$events): void
+    public function invoke(object $call): mixed
     {
-        if ($events === []) {
-            return;
-        }
-
-        $this->doPublish(array_map($this->createEnvelope(...), $events));
+        return $this->dispatcher->invoke($this->createEnvelope($call), $this->envelopeFactory, $this);
     }
-
-    final public function invoke(Call|Envelope $call): mixed
-    {
-        return $this->doInvoke($this->createEnvelope($call), $this);
-    }
-
-    /**
-     * @param non-empty-list<Envelope> $commands
-     */
-    abstract protected function doSend(array $commands): void;
-
-    /**
-     * @param non-empty-list<Envelope> $events
-     */
-    abstract protected function doPublish(array $events): void;
-
-    /**
-     * @template TResult
-     * @param Envelope<Call<TResult>> $call
-     * @param Context<*> $parentContext
-     * @return TResult
-     */
-    abstract protected function doInvoke(Envelope $call, self $parentContext): mixed;
 
     /**
      * @template TMessage of object
      * @param TMessage|Envelope<TMessage> $message
      * @return Envelope<TMessage>
      */
-    final protected function createEnvelope(object $message): Envelope
+    private function createEnvelope(object $message): Envelope
     {
         return $this->envelopeFactory->create($this->endpoint, $message, $this->envelope);
+    }
+
+    public function next(Endpoint $endpoint, Envelope $envelope): static
+    {
+        return new self(
+            endpoint: $endpoint,
+            envelope: $envelope,
+            transactionFactory: $this->transactionFactory,
+            envelopeFactory: $this->envelopeFactory,
+            outboxBuilder: $this->outboxBuilder,
+            dispatcher: $this->dispatcher,
+        );
+    }
+
+    /**
+     * @template TResult
+     * @param Result<TResult> $result
+     * @return TResult
+     */
+    public function processResult(Result $result): mixed
+    {
+        $this->send(...$result->commands);
+        $this->publish(...$result->events);
+
+        return $result->result;
     }
 }
