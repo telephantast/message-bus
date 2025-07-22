@@ -23,7 +23,7 @@ final class Context implements Sender, Publisher, Invoker
         private readonly Envelope $envelope,
         private readonly mixed $transactionFactory,
         private readonly EnvelopeFactory $envelopeFactory,
-        private readonly MessageCollector $outboxBuilder,
+        private readonly MessageCollector $messageCollector,
         private readonly Dispatcher $dispatcher,
     ) {}
 
@@ -34,12 +34,12 @@ final class Context implements Sender, Publisher, Invoker
 
     public function send(object ...$commands): void
     {
-        $this->outboxBuilder->addCommands(array_map($this->createEnvelope(...), $commands));
+        $this->messageCollector->addCommands(array_map($this->createEnvelope(...), $commands));
     }
 
     public function publish(object ...$events): void
     {
-        $this->outboxBuilder->addEvents(array_map($this->createEnvelope(...), $events));
+        $this->messageCollector->addEvents(array_map($this->createEnvelope(...), $events));
     }
 
     public function invoke(object $call): mixed
@@ -64,7 +64,7 @@ final class Context implements Sender, Publisher, Invoker
             envelope: $envelope,
             transactionFactory: $this->transactionFactory,
             envelopeFactory: $this->envelopeFactory,
-            outboxBuilder: $this->outboxBuilder,
+            messageCollector: $this->messageCollector,
             dispatcher: $this->dispatcher,
         );
     }

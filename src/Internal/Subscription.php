@@ -69,7 +69,7 @@ final readonly class Subscription
                                 envelope: $event,
                                 transactionFactory: static fn(): object => $transaction->wrappedTransaction,
                                 envelopeFactory: $envelopeFactory,
-                                outboxBuilder: $messageCollector,
+                                messageCollector: $messageCollector,
                                 dispatcher: $dispatcher,
                             ));
 

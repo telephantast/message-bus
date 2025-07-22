@@ -68,7 +68,7 @@ final readonly class Queue
                                 envelope: $command,
                                 transactionFactory: static fn(): object => $transaction->wrappedTransaction,
                                 envelopeFactory: $envelopeFactory,
-                                outboxBuilder: $messageCollector,
+                                messageCollector: $messageCollector,
                                 dispatcher: $dispatcher,
                             ));
 

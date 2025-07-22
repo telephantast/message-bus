@@ -34,7 +34,6 @@ final class Consumer
 
             do {
                 $batch[] = $this->queue->dequeue();
-                /** @phpstan-ignore booleanNot.alwaysTrue */
             } while (\count($batch) < $this->maxBatchSize && !$this->queue->isEmpty());
 
             try {

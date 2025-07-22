@@ -57,7 +57,7 @@ final readonly class Service
                 envelope: $call,
                 transactionFactory: $transaction,
                 envelopeFactory: $envelopeFactory,
-                outboxBuilder: $messageCollector,
+                messageCollector: $messageCollector,
                 dispatcher: $dispatcher,
             ));
 
