@@ -45,8 +45,8 @@ final readonly class Subscription
             subscription: $this->endpoint->name,
             consumer: new Consumer(
                 endpoint: $this->endpoint,
+                handler: $this->listeners,
                 storage: $this->storage,
-                handler: $this->listeners->handle(...),
                 envelopeFactory: $envelopeFactory,
                 dispatcher: $dispatcher,
             ),

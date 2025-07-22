@@ -63,7 +63,7 @@ final class CommandHandlers
     /**
      * @param Context<TTransaction> $context
      */
-    public function handle(Envelope $command, Context $context): void
+    public function __invoke(Envelope $command, Context $context): void
     {
         ($this->handlers[$command->messageClass])($command, $context);
     }

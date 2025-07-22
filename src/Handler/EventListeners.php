@@ -59,7 +59,7 @@ final class EventListeners
     /**
      * @param Context<TTransaction> $context
      */
-    public function handle(Envelope $event, Context $context): void
+    public function __invoke(Envelope $event, Context $context): void
     {
         foreach ($this->listeners[$event->messageClass] ?? [] as $listener) {
             $listener($event, $context);

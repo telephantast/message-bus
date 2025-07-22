@@ -44,8 +44,8 @@ final readonly class Queue
             queue: $this->endpoint->name,
             consumer: new Consumer(
                 endpoint: $this->endpoint,
+                handler: $this->handlers,
                 storage: $this->storage,
-                handler: $this->handlers->handle(...),
                 envelopeFactory: $envelopeFactory,
                 dispatcher: $dispatcher,
             ),

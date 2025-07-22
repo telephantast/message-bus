@@ -18,12 +18,12 @@ final readonly class Consumer
 {
     /**
      * @param Storage<TTransaction> $storage
-     * @param \Closure(Envelope, Context<TTransaction>): void $handler
+     * @param callable(Envelope, Context<TTransaction>): void $handler
      */
     public function __construct(
         private Endpoint $endpoint,
+        private mixed $handler,
         private Storage $storage,
-        private \Closure $handler,
         private EnvelopeFactory $envelopeFactory,
         private Dispatcher $dispatcher,
     ) {}
