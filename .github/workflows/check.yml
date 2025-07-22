@@ -10,3 +10,4 @@ jobs:
     with:
       php_versions: '["8.4"]'
       infection: false
+      rector: true
