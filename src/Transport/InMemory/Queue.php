@@ -39,13 +39,12 @@ final class Queue
     }
 
     /**
-     * @param callable(non-empty-list<Envelope>): void $handler
+     * @param callable(non-empty-list<Envelope>): void $consumer
      * @param positive-int $maxBatchSize
      */
-    public function startConsumer(callable $handler, int $maxBatchSize): Run
+    public function startConsumer(callable $consumer, int $maxBatchSize): Run
     {
-        $consumer = new Consumer($this->queue, $handler, $maxBatchSize);
-        $this->consumers[] = $consumer;
+        $this->consumers[] = new Consumer($this->queue, $consumer, $maxBatchSize);
         $key = array_key_last($this->consumers);
 
         $this->deliver();
