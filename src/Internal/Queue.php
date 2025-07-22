@@ -21,14 +21,12 @@ final readonly class Queue
      * @param non-empty-string $name
      * @param CommandHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
-     * @param positive-int $maxBatchSize
      */
     public function __construct(
         string $name,
         private CommandHandlers $handlers,
         private CommandReceiver $receiver,
         private Storage $storage,
-        private int $maxBatchSize,
     ) {
         $this->endpoint = Endpoint::queue($name);
     }
@@ -49,7 +47,6 @@ final readonly class Queue
                 envelopeFactory: $envelopeFactory,
                 dispatcher: $dispatcher,
             ),
-            maxBatchSize: $this->maxBatchSize,
         );
     }
 }

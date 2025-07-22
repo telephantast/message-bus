@@ -21,14 +21,12 @@ final readonly class Subscription
      * @param non-empty-string $name
      * @param EventListeners<TTransaction> $listeners
      * @param Storage<TTransaction> $storage
-     * @param positive-int $maxBatchSize
      */
     public function __construct(
         string $name,
         private EventListeners $listeners,
         private EventPublisher $publisher,
         private Storage $storage,
-        private int $maxBatchSize,
     ) {
         $this->endpoint = Endpoint::subscription($name);
     }
@@ -50,7 +48,6 @@ final readonly class Subscription
                 envelopeFactory: $envelopeFactory,
                 dispatcher: $dispatcher,
             ),
-            maxBatchSize: $this->maxBatchSize,
         );
     }
 }

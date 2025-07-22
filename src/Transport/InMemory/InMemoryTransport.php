@@ -16,14 +16,21 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
      */
     private array $commandQueues = [];
 
+    /**
+     * @param positive-int $maxBatchSize
+     */
+    public function __construct(
+        private readonly int $maxBatchSize = 1,
+    ) {}
+
     public function send(string $queue, array $commands): void
     {
         ($this->commandQueues[$queue] ??= new Queue())->push($commands);
     }
 
-    public function startQueue(string $queue, callable $consumer, int $maxBatchSize = 1): Run
+    public function startQueue(string $queue, callable $consumer): Run
     {
-        return ($this->commandQueues[$queue] ??= new Queue())->startConsumer($consumer, $maxBatchSize);
+        return ($this->commandQueues[$queue] ??= new Queue())->startConsumer($consumer, $this->maxBatchSize);
     }
 
     /**
@@ -52,8 +59,8 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         }
     }
 
-    public function startSubscription(string $subscription, callable $consumer, int $maxBatchSize = 1): Run
+    public function startSubscription(string $subscription, callable $consumer): Run
     {
-        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($consumer, $maxBatchSize);
+        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($consumer, $this->maxBatchSize);
     }
 }
