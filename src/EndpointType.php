@@ -8,5 +8,5 @@ enum EndpointType: string
 {
     case Queue = 'queue';
     case Subscription = 'subscription';
-    case Service = 'endpoint';
+    case Service = 'service';
 }

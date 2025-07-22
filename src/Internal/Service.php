@@ -44,7 +44,7 @@ final readonly class Service
         static $storages = new \WeakMap();
 
         if ($parentContext !== null && ($storages[$parentContext] ?? null) === $this->storage) {
-            return $parentContext->next($this->endpoint, $call);
+            return $parentContext->child($this->endpoint, $call);
         }
 
         $transaction = new LazyTransaction($this->storage, $this->endpoint);

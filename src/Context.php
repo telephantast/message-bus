@@ -57,7 +57,7 @@ final class Context implements Sender, Publisher, Invoker
         return $this->envelopeFactory->create($this->endpoint, $message, $this->envelope);
     }
 
-    public function next(Endpoint $endpoint, Envelope $envelope): static
+    public function child(Endpoint $endpoint, Envelope $envelope): static
     {
         return new self(
             endpoint: $endpoint,

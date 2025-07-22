@@ -45,8 +45,9 @@ final readonly class Consumer
         }
 
         $outboxesById = array_column($outboxes, null, 'incomingMessageId');
-        $transaction = $this->storage->beginTransaction($this->endpoint);
         $outboxesToRecord = [];
+
+        $transaction = $this->storage->beginTransaction($this->endpoint);
 
         try {
             foreach ($envelopes as $envelope) {
