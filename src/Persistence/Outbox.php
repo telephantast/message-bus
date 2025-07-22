@@ -9,17 +9,19 @@ use Thesis\MessageBus\Envelope;
 /**
  * @api
  */
-final readonly class Outbox
+final class Outbox
 {
-    public bool $dispatched;
+    public private(set) bool $dispatched;
 
     /**
+     * @param non-empty-string $incomingMessageId
      * @param list<Envelope> $commands
      * @param list<Envelope> $events
      */
     public function __construct(
-        public array $commands,
-        public array $events,
+        public readonly string $incomingMessageId,
+        public readonly array $commands,
+        public readonly array $events,
         bool $dispatched = false,
     ) {
         $this->dispatched = $dispatched || ($commands === [] && $events === []);
@@ -27,10 +29,13 @@ final readonly class Outbox
 
     public function toDispatched(): self
     {
-        return new self(
-            commands: $this->commands,
-            events: $this->events,
-            dispatched: true,
-        );
+        if ($this->dispatched) {
+            return $this;
+        }
+
+        $outbox = clone $this;
+        $outbox->dispatched = true;
+
+        return $outbox;
     }
 }

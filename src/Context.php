@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\MessageBus\Context\MessageCollector;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
-use Thesis\MessageBus\Persistence\OutboxBuilder;
 
 /**
  * @template TTransaction of object
@@ -23,7 +23,7 @@ final class Context implements Sender, Publisher, Invoker
         private readonly Envelope $envelope,
         private readonly mixed $transactionFactory,
         private readonly EnvelopeFactory $envelopeFactory,
-        private readonly OutboxBuilder $outboxBuilder,
+        private readonly MessageCollector $outboxBuilder,
         private readonly Dispatcher $dispatcher,
     ) {}
 

@@ -19,30 +19,49 @@ final class InMemoryStorage implements Storage
 
     public function setup(): void {}
 
-    public function beginTransaction(Endpoint $endpoint, string $incomingMessageId): Transaction
+    public function beginTransaction(Endpoint $endpoint): Transaction
     {
+        $endpoint = $endpoint->toString();
+
         return new InMemoryTransaction(
-            function (Outbox $outbox) use ($endpoint, $incomingMessageId): void {
-                if (isset($this->outboxes[$endpoint->toString()][$incomingMessageId])) {
-                    throw new OutboxAlreadyExists();
+            function (array $outboxes) use ($endpoint): void {
+                foreach ($outboxes as $outbox) {
+                    if (isset($this->outboxes[$endpoint][$outbox->incomingMessageId])) {
+                        throw new OutboxAlreadyExists();
+                    }
                 }
 
-                $this->outboxes[$endpoint->toString()][$incomingMessageId] = $outbox;
+                foreach ($outboxes as $outbox) {
+                    $this->outboxes[$endpoint][$outbox->incomingMessageId] = $outbox;
+                }
             },
         );
     }
 
-    public function findOutbox(Endpoint $endpoint, string $incomingMessageId): ?Outbox
+    public function findOutboxes(Endpoint $endpoint, array $incomingMessageIds): array
     {
-        return $this->outboxes[$endpoint->toString()][$incomingMessageId] ?? null;
+        $endpoint = $endpoint->toString();
+        $outboxes = [];
+
+        foreach ($incomingMessageIds as $messageId) {
+            if (isset($this->outboxes[$endpoint][$messageId])) {
+                $outboxes[] = $this->outboxes[$endpoint][$messageId];
+            }
+        }
+
+        return $outboxes;
     }
 
-    public function markOutboxDispatched(Endpoint $endpoint, string $incomingMessageId): void
+    public function markOutboxesDispatched(Endpoint $endpoint, array $incomingMessageIds): void
     {
-        $outbox = $this->findOutbox($endpoint, $incomingMessageId);
+        $endpoint = $endpoint->toString();
 
-        if ($outbox !== null) {
-            $this->outboxes[$endpoint->toString()][$incomingMessageId] = $outbox->toDispatched();
+        foreach ($incomingMessageIds as $messageId) {
+            $outbox = $this->outboxes[$endpoint][$messageId] ?? null;
+
+            if ($outbox !== null) {
+                $this->outboxes[$endpoint][$messageId] = $outbox->toDispatched();
+            }
         }
     }
 }

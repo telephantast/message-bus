@@ -15,32 +15,39 @@ final class InMemoryTransaction implements Transaction
 
     private bool $closed = false;
 
-    private ?Outbox $outbox = null;
+    /**
+     * @var array<non-empty-string, Outbox>
+     */
+    private array $outboxes = [];
 
     /**
-     * @param \Closure(Outbox): void $insertOutbox
+     * @param \Closure(non-empty-array<Outbox>): void $insertOutbox
      */
     public function __construct(
         private readonly \Closure $insertOutbox,
     ) {}
 
-    public function recordOutbox(Outbox $outbox): void
+    public function recordOutboxes(array $outboxes): void
     {
         $this->ensureNotClosed();
 
-        if ($this->outbox !== null) {
-            throw new OutboxAlreadyExists();
+        foreach ($outboxes as $outbox) {
+            if (isset($this->outboxes[$outbox->incomingMessageId])) {
+                throw new OutboxAlreadyExists();
+            }
         }
 
-        $this->outbox = $outbox;
+        foreach ($outboxes as $outbox) {
+            $this->outboxes[$outbox->incomingMessageId] = $outbox;
+        }
     }
 
     public function commit(): void
     {
         $this->ensureNotClosed();
 
-        if ($this->outbox !== null) {
-            ($this->insertOutbox)($this->outbox);
+        if ($this->outboxes !== []) {
+            ($this->insertOutbox)($this->outboxes);
         }
 
         $this->closed = true;
@@ -50,7 +57,7 @@ final class InMemoryTransaction implements Transaction
     {
         $this->ensureNotClosed();
 
-        $this->outbox = null;
+        $this->outboxes = [];
         $this->closed = true;
     }
 

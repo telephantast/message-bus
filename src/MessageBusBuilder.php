@@ -46,6 +46,7 @@ final class MessageBusBuilder
      * @param non-empty-string $name
      * @param CommandHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
+     * @param positive-int $maxBatchSize
      */
     public function queue(
         string $name,
@@ -53,8 +54,9 @@ final class MessageBusBuilder
         Storage $storage,
         CommandReceiver $receiver,
         ?CommandSender $sender = null,
+        int $maxBatchSize = 1,
     ): self {
-        $this->queues[$name] = new Queue($name, $handlers, $receiver, $storage);
+        $this->queues[$name] = new Queue($name, $handlers, $receiver, $storage, $maxBatchSize);
 
         if ($sender !== null && $handlers->commandClasses !== []) {
             $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $sender);
@@ -103,7 +105,7 @@ final class MessageBusBuilder
     }
 
     /**
-     * @var array<non-empty-string, array{EventListeners<*>, Storage<*>}>
+     * @var array<non-empty-string, array{EventListeners<*>, Storage<*>, positive-int}>
      */
     private array $subscriptions = [];
 
@@ -112,10 +114,11 @@ final class MessageBusBuilder
      * @param non-empty-string $name
      * @param EventListeners<TTransaction> $listeners
      * @param Storage<TTransaction> $storage
+     * @param positive-int $maxBatchSize
      */
-    public function subscription(string $name, EventListeners $listeners, Storage $storage): self
+    public function subscription(string $name, EventListeners $listeners, Storage $storage, int $maxBatchSize = 1): self
     {
-        $this->subscriptions[$name] = [$listeners, $storage];
+        $this->subscriptions[$name] = [$listeners, $storage, $maxBatchSize];
 
         return $this;
     }
@@ -184,7 +187,7 @@ final class MessageBusBuilder
     {
         $subscriptions = [];
 
-        foreach ($this->subscriptions as $name => [$listeners, $storage]) {
+        foreach ($this->subscriptions as $name => [$listeners, $storage, $maxBatchSize]) {
             $publisher = null;
 
             foreach ($listeners->eventClasses as $eventClass) {
@@ -206,6 +209,7 @@ final class MessageBusBuilder
                 publisher: $publisher,
                 /** @phpstan-ignore argument.type */
                 storage: $storage,
+                maxBatchSize: $maxBatchSize,
             );
         }
 

@@ -21,9 +21,9 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         ($this->commandQueues[$queue] ??= new Queue())->push($commands);
     }
 
-    public function startQueue(string $queue, callable $handler): Run
+    public function startQueue(string $queue, callable $handler, int $maxBatchSize = 1): Run
     {
-        return ($this->commandQueues[$queue] ??= new Queue())->startConsumer($handler);
+        return ($this->commandQueues[$queue] ??= new Queue())->startConsumer($handler, $maxBatchSize);
     }
 
     /**
@@ -52,8 +52,8 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
         }
     }
 
-    public function startSubscription(string $subscription, callable $handler): Run
+    public function startSubscription(string $subscription, callable $handler, int $maxBatchSize = 1): Run
     {
-        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($handler);
+        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($handler, $maxBatchSize);
     }
 }

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Persistence;
+namespace Thesis\MessageBus\Context;
 
 use Thesis\MessageBus\Envelope;
 
-final class OutboxBuilder
+final class MessageCollector
 {
     /**
      * @var list<Envelope>
      */
-    private array $commands = [];
+    public private(set) array $commands = [];
 
     /**
      * @param list<Envelope> $commands
@@ -24,7 +24,7 @@ final class OutboxBuilder
     /**
      * @var list<Envelope>
      */
-    private array $events = [];
+    public private(set) array $events = [];
 
     /**
      * @param list<Envelope> $events
@@ -32,13 +32,5 @@ final class OutboxBuilder
     public function addEvents(array $events): void
     {
         $this->events = [...$this->events, ...$events];
-    }
-
-    public function build(): Outbox
-    {
-        return new Outbox(
-            commands: $this->commands,
-            events: $this->events,
-        );
     }
 }

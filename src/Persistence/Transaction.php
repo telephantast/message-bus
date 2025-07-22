@@ -17,10 +17,11 @@ interface Transaction
     public object $wrappedTransaction { get; }
 
     /**
+     * @param non-empty-list<Outbox> $outboxes
      * @throws OutboxAlreadyExists
      * @throws TransactionClosed
      */
-    public function recordOutbox(Outbox $outbox): void;
+    public function recordOutboxes(array $outboxes): void;
 
     /**
      * @throws TransactionClosed

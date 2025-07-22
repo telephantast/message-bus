@@ -10,7 +10,8 @@ interface CommandReceiver
 {
     /**
      * @param non-empty-string $queue
-     * @param callable(Envelope): void $handler
+     * @param callable(non-empty-list<Envelope>): void $handler
+     * @param positive-int $maxBatchSize
      */
-    public function startQueue(string $queue, callable $handler): Run;
+    public function startQueue(string $queue, callable $handler, int $maxBatchSize = 1): Run;
 }

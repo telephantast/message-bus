@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\Context;
+use Thesis\MessageBus\Context\MessageCollector;
 use Thesis\MessageBus\Endpoint;
-use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handler\EventListeners;
-use Thesis\MessageBus\Persistence\OutboxBuilder;
+use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Transport\EventPublisher;
 use Thesis\MessageBus\Transport\Run;
@@ -24,12 +24,14 @@ final readonly class Subscription
      * @param non-empty-string $name
      * @param EventListeners<TTransaction> $listeners
      * @param Storage<TTransaction> $storage
+     * @param positive-int $maxBatchSize
      */
     public function __construct(
         string $name,
         private EventListeners $listeners,
         private EventPublisher $publisher,
         private Storage $storage,
+        private int $maxBatchSize,
     ) {
         $this->endpoint = Endpoint::subscription($name);
     }
@@ -44,34 +46,43 @@ final readonly class Subscription
     {
         return $this->publisher->startSubscription(
             subscription: $this->endpoint->name,
-            handler: function (Envelope $command) use ($envelopeFactory, $dispatcher): void {
-                $outbox = $this->storage->findOutbox(
+            handler: function (array $events) use ($envelopeFactory, $dispatcher): void {
+                $outboxes = $this->storage->findOutboxes(
                     endpoint: $this->endpoint,
-                    incomingMessageId: $command->messageId,
+                    incomingMessageIds: array_column($events, 'messageId'),
                 );
 
-                if ($outbox === null) {
-                    $transaction = $this->storage->beginTransaction(
-                        endpoint: $this->endpoint,
-                        incomingMessageId: $command->messageId,
-                    );
+                if (\count($outboxes) < \count($events)) {
+                    $outboxesById = array_column($outboxes, null, 'incomingMessageId');
+                    $transaction = $this->storage->beginTransaction($this->endpoint);
+                    $outboxesToRecord = [];
 
                     try {
-                        $outboxBuilder = new OutboxBuilder();
-                        $context = new Context(
-                            endpoint: $this->endpoint,
-                            envelope: $command,
-                            transactionFactory: static fn(): object => $transaction->wrappedTransaction,
-                            envelopeFactory: $envelopeFactory,
-                            outboxBuilder: $outboxBuilder,
-                            dispatcher: $dispatcher,
-                        );
+                        foreach ($events as $event) {
+                            if (isset($outboxesById[$event->messageId])) {
+                                continue;
+                            }
 
-                        $this->listeners->handle($command, $context);
+                            $messageCollector = new MessageCollector();
+                            $this->listeners->handle($event, new Context(
+                                endpoint: $this->endpoint,
+                                envelope: $event,
+                                transactionFactory: static fn(): object => $transaction->wrappedTransaction,
+                                envelopeFactory: $envelopeFactory,
+                                outboxBuilder: $messageCollector,
+                                dispatcher: $dispatcher,
+                            ));
 
-                        $outbox = $outboxBuilder->build();
+                            $outboxesToRecord[] = $outboxes[] = new Outbox(
+                                incomingMessageId: $event->messageId,
+                                commands: $messageCollector->commands,
+                                events: $messageCollector->events,
+                            );
+                        }
 
-                        $transaction->recordOutbox($outbox);
+                        \assert($outboxesToRecord !== []);
+                        $transaction->recordOutboxes($outboxesToRecord);
+
                         $transaction->commit();
                     } catch (\Throwable $exception) {
                         $transaction->rollback();
@@ -80,23 +91,33 @@ final readonly class Subscription
                     }
                 }
 
-                if ($outbox->dispatched) {
+                $incomingMessageIdsToMarkSent = [];
+                $commandsToSend = [];
+                $eventsToPublish = [];
+
+                foreach ($outboxes as $outbox) {
+                    if (!$outbox->dispatched) {
+                        $incomingMessageIdsToMarkSent[] = $outbox->incomingMessageId;
+                        $commandsToSend = [...$commandsToSend, ...$outbox->commands];
+                        $eventsToPublish = [...$eventsToPublish, ...$outbox->events];
+                    }
+                }
+
+                if ($incomingMessageIdsToMarkSent === []) {
                     return;
                 }
 
-                if ($outbox->commands !== []) {
-                    $dispatcher->send($outbox->commands);
+                if ($commandsToSend !== []) {
+                    $dispatcher->send($commandsToSend);
                 }
 
-                if ($outbox->events !== []) {
-                    $dispatcher->publish($outbox->events);
+                if ($eventsToPublish !== []) {
+                    $dispatcher->publish($eventsToPublish);
                 }
 
-                $this->storage->markOutboxDispatched(
-                    endpoint: $this->endpoint,
-                    incomingMessageId: $command->messageId,
-                );
+                $this->storage->markOutboxesDispatched($this->endpoint, $incomingMessageIdsToMarkSent);
             },
+            maxBatchSize: $this->maxBatchSize,
         );
     }
 }

@@ -15,18 +15,18 @@ interface Storage
     public function setup(): void;
 
     /**
-     * @param non-empty-string $incomingMessageId
      * @return Transaction<TTransaction>
      */
-    public function beginTransaction(Endpoint $endpoint, string $incomingMessageId): Transaction;
+    public function beginTransaction(Endpoint $endpoint): Transaction;
 
     /**
-     * @param non-empty-string $incomingMessageId
+     * @param non-empty-list<non-empty-string> $incomingMessageIds
+     * @return list<Outbox>
      */
-    public function findOutbox(Endpoint $endpoint, string $incomingMessageId): ?Outbox;
+    public function findOutboxes(Endpoint $endpoint, array $incomingMessageIds): array;
 
     /**
-     * @param non-empty-string $incomingMessageId
+     * @param non-empty-list<non-empty-string> $incomingMessageIds
      */
-    public function markOutboxDispatched(Endpoint $endpoint, string $incomingMessageId): void;
+    public function markOutboxesDispatched(Endpoint $endpoint, array $incomingMessageIds): void;
 }

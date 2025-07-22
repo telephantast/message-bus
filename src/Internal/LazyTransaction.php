@@ -15,12 +15,10 @@ final class LazyTransaction
 {
     /**
      * @param Storage<TTransaction> $storage
-     * @param non-empty-string $incomingMessageId
      */
     public function __construct(
         private readonly Storage $storage,
         private readonly Endpoint $endpoint,
-        private readonly string $incomingMessageId,
     ) {}
 
     /**
@@ -33,7 +31,7 @@ final class LazyTransaction
      */
     public function begin(): Transaction
     {
-        return $this->transaction ??= $this->storage->beginTransaction($this->endpoint, $this->incomingMessageId);
+        return $this->transaction ??= $this->storage->beginTransaction($this->endpoint);
     }
 
     public function commitIfBegun(): void

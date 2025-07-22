@@ -12,11 +12,13 @@ final class Consumer
 
     /**
      * @param \SplQueue<Envelope> $queue
-     * @param callable(Envelope): void $handler
+     * @param callable(non-empty-list<Envelope>): void $handler
+     * @param positive-int $maxBatchSize
      */
     public function __construct(
         private readonly \SplQueue $queue,
         private readonly mixed $handler,
+        private readonly int $maxBatchSize,
     ) {}
 
     public function consume(): void
@@ -28,13 +30,21 @@ final class Consumer
         $this->consuming = true;
 
         while (!$this->queue->isEmpty()) {
-            $envelope = $this->queue->dequeue();
+            $batch = [];
+
+            do {
+                $batch[] = $this->queue->dequeue();
+                /** @phpstan-ignore booleanNot.alwaysTrue */
+            } while (\count($batch) < $this->maxBatchSize && !$this->queue->isEmpty());
 
             try {
-                ($this->handler)($envelope);
+                ($this->handler)($batch);
             } catch (\Throwable $exception) {
                 $this->consuming = false;
-                $this->queue->unshift($envelope);
+
+                foreach (array_reverse($batch) as $envelope) {
+                    $this->queue->unshift($envelope);
+                }
 
                 throw $exception;
             }
