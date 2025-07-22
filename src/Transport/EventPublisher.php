@@ -21,8 +21,8 @@ interface EventPublisher
 
     /**
      * @param non-empty-string $subscription
-     * @param callable(non-empty-list<Envelope>): void $handler
+     * @param callable(non-empty-list<Envelope>): void $consumer
      * @param positive-int $maxBatchSize
      */
-    public function startSubscription(string $subscription, callable $handler, int $maxBatchSize = 1): Run;
+    public function startSubscription(string $subscription, callable $consumer, int $maxBatchSize = 1): Run;
 }
