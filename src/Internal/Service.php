@@ -41,11 +41,9 @@ final readonly class Service
      */
     public function invoke(Dispatcher $dispatcher, Envelope $method, ?Context $parentContext): mixed
     {
-        /** @var ?Context<object, TTransaction> */
-        $child = $parentContext?->child($this->endpoint, $method, $this->persistenceKey);
-
-        if ($child !== null) {
-            return $this->handlers->handle($method, $child);
+        if ($parentContext !== null && $parentContext->persistenceKey === $this->persistenceKey) {
+            /** @var Context<object, TTransaction> $parentContext */
+            return $this->handlers->handle($method, $parentContext->child($this->endpoint, $method));
         }
 
         $lazyTransaction = $this->storage->beginTransaction($this->endpoint);

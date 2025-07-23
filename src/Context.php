@@ -22,7 +22,7 @@ final class Context implements Invoke
     public function __construct(
         public readonly Endpoint $endpoint,
         private readonly object $transaction,
-        private readonly string $persistenceKey,
+        public readonly string $persistenceKey,
         private readonly ContextInvoke $invoke,
         private readonly Wrapper $wrapper = new Wrapper(),
     ) {}
@@ -87,12 +87,8 @@ final class Context implements Invoke
         return $result->result;
     }
 
-    public function child(Endpoint $endpoint, Envelope $method, string $persistenceKey): ?static
+    public function child(Endpoint $endpoint, Envelope $method): static
     {
-        if ($persistenceKey !== $this->persistenceKey) {
-            return null;
-        }
-
         $child = new self(
             endpoint: $endpoint,
             transaction: $this->transaction,
