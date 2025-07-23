@@ -76,8 +76,8 @@ final class Context implements Sender, Publisher, Invoker
      */
     public function processResult(Result $result): mixed
     {
-        $this->send(...$result->commands);
-        $this->publish(...$result->events);
+        $this->messageCollector->addCommands($result->commands);
+        $this->messageCollector->addEvents($result->events);
 
         return $result->result;
     }
