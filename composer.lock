@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd6a9bd4b7304e8042b9a4c1b4192182",
+    "content-hash": "1c705148e1a402998f9f002c58fbc7e6",
     "packages": [
         {
             "name": "psr/clock",
@@ -2360,80 +2360,11 @@
                 }
             ],
             "time": "2024-03-03T12:36:25+00:00"
-        },
-        {
-            "name": "thesis/message-bus-persistence-postgres",
-            "version": "0.1.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thesis-php/message-bus-persistence-postgres.git",
-                "reference": "4d6174cbdb09fb428d1e9d2aa2379569f7b3d79f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thesis-php/message-bus-persistence-postgres/zipball/4d6174cbdb09fb428d1e9d2aa2379569f7b3d79f",
-                "reference": "4d6174cbdb09fb428d1e9d2aa2379569f7b3d79f",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/postgres": "^2.1",
-                "amphp/sql": "^2.0",
-                "php": "^8.4",
-                "thesis/message-bus": "^0.4@dev"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^12.2.7",
-                "symfony/var-dumper": "^6.4.15 || ^7.3.1",
-                "typhoon/formatter": "^0.1@dev"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": false,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Thesis\\MessageBus\\Persistence\\Postgres\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Valentin Udaltsov",
-                    "email": "udaltsov.valentin@gmail.com"
-                },
-                {
-                    "name": "Thesis Team",
-                    "homepage": "https://github.com/orgs/thesis-php/people"
-                }
-            ],
-            "description": "Postgres Persistence for Thesis MessageBus",
-            "support": {
-                "issues": "https://github.com/thesis-php/message-bus-persistence-postgres/issues",
-                "source": "https://github.com/thesis-php/message-bus-persistence-postgres/tree/0.1.x"
-            },
-            "funding": [
-                {
-                    "url": "https://www.tinkoff.ru/cf/5MqZQas2dk7",
-                    "type": "custom"
-                }
-            ],
-            "time": "2025-07-18T01:36:11+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "thesis/message-bus-persistence-postgres": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
