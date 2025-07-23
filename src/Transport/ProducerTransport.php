@@ -6,7 +6,7 @@ namespace Thesis\MessageBus\Transport;
 
 use Thesis\MessageBus\Envelope;
 
-interface CommandSender
+interface ProducerTransport
 {
     /**
      * @param non-empty-string $queue

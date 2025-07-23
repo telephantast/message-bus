@@ -7,11 +7,11 @@ namespace Thesis\MessageBus\Persistence;
 /**
  * @internal
  * @psalm-internal Thesis\MessageBus
- * @implements Transaction<object>
+ * @implements LazyTransaction<object>
  */
-final class InMemoryTransaction implements Transaction
+final class InMemoryLazyTransaction implements LazyTransaction
 {
-    public self $wrappedTransaction { get => $this; }
+    public object $transaction { get => $this->transaction ??= new \stdClass(); }
 
     private bool $closed = false;
 
@@ -42,7 +42,7 @@ final class InMemoryTransaction implements Transaction
         }
     }
 
-    public function commit(): void
+    public function commitIfBegun(): void
     {
         $this->ensureNotClosed();
 
@@ -53,7 +53,7 @@ final class InMemoryTransaction implements Transaction
         $this->closed = true;
     }
 
-    public function rollback(): void
+    public function rollbackIfBegun(): void
     {
         $this->ensureNotClosed();
 

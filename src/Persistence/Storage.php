@@ -15,9 +15,9 @@ interface Storage
     public function setup(): void;
 
     /**
-     * @return Transaction<TTransaction>
+     * @return LazyTransaction<TTransaction>
      */
-    public function beginTransaction(Endpoint $endpoint): Transaction;
+    public function beginTransaction(Endpoint $endpoint): LazyTransaction;
 
     /**
      * @param non-empty-list<non-empty-string> $incomingMessageIds

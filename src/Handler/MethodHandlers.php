@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Handler;
 
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Internal\FeaturedHandlerFactory;
+use Thesis\MessageBus\Method;
 use Thesis\MessageBus\Stamps;
 
 /**
  * @template TTransaction of object = never
  */
-final class CallHandlers
+final class MethodHandlers
 {
     /**
      * @var list<class-string>
      */
-    public array $callClasses { get => array_keys($this->handlers); }
+    public array $methodClasses { get => array_keys($this->handlers); }
 
     /**
-     * @var array<class-string, callable(Envelope, Context<TTransaction>): mixed>
+     * @var array<class-string, callable(Envelope, Context<object, TTransaction>): mixed>
      */
     private array $handlers = [];
 
     /**
-     * @template TCall of object
+     * @template TMethod of object
      * @template THandlerTransaction of object = never
-     * @param non-empty-list<class-string<TCall>> $messageClasses
-     * @param callable(Envelope<TCall>, Context<THandlerTransaction>): mixed $handler
+     * @param non-empty-list<class-string<TMethod>> $messageClasses
+     * @param callable(Envelope<TMethod>, Context<object, THandlerTransaction>): mixed $handler
      * @return self<TTransaction|THandlerTransaction>
      */
     public function with(array $messageClasses, mixed $handler): self
@@ -49,9 +49,9 @@ final class CallHandlers
     }
 
     /**
-     * @template TCall of object
+     * @template TMethod of object
      * @template THandlerTransaction of object = never
-     * @param callable(TCall, Context<THandlerTransaction>, Stamps): mixed $handler
+     * @param callable(TMethod, Context<object, THandlerTransaction>, Stamps): mixed $handler
      * @param list<Middleware> $middleware
      * @return self<TTransaction|THandlerTransaction>
      */
@@ -63,11 +63,11 @@ final class CallHandlers
 
     /**
      * @template TResult
-     * @param Context<TTransaction> $context
-     * @return ($call is Envelope<Call<TResult>> ? TResult : mixed)
+     * @param Context<object, TTransaction> $context
+     * @return ($method is Envelope<Method<TResult>> ? TResult : mixed)
      */
-    public function handle(Envelope $call, Context $context): mixed
+    public function handle(Envelope $method, Context $context): mixed
     {
-        return ($this->handlers[$call->messageClass])($call, $context);
+        return ($this->handlers[$method->messageClass])($method, $context);
     }
 }

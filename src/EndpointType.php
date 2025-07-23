@@ -6,7 +6,7 @@ namespace Thesis\MessageBus;
 
 enum EndpointType: string
 {
-    case Queue = 'queue';
+    case Consumer = 'consumer';
     case Subscription = 'subscription';
     case Service = 'service';
 }

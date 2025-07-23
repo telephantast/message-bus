@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Examples\Combo;
 
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
-use Thesis\MessageBus\Handler\CallHandlers;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
+use Thesis\MessageBus\Handler\MethodHandlers;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\MessageBusBuilder;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
+use Thesis\MessageBus\Method;
 use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemory\InMemoryTransport;
@@ -35,9 +35,9 @@ final readonly class Pong
 }
 
 /**
- * @implements Call<\DateTimeImmutable>
+ * @implements Method<\DateTimeImmutable>
  */
-final readonly class GetTimestamp implements Call {}
+final readonly class GetTimestamp implements Method {}
 
 final readonly class App
 {
@@ -77,25 +77,24 @@ $storage = new InMemoryStorage();
 $transport = new InMemoryTransport();
 
 $messageBus = new MessageBusBuilder()
-    ->queue(
-        name: 'commands',
+    ->consumer(
+        name: 'app',
         handlers: new CommandHandlers()->withFeatured(App::ping(...)),
         storage: $storage,
-        receiver: $transport,
-        sender: $transport,
+        transport: $transport,
     )
     ->publisher(
         events: new Namespaced(__NAMESPACE__),
-        publisher: $transport,
+        transport: $transport,
     )
     ->subscription(
-        name: 'subscription',
+        name: 'app',
         listeners: new EventListeners()->withFeatured(App::onPong(...)),
         storage: $storage,
     )
     ->service(
-        name: 'calls',
-        handlers: new CallHandlers()->withFeatured(App::getTimestamp(...)),
+        name: 'app',
+        handlers: new MethodHandlers()->withFeatured(App::getTimestamp(...)),
         storage: $storage,
     )
     ->build();
@@ -104,7 +103,7 @@ $messageBus->setup();
 
 $messageBus->send(new Ping('Hello!'));
 
-$run = $messageBus->start();
+$run = $messageBus->run();
 
 trapSignal(SIGINT);
 

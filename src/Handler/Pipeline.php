@@ -16,10 +16,10 @@ use Thesis\MessageBus\Envelope;
 final class Pipeline
 {
     /**
-     * @param callable(Envelope<TMessage>, Context<TTransaction>): TResult $handler
+     * @param callable(Envelope<TMessage>, Context<object, TTransaction>): TResult $handler
      * @param list<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
-     * @param Context<TTransaction> $context
+     * @param Context<object, TTransaction> $context
      */
     public function __construct(
         private readonly mixed $handler,

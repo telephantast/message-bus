@@ -16,9 +16,9 @@ final readonly class FeaturedHandlerFactory
     /**
      * @template TMessage of object
      * @template TTransaction of object = never
-     * @param callable(TMessage, Context<TTransaction>, Stamps): mixed $handler
+     * @param callable(TMessage, Context<object, TTransaction>, Stamps): mixed $handler
      * @param list<Middleware> $middleware
-     * @return array{non-empty-list<class-string<TMessage>>, \Closure(Envelope<TMessage>, Context<TTransaction>): mixed}
+     * @return array{non-empty-list<class-string<TMessage>>, \Closure(Envelope<TMessage>, Context<object, TTransaction>): mixed}
      */
     public static function create(callable $handler, array $middleware): array
     {

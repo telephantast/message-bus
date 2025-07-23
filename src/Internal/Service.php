@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
-use Thesis\MessageBus\Context\MessageCollector;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Handler\CallHandlers;
+use Thesis\MessageBus\Handler\MethodHandlers;
+use Thesis\MessageBus\Method;
 use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
 
@@ -22,60 +21,61 @@ final readonly class Service
 
     /**
      * @param non-empty-string $name
-     * @param CallHandlers<object> $handlers
+     * @param MethodHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
      */
     public function __construct(
         string $name,
-        private CallHandlers $handlers,
+        private MethodHandlers $handlers,
+        private Wrapper $wrapper,
         private Storage $storage,
+        private string $persistenceKey,
     ) {
         $this->endpoint = Endpoint::service($name);
     }
 
     /**
      * @template TResult
-     * @param ?Context<*> $parentContext
-     * @return ($call is Envelope<Call<TResult>> ? TResult : mixed)
+     * @param ?Context<object, *> $parentContext
+     * @return ($method is Envelope<Method<TResult>> ? TResult : mixed)
      */
-    public function invoke(Envelope $call, ?Context $parentContext, EnvelopeFactory $envelopeFactory, Dispatcher $dispatcher): mixed
+    public function invoke(Dispatcher $dispatcher, Envelope $method, ?Context $parentContext): mixed
     {
-        /** @var \WeakMap<Context<*>, Storage<*>> */
-        static $storages = new \WeakMap();
+        /** @var ?Context<object, TTransaction> */
+        $child = $parentContext?->child($this->endpoint, $method, $this->persistenceKey);
 
-        if ($parentContext !== null && ($storages[$parentContext] ?? null) === $this->storage) {
-            return $parentContext->child($this->endpoint, $call);
+        if ($child !== null) {
+            return $this->handlers->handle($method, $child);
         }
 
-        $transaction = new LazyTransaction($this->storage, $this->endpoint);
+        $lazyTransaction = $this->storage->beginTransaction($this->endpoint);
 
         try {
-            $messageCollector = new MessageCollector();
-
-            $result = $this->handlers->handle($call, new Context(
+            $context = new Context(
                 endpoint: $this->endpoint,
-                envelope: $call,
-                transactionFactory: $transaction,
-                envelopeFactory: $envelopeFactory,
-                messageCollector: $messageCollector,
-                dispatcher: $dispatcher,
-            ));
+                transaction: $lazyTransaction->transaction,
+                persistenceKey: $this->persistenceKey,
+                invoke: $dispatcher,
+                wrapper: $this->wrapper->withCause($method),
+            );
+
+            $result = $this->handlers->handle($method, $context);
 
             $outbox = new Outbox(
-                incomingMessageId: $call->messageId,
-                commands: $messageCollector->commands,
-                events: $messageCollector->events,
+                incomingMessageId: $method->messageId,
+                commands: $context->commands,
+                events: $context->events,
             );
 
             if (!$outbox->dispatched) {
                 // send service command
 
-                $transaction->begin()->recordOutboxes([$outbox]);
+                $lazyTransaction->recordOutboxes([$outbox]);
             }
 
-            $transaction->commitIfBegun();
+            $lazyTransaction->commitIfBegun();
         } catch (\Throwable $exception) {
-            $transaction->rollbackIfBegun();
+            $lazyTransaction->rollbackIfBegun();
 
             throw $exception;
         }
@@ -90,7 +90,7 @@ final readonly class Service
                     $dispatcher->publish($outbox->events);
                 }
 
-                $this->storage->markOutboxesDispatched($this->endpoint, [$call->messageId]);
+                $this->storage->markOutboxesDispatched($this->endpoint, [$method->messageId]);
             } catch (\Throwable) {
                 // todo log
             }

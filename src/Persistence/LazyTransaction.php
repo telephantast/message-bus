@@ -8,13 +8,13 @@ namespace Thesis\MessageBus\Persistence;
  * @api
  * @template-covariant TTransaction of object
  */
-interface Transaction
+interface LazyTransaction
 {
     /**
      * @var TTransaction
      * @phpstan-ignore generics.variance
      */
-    public object $wrappedTransaction { get; }
+    public object $transaction { get; }
 
     /**
      * @param non-empty-list<Outbox> $outboxes
@@ -26,10 +26,10 @@ interface Transaction
     /**
      * @throws TransactionClosed
      */
-    public function commit(): void;
+    public function commitIfBegun(): void;
 
     /**
      * @throws TransactionClosed
      */
-    public function rollback(): void;
+    public function rollbackIfBegun(): void;
 }

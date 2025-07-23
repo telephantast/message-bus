@@ -8,4 +8,4 @@ namespace Thesis\MessageBus;
  * @api
  * @template-covariant TResult
  */
-interface Call {}
+interface Method {}

@@ -9,9 +9,9 @@ final readonly class Endpoint
     /**
      * @param non-empty-string $name
      */
-    public static function queue(string $name): self
+    public static function consumer(string $name): self
     {
-        return new self(EndpointType::Queue, $name);
+        return new self(EndpointType::Consumer, $name);
     }
 
     /**

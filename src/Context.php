@@ -4,69 +4,74 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Context\MessageCollector;
 use Thesis\MessageBus\Handler\Result;
-use Thesis\MessageBus\Internal\Dispatcher;
-use Thesis\MessageBus\Internal\EnvelopeFactory;
+use Thesis\MessageBus\Internal\ContextInvoke;
+use Thesis\MessageBus\Internal\Wrapper;
 
 /**
- * @template TTransaction of object
- * @implements Invoker<object>
+ * @template-contravariant TSupportedMethods of object = never
+ * @template TTransaction of object = object
+ * @implements Invoke<TSupportedMethods>
  */
-final class Context implements Sender, Publisher, Invoker
+final class Context implements Invoke
 {
     /**
-     * @param callable(): TTransaction $transactionFactory
+     * @param TTransaction $transaction
+     * @param ContextInvoke<TSupportedMethods> $invoke
      */
     public function __construct(
-        public Endpoint $endpoint,
-        private readonly Envelope $envelope,
-        private readonly mixed $transactionFactory,
-        private readonly EnvelopeFactory $envelopeFactory,
-        private readonly MessageCollector $messageCollector,
-        private readonly Dispatcher $dispatcher,
+        public readonly Endpoint $endpoint,
+        private readonly object $transaction,
+        private readonly string $persistenceKey,
+        private readonly ContextInvoke $invoke,
+        private readonly Wrapper $wrapper = new Wrapper(),
     ) {}
 
     /**
-     * @var TTransaction
+     * @var list<Envelope>
      */
-    public object $transaction { get => ($this->transactionFactory)(); }
+    public private(set) array $commands = [];
 
+    /**
+     * @no-named-arguments
+     */
     public function send(object ...$commands): void
     {
-        $this->messageCollector->addCommands(array_map($this->createEnvelope(...), $commands));
-    }
-
-    public function publish(object ...$events): void
-    {
-        $this->messageCollector->addEvents(array_map($this->createEnvelope(...), $events));
-    }
-
-    public function invoke(object $call): mixed
-    {
-        return $this->dispatcher->invoke($this->createEnvelope($call), $this->envelopeFactory, $this);
+        $this->commands = [
+            ...$this->commands,
+            ...array_map($this->wrapper->wrap(...), $commands),
+        ];
     }
 
     /**
-     * @template TMessage of object
-     * @param TMessage|Envelope<TMessage> $message
-     * @return Envelope<TMessage>
+     * @var list<Envelope>
      */
-    private function createEnvelope(object $message): Envelope
+    public private(set) array $events = [];
+
+    /**
+     * @no-named-arguments
+     */
+    public function publish(object ...$events): void
     {
-        return $this->envelopeFactory->create($this->endpoint, $message, $this->envelope);
+        $this->events = [
+            ...$this->events,
+            ...array_map($this->wrapper->wrap(...), $events),
+        ];
     }
 
-    public function child(Endpoint $endpoint, Envelope $envelope): static
+    /**
+     * @template TResult
+     * @param TSupportedMethods|Envelope<TSupportedMethods> $method
+     * @return ($method is (Method<TResult>|Envelope<Method<TResult>>) ? TResult : mixed)
+     */
+    public function invoke(object $method): mixed
     {
-        return new self(
-            endpoint: $endpoint,
-            envelope: $envelope,
-            transactionFactory: $this->transactionFactory,
-            envelopeFactory: $this->envelopeFactory,
-            messageCollector: $this->messageCollector,
-            dispatcher: $this->dispatcher,
-        );
+        return $this->invoke->invoke($this->wrapper->wrap($method), $this);
+    }
+
+    public function __invoke(object $method): mixed
+    {
+        return $this->invoke->invoke($this->wrapper->wrap($method), $this);
     }
 
     /**
@@ -76,9 +81,28 @@ final class Context implements Sender, Publisher, Invoker
      */
     public function processResult(Result $result): mixed
     {
-        $this->messageCollector->addCommands($result->commands);
-        $this->messageCollector->addEvents($result->events);
+        $this->send(...$result->commands);
+        $this->publish(...$result->events);
 
         return $result->result;
+    }
+
+    public function child(Endpoint $endpoint, Envelope $method, string $persistenceKey): ?static
+    {
+        if ($persistenceKey !== $this->persistenceKey) {
+            return null;
+        }
+
+        $child = new self(
+            endpoint: $endpoint,
+            transaction: $this->transaction,
+            persistenceKey: $this->persistenceKey,
+            invoke: $this->invoke,
+            wrapper: $this->wrapper->withCause($method),
+        );
+        $child->commands = & $this->commands;
+        $child->events = & $this->events;
+
+        return $child;
     }
 }

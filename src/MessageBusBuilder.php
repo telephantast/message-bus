@@ -4,42 +4,27 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Handler\CallHandlers;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
+use Thesis\MessageBus\Handler\MethodHandlers;
+use Thesis\MessageBus\Internal\Consumer;
 use Thesis\MessageBus\Internal\Dispatcher;
-use Thesis\MessageBus\Internal\EnvelopeFactory;
-use Thesis\MessageBus\Internal\Queue;
 use Thesis\MessageBus\Internal\Router;
 use Thesis\MessageBus\Internal\Service;
 use Thesis\MessageBus\Internal\Subscription;
+use Thesis\MessageBus\Internal\Wrapper;
 use Thesis\MessageBus\MessageMatcher\AnyOf;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Transport\CommandReceiver;
-use Thesis\MessageBus\Transport\CommandSender;
-use Thesis\MessageBus\Transport\EventPublisher;
+use Thesis\MessageBus\Transport\ConsumerTransport;
+use Thesis\MessageBus\Transport\ProducerTransport;
+use Thesis\MessageBus\Transport\PublisherTransport;
 
 final class MessageBusBuilder
 {
     /**
-     * @var non-empty-string
+     * @var array<non-empty-string, Consumer<*>>
      */
-    private string $name = 'message_bus';
-
-    /**
-     * @param non-empty-string $name
-     */
-    public function endpointName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @var array<non-empty-string, Queue<*>>
-     */
-    private array $queues = [];
+    private array $consumers = [];
 
     /**
      * @template TTransaction of object
@@ -47,18 +32,25 @@ final class MessageBusBuilder
      * @param CommandHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
      */
-    public function queue(
+    public function consumer(
         string $name,
         CommandHandlers $handlers,
         Storage $storage,
-        CommandReceiver $receiver,
-        ?CommandSender $sender = null,
+        ConsumerTransport $transport,
+        ?string $persistenceKey = null,
     ): self {
-        $this->queues[$name] = new Queue($name, $handlers, $receiver, $storage);
+        // todo resolve via types
+        \assert($handlers->commandClasses !== []);
 
-        if ($sender !== null && $handlers->commandClasses !== []) {
-            $this->remoteQueue($name, new AnyOf($handlers->commandClasses), $sender);
-        }
+        $this->consumers[$name] = new Consumer(
+            name: $name,
+            handlers: $handlers,
+            receiver: $transport,
+            storage: $storage,
+            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
+            wrapper: new Wrapper(), // todo
+        );
+        $this->remoteConsumer($name, new AnyOf($handlers->commandClasses), $transport);
 
         return $this;
     }
@@ -69,23 +61,23 @@ final class MessageBusBuilder
     private array $commandMatchers = [];
 
     /**
-     * @var array<non-empty-string, CommandSender>
+     * @var array<non-empty-string, ProducerTransport>
      */
-    private array $senders = [];
+    private array $producers = [];
 
     /**
      * @param non-empty-string $name
      */
-    public function remoteQueue(string $name, MessageMatcher $commands, CommandSender $sender): self
+    public function remoteConsumer(string $name, MessageMatcher $commands, ProducerTransport $transport): self
     {
         $this->commandMatchers[$name] = $commands;
-        $this->senders[$name] = $sender;
+        $this->producers[$name] = $transport;
 
         return $this;
     }
 
     /**
-     * @var list<EventPublisher>
+     * @var list<PublisherTransport>
      */
     private array $publishers = [];
 
@@ -94,16 +86,16 @@ final class MessageBusBuilder
      */
     private array $eventMatchers = [];
 
-    public function publisher(MessageMatcher $events, EventPublisher $publisher): self
+    public function publisher(MessageMatcher $events, PublisherTransport $transport): self
     {
         $this->eventMatchers[] = $events;
-        $this->publishers[] = $publisher;
+        $this->publishers[] = $transport;
 
         return $this;
     }
 
     /**
-     * @var array<non-empty-string, array{EventListeners<*>, Storage<*>}>
+     * @var array<non-empty-string, array{EventListeners<*>, Storage<*>, string}>
      */
     private array $subscriptions = [];
 
@@ -113,9 +105,17 @@ final class MessageBusBuilder
      * @param EventListeners<TTransaction> $listeners
      * @param Storage<TTransaction> $storage
      */
-    public function subscription(string $name, EventListeners $listeners, Storage $storage): self
-    {
-        $this->subscriptions[$name] = [$listeners, $storage];
+    public function subscription(
+        string $name,
+        EventListeners $listeners,
+        Storage $storage,
+        ?string $persistenceKey = null,
+    ): self {
+        $this->subscriptions[$name] = [
+            $listeners,
+            $storage,
+            $persistenceKey ?? spl_object_hash($storage),
+        ];
 
         return $this;
     }
@@ -128,22 +128,25 @@ final class MessageBusBuilder
     /**
      * @template TTransaction of object
      * @param non-empty-string $name
-     * @param CallHandlers<TTransaction> $handlers
+     * @param MethodHandlers<TTransaction> $handlers
      * @param Storage<TTransaction> $storage
      */
     public function service(
         string $name,
-        CallHandlers $handlers,
+        MethodHandlers $handlers,
         Storage $storage,
+        ?string $persistenceKey = null,
     ): self {
         $this->services[$name] = new Service(
             name: $name,
             handlers: $handlers,
-            storage: $storage,
+            wrapper: new Wrapper(),
+            storage: $storage, // todo
+            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
         );
 
-        if ($handlers->callClasses !== []) {
-            $this->callMatchers[$name] = new AnyOf($handlers->callClasses);
+        if ($handlers->methodClasses !== []) {
+            $this->methodMatchers[$name] = new AnyOf($handlers->methodClasses);
         }
 
         // todo
@@ -154,24 +157,23 @@ final class MessageBusBuilder
     /**
      * @var array<non-empty-string, MessageMatcher>
      */
-    private array $callMatchers = [];
+    private array $methodMatchers = [];
 
     public function build(): MessageBus
     {
         $eventRouter = new Router($this->eventMatchers);
 
         return new MessageBus(
-            name: $this->name,
+            wrapper: new Wrapper(),
             dispatcher: new Dispatcher(
                 commandRouter: new Router($this->commandMatchers),
-                senders: $this->senders,
+                producers: $this->producers,
                 eventRouter: $eventRouter,
                 publishers: $this->publishers,
-                callRouter: new Router($this->callMatchers),
+                methodRouter: new Router($this->methodMatchers),
                 services: $this->services,
             ),
-            envelopeFactory: new EnvelopeFactory(),
-            queues: $this->queues,
+            consumers: $this->consumers,
             subscriptions: $this->buildSubscriptions($eventRouter),
         );
     }
@@ -184,7 +186,7 @@ final class MessageBusBuilder
     {
         $subscriptions = [];
 
-        foreach ($this->subscriptions as $name => [$listeners, $storage]) {
+        foreach ($this->subscriptions as $name => [$listeners, $storage, $persistenceKey]) {
             $publisher = null;
 
             foreach ($listeners->eventClasses as $eventClass) {
@@ -206,6 +208,8 @@ final class MessageBusBuilder
                 publisher: $publisher,
                 /** @phpstan-ignore argument.type */
                 storage: $storage,
+                persistenceKey: $persistenceKey,
+                wrapper: new Wrapper(), // todo
             );
         }
 

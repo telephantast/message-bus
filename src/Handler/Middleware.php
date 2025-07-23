@@ -14,7 +14,7 @@ interface Middleware
      * @template TMessage of object
      * @template TTransaction of object
      * @param Envelope<TMessage> $envelope
-     * @param Context<TTransaction> $context
+     * @param Context<object, TTransaction> $context
      * @param Pipeline<TResult, TMessage, TTransaction> $pipeline
      * @return TResult
      */

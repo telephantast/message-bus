@@ -19,11 +19,11 @@ final class InMemoryStorage implements Storage
 
     public function setup(): void {}
 
-    public function beginTransaction(Endpoint $endpoint): Transaction
+    public function beginTransaction(Endpoint $endpoint): LazyTransaction
     {
         $endpoint = $endpoint->toString();
 
-        return new InMemoryTransaction(
+        return new InMemoryLazyTransaction(
             function (array $outboxes) use ($endpoint): void {
                 foreach ($outboxes as $outbox) {
                     if (isset($this->outboxes[$endpoint][$outbox->incomingMessageId])) {

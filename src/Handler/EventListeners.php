@@ -20,7 +20,7 @@ final class EventListeners
     public array $eventClasses { get => array_keys($this->listeners); }
 
     /**
-     * @var array<class-string, non-empty-list<callable(Envelope, Context<TTransaction>): void>>
+     * @var array<class-string, non-empty-list<callable(Envelope, Context<object, TTransaction>): void>>
      */
     private array $listeners = [];
 
@@ -28,7 +28,7 @@ final class EventListeners
      * @template TEvent of object
      * @template TListenerTransaction of object = never
      * @param non-empty-list<class-string<TEvent>> $messageClasses
-     * @param callable(Envelope<TEvent>, Context<TListenerTransaction>): void $listener
+     * @param callable(Envelope<TEvent>, Context<object, TListenerTransaction>): void $listener
      * @return self<TTransaction|TListenerTransaction>
      */
     public function with(array $messageClasses, mixed $listener): self
@@ -46,7 +46,7 @@ final class EventListeners
     /**
      * @template TEvent of object
      * @template TListenerTransaction of object = never
-     * @param callable(TEvent, Context<TListenerTransaction>, Stamps): (void|null|Result<null>) $listener
+     * @param callable(TEvent, Context<object, TListenerTransaction>, Stamps): (void|null|Result<null>) $listener
      * @param list<Middleware> $middleware
      * @return self<TTransaction|TListenerTransaction>
      */
@@ -57,7 +57,7 @@ final class EventListeners
     }
 
     /**
-     * @param Context<TTransaction> $context
+     * @param Context<object, TTransaction> $context
      */
     public function __invoke(Envelope $event, Context $context): void
     {

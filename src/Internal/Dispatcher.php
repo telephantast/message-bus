@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Thesis\MessageBus\Call;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Transport\CommandSender;
-use Thesis\MessageBus\Transport\EventPublisher;
+use Thesis\MessageBus\Transport\ProducerTransport;
+use Thesis\MessageBus\Transport\PublisherTransport;
 
-final readonly class Dispatcher
+/**
+ * @implements ContextInvoke<object>
+ */
+final readonly class Dispatcher implements ContextInvoke
 {
     /**
      * @param Router<non-empty-string> $commandRouter
-     * @param array<non-empty-string, CommandSender> $senders
+     * @param array<non-empty-string, ProducerTransport> $producers
      * @param Router<non-negative-int> $eventRouter
-     * @param list<EventPublisher> $publishers
-     * @param Router<non-empty-string> $callRouter
+     * @param list<PublisherTransport> $publishers
+     * @param Router<non-empty-string> $methodRouter
      * @param array<non-empty-string, Service<*>> $services
      */
     public function __construct(
         private Router $commandRouter,
-        private array $senders,
+        private array $producers,
         private Router $eventRouter,
         private array $publishers,
-        private Router $callRouter,
+        private Router $methodRouter,
         private array $services,
     ) {}
 
@@ -74,17 +76,12 @@ final readonly class Dispatcher
         }
 
         foreach ($routedCommandsByQueue as $queue => $routedCommands) {
-            $this->senders[$queue]->send($queue, $routedCommands);
+            $this->producers[$queue]->send($queue, $routedCommands);
         }
     }
 
-    /**
-     * @template TResult
-     * @param ?Context<*> $parentContext
-     * @return ($call is Envelope<Call<TResult>> ? TResult : mixed)
-     */
-    public function invoke(Envelope $call, EnvelopeFactory $envelopeFactory, ?Context $parentContext = null): mixed
+    public function invoke(Envelope $method, ?Context $parentContext = null): mixed
     {
-        return $this->services[$this->callRouter->route($call->messageClass)]->invoke($call, $parentContext, $envelopeFactory, $this);
+        return $this->services[$this->methodRouter->route($method->messageClass)]->invoke($this, $method, $parentContext);
     }
 }

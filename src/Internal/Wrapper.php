@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Psr\Clock\ClockInterface;
-use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Envelope\CauseId;
 use Thesis\MessageBus\Envelope\ConversationId;
@@ -18,23 +17,34 @@ use Thesis\MessageBus\Stamps;
 /**
  * @internal
  */
-final readonly class EnvelopeFactory
+final readonly class Wrapper
 {
     /**
      * @param list<EnvelopeProcessor> $processors
      */
     public function __construct(
-        private array $processors = [],
         private MessageIdGenerator $messageIdGenerator = new RandomMessageIdGenerator(),
         private ?ClockInterface $clock = null,
+        private array $processors = [],
+        private ?Envelope $cause = null,
     ) {}
+
+    public function withCause(?Envelope $cause): self
+    {
+        return new self(
+            messageIdGenerator: $this->messageIdGenerator,
+            clock: $this->clock,
+            processors: $this->processors,
+            cause: $cause,
+        );
+    }
 
     /**
      * @template TMessage of object
      * @param TMessage|Envelope<TMessage> $message
      * @return Envelope<TMessage>
      */
-    public function create(Endpoint $endpoint, object $message, ?Envelope $cause = null): Envelope
+    public function wrap(object $message): Envelope
     {
         if (!$message instanceof Envelope) {
             $messageId = $this->messageIdGenerator->generateMessageId();
@@ -42,12 +52,12 @@ final readonly class EnvelopeFactory
             $envelope = new Envelope($message, new Stamps([
                 $this->clock?->now() ?? new \DateTimeImmutable(),
                 new MessageId($messageId),
-                new CauseId($cause?->messageId),
-                $cause?->stamps->find(ConversationId::class) ?? new ConversationId($cause->messageId ?? $messageId),
+                new CauseId($this->cause?->messageId),
+                $this->cause?->stamps->find(ConversationId::class) ?? new ConversationId($this->cause->messageId ?? $messageId),
             ]));
 
             foreach ($this->processors as $processor) {
-                $envelope = $processor->process($endpoint, $envelope, $cause);
+                $envelope = $processor->process($envelope, $this->cause);
             }
 
             return $envelope;
@@ -69,17 +79,17 @@ final readonly class EnvelopeFactory
         }
 
         if (!$stamps->has(CauseId::class)) {
-            $newStamps[] = new CauseId($cause?->messageId);
+            $newStamps[] = new CauseId($this->cause?->messageId);
         }
 
         if (!$stamps->has(ConversationId::class)) {
-            $newStamps[] = $cause?->stamps->find(ConversationId::class) ?? new ConversationId($cause->messageId ?? $messageId);
+            $newStamps[] = $this->cause?->stamps->find(ConversationId::class) ?? new ConversationId($this->cause->messageId ?? $messageId);
         }
 
         $envelope = $message->withStamps($stamps->with(...$newStamps));
 
         foreach ($this->processors as $processor) {
-            $envelope = $processor->process($endpoint, $envelope, $cause);
+            $envelope = $processor->process($envelope, $this->cause);
         }
 
         return $envelope;

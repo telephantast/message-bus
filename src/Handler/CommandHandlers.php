@@ -20,7 +20,7 @@ final class CommandHandlers
     public array $commandClasses { get => array_keys($this->handlers); }
 
     /**
-     * @var array<class-string, callable(Envelope, Context<TTransaction>): void>
+     * @var array<class-string, callable(Envelope, Context<object, TTransaction>): void>
      */
     private array $handlers = [];
 
@@ -28,7 +28,7 @@ final class CommandHandlers
      * @template TCommand of object
      * @template THandlerTransaction of object = never
      * @param non-empty-list<class-string<TCommand>> $messageClasses
-     * @param callable(Envelope<TCommand>, Context<THandlerTransaction>): void $handler
+     * @param callable(Envelope<TCommand>, Context<object, THandlerTransaction>): void $handler
      * @return self<TTransaction|THandlerTransaction>
      */
     public function with(array $messageClasses, mixed $handler): self
@@ -50,7 +50,7 @@ final class CommandHandlers
     /**
      * @template TCommand of object
      * @template THandlerTransaction of object = never
-     * @param callable(TCommand, Context<THandlerTransaction>, Stamps): (void|null|Result<null>) $handler
+     * @param callable(TCommand, Context<object, THandlerTransaction>, Stamps): (void|null|Result<null>) $handler
      * @param list<Middleware> $middleware
      * @return self<TTransaction|THandlerTransaction>
      */
@@ -61,7 +61,7 @@ final class CommandHandlers
     }
 
     /**
-     * @param Context<TTransaction> $context
+     * @param Context<object, TTransaction> $context
      */
     public function __invoke(Envelope $command, Context $context): void
     {

@@ -12,12 +12,12 @@ final class Consumer
 
     /**
      * @param \SplQueue<Envelope> $queue
-     * @param callable(non-empty-list<Envelope>): void $consumer
+     * @param callable(non-empty-list<Envelope>): void $handler
      * @param positive-int $maxBatchSize
      */
     public function __construct(
         private readonly \SplQueue $queue,
-        private readonly mixed $consumer,
+        private readonly mixed $handler,
         private readonly int $maxBatchSize,
     ) {}
 
@@ -37,7 +37,7 @@ final class Consumer
             } while (\count($batch) < $this->maxBatchSize && !$this->queue->isEmpty());
 
             try {
-                ($this->consumer)($batch);
+                ($this->handler)($batch);
             } catch (\Throwable $exception) {
                 $this->consuming = false;
 

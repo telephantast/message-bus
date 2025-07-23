@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Envelope;
 
-use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
 
 /**
@@ -17,5 +16,5 @@ interface EnvelopeProcessor
      * @param Envelope<TMessage> $envelope
      * @return Envelope<TMessage>
      */
-    public function process(Endpoint $endpoint, Envelope $envelope, ?Envelope $cause = null): Envelope;
+    public function process(Envelope $envelope, ?Envelope $cause = null): Envelope;
 }
