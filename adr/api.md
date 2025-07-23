@@ -2,7 +2,7 @@
 
 ## Producer/Consumer
 
-Producer sends Commands to Consumers.
+Producer sends Commands to Consumer.
 
 ```php
 final readonly class Register {}
@@ -63,7 +63,7 @@ Transport interfaces:
 
 ## Client/Service
 
-Client invokes Method on Service.
+Client invokes Methods on Service.
 
 ```php
 /**
