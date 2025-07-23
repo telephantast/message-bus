@@ -8,13 +8,15 @@ use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Internal\FeaturedHandlerFactory;
 use Thesis\MessageBus\Method;
+use Thesis\MessageBus\NestedInvoke;
 use Thesis\MessageBus\Stamps;
 
 /**
  * @template TTransaction of object = never
  * @template-contravariant TSupportedMethods of object = never
+ * @implements NestedInvoke<TSupportedMethods>
  */
-final class MethodHandlers
+final class MethodHandlers implements NestedInvoke
 {
     /**
      * @var list<class-string>
@@ -71,5 +73,10 @@ final class MethodHandlers
     public function handle(Envelope $method, Context $context): mixed
     {
         return ($this->handlers[$method->messageClass])($method, $context);
+    }
+
+    public function nestedInvoke(Envelope $method, Context $parentContext): mixed
+    {
+        return $this->handle($method, $parentContext->child($parentContext->endpoint, $method));
     }
 }

@@ -70,12 +70,12 @@ final readonly class MessageBus implements Invoke
      */
     public function invoke(object $method): mixed
     {
-        return $this->dispatcher->invoke($this->wrapper->wrap($method));
+        return $this->dispatcher->nestedInvoke($this->wrapper->wrap($method));
     }
 
     public function __invoke(object $method): mixed
     {
-        return $this->dispatcher->invoke($this->wrapper->wrap($method));
+        return $this->dispatcher->nestedInvoke($this->wrapper->wrap($method));
     }
 
     /**

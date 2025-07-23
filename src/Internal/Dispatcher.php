@@ -6,13 +6,14 @@ namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\NestedInvoke;
 use Thesis\MessageBus\Transport\ProducerTransport;
 use Thesis\MessageBus\Transport\PublisherTransport;
 
 /**
- * @implements ContextInvoke<object>
+ * @implements NestedInvoke<object>
  */
-final readonly class Dispatcher implements ContextInvoke
+final readonly class Dispatcher implements NestedInvoke
 {
     /**
      * @param Router<non-empty-string> $commandRouter
@@ -80,7 +81,7 @@ final readonly class Dispatcher implements ContextInvoke
         }
     }
 
-    public function invoke(Envelope $method, ?Context $parentContext = null): mixed
+    public function nestedInvoke(Envelope $method, ?Context $parentContext = null): mixed
     {
         return $this->services[$this->methodRouter->route($method->messageClass)]->invoke($this, $method, $parentContext);
     }

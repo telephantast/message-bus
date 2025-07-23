@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\MessageBus\Handler\MethodHandlers;
 use Thesis\MessageBus\Handler\Result;
-use Thesis\MessageBus\Internal\ContextInvoke;
 use Thesis\MessageBus\Internal\Wrapper;
 
 /**
@@ -16,15 +16,38 @@ use Thesis\MessageBus\Internal\Wrapper;
 final class Context implements Invoke
 {
     /**
+     * @template TStubSupportedMethods of object
+     * @template TStubTransaction of object
+     * @param NestedInvoke<TStubSupportedMethods> $invoke
+     * @param TStubTransaction $transaction
+     * @return self<TStubSupportedMethods, TStubTransaction>
+     */
+    public static function stub(
+        NestedInvoke $invoke = new MethodHandlers(),
+        object $transaction = new \stdClass(),
+        string $persistenceKey = 'context.stub',
+        Wrapper $wrapper = new Wrapper(),
+        ?Endpoint $endpoint = null,
+    ): self {
+        return new self(
+            endpoint: $endpoint ?? Endpoint::service('context.stub'),
+            transaction: $transaction,
+            persistenceKey: $persistenceKey,
+            wrapper: $wrapper,
+            childInvoke: $invoke,
+        );
+    }
+
+    /**
      * @param TTransaction $transaction
-     * @param ContextInvoke<TSupportedMethods> $invoke
+     * @param NestedInvoke<TSupportedMethods> $childInvoke
      */
     public function __construct(
         public readonly Endpoint $endpoint,
         private readonly object $transaction,
         public readonly string $persistenceKey,
-        private readonly ContextInvoke $invoke,
-        private readonly Wrapper $wrapper = new Wrapper(),
+        private readonly Wrapper $wrapper,
+        private readonly NestedInvoke $childInvoke,
     ) {}
 
     /**
@@ -66,12 +89,12 @@ final class Context implements Invoke
      */
     public function invoke(object $method): mixed
     {
-        return $this->invoke->invoke($this->wrapper->wrap($method), $this);
+        return $this->childInvoke->nestedInvoke($this->wrapper->wrap($method), $this);
     }
 
     public function __invoke(object $method): mixed
     {
-        return $this->invoke->invoke($this->wrapper->wrap($method), $this);
+        return $this->childInvoke->nestedInvoke($this->wrapper->wrap($method), $this);
     }
 
     /**
@@ -93,8 +116,8 @@ final class Context implements Invoke
             endpoint: $endpoint,
             transaction: $this->transaction,
             persistenceKey: $this->persistenceKey,
-            invoke: $this->invoke,
             wrapper: $this->wrapper->withCause($method),
+            childInvoke: $this->childInvoke,
         );
         $child->commands = & $this->commands;
         $child->events = & $this->events;

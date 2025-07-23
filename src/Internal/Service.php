@@ -53,8 +53,8 @@ final readonly class Service
                 endpoint: $this->endpoint,
                 transaction: $lazyTransaction->transaction,
                 persistenceKey: $this->persistenceKey,
-                invoke: $dispatcher,
                 wrapper: $this->wrapper->withCause($method),
+                childInvoke: $dispatcher,
             );
 
             $result = $this->handlers->handle($method, $context);

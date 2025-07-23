@@ -59,8 +59,8 @@ final readonly class AsyncHandler
                     endpoint: $this->endpoint,
                     transaction: $transaction->transaction,
                     persistenceKey: $this->persistenceKey,
-                    invoke: $this->dispatcher,
                     wrapper: $this->wrapper,
+                    childInvoke: $this->dispatcher,
                 );
 
                 ($this->handler)($envelope, $context);
