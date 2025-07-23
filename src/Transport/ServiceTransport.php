@@ -6,11 +6,11 @@ namespace Thesis\MessageBus\Transport;
 
 use Thesis\MessageBus\Envelope;
 
-interface Server
+interface ServiceTransport
 {
     /**
      * @param non-empty-string $service
      * @param callable(Envelope): mixed $handler
      */
-    public function runServer(string $service, callable $handler): Run;
+    public function runService(string $service, callable $handler): Run;
 }

@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 /**
- * @implements Call<string>
+ * @implements Method<string>
  */
-final readonly class TestQuery implements Call {}
+final readonly class TestQuery implements Method {}

@@ -6,11 +6,11 @@ namespace Thesis\MessageBus\Transport;
 
 use Thesis\MessageBus\Envelope;
 
-interface CommandReceiver
+interface ConsumerTransport extends ProducerTransport
 {
     /**
      * @param non-empty-string $queue
      * @param callable(non-empty-list<Envelope>): void $consumer
      */
-    public function startQueue(string $queue, callable $consumer): Run;
+    public function runConsumer(string $queue, callable $consumer): Run;
 }

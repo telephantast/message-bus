@@ -10,10 +10,11 @@ use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 
 /**
- * @template TTransaction of object
- * @implements Invoker<object>
+ * @template-contravariant TSupportedMethods of object = never
+ * @template TTransaction of object = object
+ * @implements Invoke<object>
  */
-final class Context implements Sender, Publisher, Invoker
+final class Context implements Invoke
 {
     /**
      * @param callable(): TTransaction $transactionFactory
@@ -32,19 +33,35 @@ final class Context implements Sender, Publisher, Invoker
      */
     public object $transaction { get => ($this->transactionFactory)(); }
 
+    /**
+     * @no-named-arguments
+     */
     public function send(object ...$commands): void
     {
         $this->messageCollector->addCommands(array_map($this->createEnvelope(...), $commands));
     }
 
+    /**
+     * @no-named-arguments
+     */
     public function publish(object ...$events): void
     {
         $this->messageCollector->addEvents(array_map($this->createEnvelope(...), $events));
     }
 
-    public function invoke(object $call): mixed
+    /**
+     * @template TResult
+     * @param TSupportedMethods|Envelope<TSupportedMethods> $method
+     * @return ($method is (Method<TResult>|Envelope<Method<TResult>>) ? TResult : mixed)
+     */
+    public function invoke(object $method): mixed
     {
-        return $this->dispatcher->invoke($this->createEnvelope($call), $this->envelopeFactory, $this);
+        return $this->dispatcher->invoke($this->createEnvelope($method), $this->envelopeFactory, $this);
+    }
+
+    public function __invoke(object $method): mixed
+    {
+        return $this->dispatcher->invoke($this->createEnvelope($method), $this->envelopeFactory, $this);
     }
 
     /**

@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Transport\InMemory;
 
-use Thesis\MessageBus\Transport\CommandReceiver;
-use Thesis\MessageBus\Transport\CommandSender;
-use Thesis\MessageBus\Transport\EventPublisher;
+use Thesis\MessageBus\Transport\ConsumerTransport;
+use Thesis\MessageBus\Transport\PublisherTransport;
 use Thesis\MessageBus\Transport\Run;
 
-final class InMemoryTransport implements CommandSender, CommandReceiver, EventPublisher
+final class InMemoryTransport implements ConsumerTransport, PublisherTransport
 {
     /**
      * @var array<non-empty-string, Queue>
      */
-    private array $commandQueues = [];
+    private array $queues = [];
 
     /**
      * @param positive-int $maxBatchSize
@@ -25,12 +24,12 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
 
     public function send(string $queue, array $commands): void
     {
-        ($this->commandQueues[$queue] ??= new Queue())->push($commands);
+        ($this->queues[$queue] ??= new Queue())->push($commands);
     }
 
-    public function startQueue(string $queue, callable $consumer): Run
+    public function runConsumer(string $queue, callable $consumer): Run
     {
-        return ($this->commandQueues[$queue] ??= new Queue())->startConsumer($consumer, $this->maxBatchSize);
+        return ($this->queues[$queue] ??= new Queue())->run($consumer, $this->maxBatchSize);
     }
 
     /**
@@ -41,12 +40,12 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     /**
      * @var array<non-empty-string, Queue>
      */
-    private array $eventQueues = [];
+    private array $streams = [];
 
-    public function subscribe(string $subscription, array $eventClasses): void
+    public function subscribe(string $stream, array $eventClasses): void
     {
         foreach ($eventClasses as $eventClass) {
-            $this->subscriptions[$eventClass][] = $subscription;
+            $this->subscriptions[$eventClass][] = $stream;
         }
     }
 
@@ -54,13 +53,13 @@ final class InMemoryTransport implements CommandSender, CommandReceiver, EventPu
     {
         foreach ($events as $event) {
             foreach ($this->subscriptions[$event->messageClass] ?? [] as $subscriptionName) {
-                ($this->eventQueues[$subscriptionName] ??= new Queue())->push([$event]);
+                ($this->streams[$subscriptionName] ??= new Queue())->push([$event]);
             }
         }
     }
 
-    public function startSubscription(string $subscription, callable $consumer): Run
+    public function runSubscription(string $stream, callable $subscription): Run
     {
-        return ($this->eventQueues[$subscription] ??= new Queue())->startConsumer($consumer, $this->maxBatchSize);
+        return ($this->streams[$stream] ??= new Queue())->run($subscription, $this->maxBatchSize);
     }
 }
