@@ -39,7 +39,7 @@ final readonly class Result
     /**
      * @no-named-arguments
      */
-    public function commands(object ...$commands): static
+    public function send(object ...$commands): static
     {
         return new self(
             result: $this->result,
@@ -51,7 +51,7 @@ final readonly class Result
     /**
      * @no-named-arguments
      */
-    public function events(object ...$events): static
+    public function publish(object ...$events): static
     {
         return new self(
             result: $this->result,
@@ -89,7 +89,7 @@ function result(mixed $result = null): Result
  * @no-named-arguments
  * @return Result<null>
  */
-function commands(object ...$commands): Result
+function send(object ...$commands): Result
 {
     return new Result(commands: array_map(Envelope::wrap(...), $commands));
 }
@@ -98,7 +98,7 @@ function commands(object ...$commands): Result
  * @no-named-arguments
  * @return Result<null>
  */
-function events(object ...$events): Result
+function publish(object ...$events): Result
 {
     return new Result(events: array_map(Envelope::wrap(...), $events));
 }

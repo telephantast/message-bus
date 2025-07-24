@@ -16,7 +16,7 @@ use Thesis\MessageBus\Persistence\InMemoryStorage;
 use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemory\InMemoryTransport;
 use function Amp\trapSignal;
-use function Thesis\MessageBus\Handler\events;
+use function Thesis\MessageBus\Handler\publish;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -50,7 +50,7 @@ final readonly class App
         $now = $context->invoke(new GetTimestamp());
         $text = \sprintf('Received "%s" at %s.', $ping->text, $now->format('c'));
 
-        return events(new Pong($text));
+        return publish(new Pong($text));
     }
 
     public static function getTimestamp(GetTimestamp $_): \DateTimeImmutable
