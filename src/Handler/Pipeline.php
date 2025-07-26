@@ -16,36 +16,39 @@ use Thesis\MessageBus\Envelope;
 final class Pipeline
 {
     /**
+     * @var non-negative-int
+     */
+    private int $middlewareIndex = 0;
+
+    /**
      * @param callable(Envelope<TMessage>, Context<object, TTransaction>): TResult $handler
-     * @param list<Middleware> $middleware
+     * @param non-empty-list<Middleware> $middleware
      * @param Envelope<TMessage> $envelope
      * @param Context<object, TTransaction> $context
      */
     public function __construct(
         private readonly mixed $handler,
-        private array $middleware,
+        private readonly array $middleware,
         private Envelope $envelope,
         private readonly Context $context,
     ) {}
 
     /**
-     * @todo revert middleware order for speed?
      * @return TResult
      */
     public function continue(?Envelope $envelope = null): mixed
     {
-        if ($this->middleware === []) {
-            return ($this->handler)($envelope ?? $this->envelope, $this->context);
+        $envelope ??= $this->envelope;
+
+        if (!isset($this->middleware[$this->middlewareIndex])) {
+            return ($this->handler)($envelope, $this->context);
         }
 
-        $copy = clone $this;
+        $pipeline = clone $this;
 
-        if ($envelope !== null) {
-            $copy->envelope = $envelope;
-        }
+        ++$pipeline->middlewareIndex;
+        $pipeline->envelope = $envelope;
 
-        $copy->middleware = \array_slice($this->middleware, offset: 1);
-
-        return $this->middleware[0]->handle($this->envelope, $this->context, $copy);
+        return $this->middleware[$this->middlewareIndex]->handle($envelope, $this->context, $pipeline);
     }
 }
