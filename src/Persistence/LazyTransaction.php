@@ -11,12 +11,17 @@ namespace Thesis\MessageBus\Persistence;
 interface LazyTransaction
 {
     /**
+     * This property must not begin transaction.
+     * Use {@see \ReflectionClass::newLazyProxy()}, {@see \ReflectionClass::newLazyGhost()} or decoration.
+     *
      * @var TTransaction
      * @phpstan-ignore generics.variance
      */
     public object $transaction { get; }
 
     /**
+     * This method must begin transaction.
+     *
      * @param non-empty-list<Outbox> $outboxes
      * @throws OutboxAlreadyExists
      * @throws TransactionClosed
@@ -24,11 +29,15 @@ interface LazyTransaction
     public function recordOutboxes(array $outboxes): void;
 
     /**
+     * This method must not begin transaction.
+     *
      * @throws TransactionClosed
      */
     public function commitIfBegun(): void;
 
     /**
+     * This method must not begin transaction.
+     *
      * @throws TransactionClosed
      */
     public function rollbackIfBegun(): void;
