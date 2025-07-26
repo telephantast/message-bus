@@ -17,7 +17,7 @@ use Thesis\MessageBus\Stamps;
 /**
  * @internal
  */
-final readonly class Wrapper
+final class Wrapper
 {
     /**
      * @param list<EnvelopeProcessor> $processors
@@ -29,14 +29,36 @@ final readonly class Wrapper
         private ?Envelope $cause = null,
     ) {}
 
+    public function withMessageIdGenerator(MessageIdGenerator $messageIdGenerator): self
+    {
+        $wrapper = clone $this;
+        $wrapper->messageIdGenerator = $messageIdGenerator;
+
+        return $wrapper;
+    }
+
+    public function withClock(?ClockInterface $clock): self
+    {
+        $wrapper = clone $this;
+        $wrapper->clock = $clock;
+
+        return $wrapper;
+    }
+
+    public function withProcessor(EnvelopeProcessor $processor): self
+    {
+        $wrapper = clone $this;
+        $wrapper->processors[] = $processor;
+
+        return $wrapper;
+    }
+
     public function withCause(?Envelope $cause): self
     {
-        return new self(
-            messageIdGenerator: $this->messageIdGenerator,
-            clock: $this->clock,
-            processors: $this->processors,
-            cause: $cause,
-        );
+        $wrapper = clone $this;
+        $wrapper->cause = $cause;
+
+        return $wrapper;
     }
 
     /**

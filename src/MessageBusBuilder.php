@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Psr\Clock\ClockInterface;
+use Thesis\MessageBus\Envelope\EnvelopeProcessor;
+use Thesis\MessageBus\Envelope\MessageIdGenerator;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Handler\MethodHandlers;
@@ -12,6 +15,7 @@ use Thesis\MessageBus\Internal\Dispatcher;
 use Thesis\MessageBus\Internal\Router;
 use Thesis\MessageBus\Internal\Service;
 use Thesis\MessageBus\Internal\Subscription;
+use Thesis\MessageBus\Internal\SubscriptionFactory;
 use Thesis\MessageBus\Internal\Wrapper;
 use Thesis\MessageBus\MessageMatcher\AnyOf;
 use Thesis\MessageBus\Persistence\Storage;
@@ -21,6 +25,34 @@ use Thesis\MessageBus\Transport\PublisherTransport;
 
 final class MessageBusBuilder
 {
+    private Wrapper $wrapper;
+
+    public function __construct()
+    {
+        $this->wrapper = new Wrapper();
+    }
+
+    public function messageIdGenerator(MessageIdGenerator $messageIdGenerator): self
+    {
+        $this->wrapper = $this->wrapper->withMessageIdGenerator($messageIdGenerator);
+
+        return $this;
+    }
+
+    public function clock(?ClockInterface $clock): self
+    {
+        $this->wrapper = $this->wrapper->withClock($clock);
+
+        return $this;
+    }
+
+    public function envelopeProcessor(EnvelopeProcessor $processor): self
+    {
+        $this->wrapper = $this->wrapper->withProcessor($processor);
+
+        return $this;
+    }
+
     /**
      * @var array<non-empty-string, Consumer<*>>
      */
@@ -63,7 +95,7 @@ final class MessageBusBuilder
     /**
      * @var array<non-empty-string, ProducerTransport>
      */
-    private array $producers = [];
+    private array $producerTransports = [];
 
     /**
      * @param non-empty-string $name
@@ -71,7 +103,7 @@ final class MessageBusBuilder
     public function remoteConsumer(string $name, MessageMatcher $commands, ProducerTransport $transport): self
     {
         $this->commandMatchers[$name] = $commands;
-        $this->producers[$name] = $transport;
+        $this->producerTransports[$name] = $transport;
 
         return $this;
     }
@@ -79,7 +111,7 @@ final class MessageBusBuilder
     /**
      * @var list<PublisherTransport>
      */
-    private array $publishers = [];
+    private array $publisherTransports = [];
 
     /**
      * @var list<MessageMatcher>
@@ -89,15 +121,15 @@ final class MessageBusBuilder
     public function publisher(MessageMatcher $events, PublisherTransport $transport): self
     {
         $this->eventMatchers[] = $events;
-        $this->publishers[] = $transport;
+        $this->publisherTransports[] = $transport;
 
         return $this;
     }
 
     /**
-     * @var array<non-empty-string, array{EventListeners<*>, Storage<*>, string}>
+     * @var array<non-empty-string, SubscriptionFactory<*>>
      */
-    private array $subscriptions = [];
+    private array $subscriptionFactories = [];
 
     /**
      * @template TTransaction of object
@@ -111,11 +143,12 @@ final class MessageBusBuilder
         Storage $storage,
         ?string $persistenceKey = null,
     ): self {
-        $this->subscriptions[$name] = [
-            $listeners,
-            $storage,
-            $persistenceKey ?? spl_object_hash($storage),
-        ];
+        $this->subscriptionFactories[$name] = new SubscriptionFactory(
+            name: $name,
+            listeners: $listeners,
+            storage: $storage,
+            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
+        );
 
         return $this;
     }
@@ -164,55 +197,24 @@ final class MessageBusBuilder
         $eventRouter = new Router($this->eventMatchers);
 
         return new MessageBus(
-            wrapper: new Wrapper(),
+            wrapper: $this->wrapper,
             dispatcher: new Dispatcher(
                 commandRouter: new Router($this->commandMatchers),
-                producers: $this->producers,
+                producerTransports: $this->producerTransports,
                 eventRouter: $eventRouter,
-                publishers: $this->publishers,
+                publisherTransports: $this->publisherTransports,
                 methodRouter: new Router($this->methodMatchers),
                 services: $this->services,
             ),
             consumers: $this->consumers,
-            subscriptions: $this->buildSubscriptions($eventRouter),
+            subscriptions: array_map(
+                fn(SubscriptionFactory $factory): Subscription => $factory->build(
+                    wrapper: $this->wrapper,
+                    eventRouter: $eventRouter,
+                    publisherTransports: $this->publisherTransports,
+                ),
+                $this->subscriptionFactories,
+            ),
         );
-    }
-
-    /**
-     * @param Router<non-negative-int> $eventRouter
-     * @return array<non-empty-string, Subscription<*>>
-     */
-    private function buildSubscriptions(Router $eventRouter): array
-    {
-        $subscriptions = [];
-
-        foreach ($this->subscriptions as $name => [$listeners, $storage, $persistenceKey]) {
-            $publisher = null;
-
-            foreach ($listeners->eventClasses as $eventClass) {
-                $matchedPublisher = $this->publishers[$eventRouter->route($eventClass)];
-
-                if ($publisher !== null && $publisher !== $matchedPublisher) {
-                    throw new \LogicException();
-                }
-
-                $publisher = $matchedPublisher;
-            }
-
-            \assert($publisher !== null);
-
-            $subscriptions[$name] = new Subscription(
-                name: $name,
-                /** @phpstan-ignore argument.type */
-                listeners: $listeners,
-                publisher: $publisher,
-                /** @phpstan-ignore argument.type */
-                storage: $storage,
-                persistenceKey: $persistenceKey,
-                wrapper: new Wrapper(), // todo
-            );
-        }
-
-        return $subscriptions;
     }
 }

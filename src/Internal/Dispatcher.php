@@ -18,17 +18,17 @@ final readonly class Dispatcher implements NestedInvoke
 {
     /**
      * @param Router<non-empty-string> $commandRouter
-     * @param array<non-empty-string, ProducerTransport> $producers
+     * @param array<non-empty-string, ProducerTransport> $producerTransports
      * @param Router<non-negative-int> $eventRouter
-     * @param list<PublisherTransport> $publishers
+     * @param list<PublisherTransport> $publisherTransports
      * @param Router<non-empty-string> $methodRouter
      * @param array<non-empty-string, Service<*>> $services
      */
     public function __construct(
         private Router $commandRouter,
-        private array $producers,
+        private array $producerTransports,
         private Router $eventRouter,
-        private array $publishers,
+        private array $publisherTransports,
         private Router $methodRouter,
         private array $services,
     ) {}
@@ -46,7 +46,7 @@ final readonly class Dispatcher implements NestedInvoke
         }
 
         foreach ($routedEventsByKey as $key => $routedEvents) {
-            $this->publishers[$key]->subscribe($subscription, $routedEvents);
+            $this->publisherTransports[$key]->subscribe($subscription, $routedEvents);
         }
     }
 
@@ -62,7 +62,7 @@ final readonly class Dispatcher implements NestedInvoke
         }
 
         foreach ($routedEventsByKey as $key => $routedEvents) {
-            $this->publishers[$key]->publish($routedEvents);
+            $this->publisherTransports[$key]->publish($routedEvents);
         }
     }
 
@@ -78,7 +78,7 @@ final readonly class Dispatcher implements NestedInvoke
         }
 
         foreach ($routedCommandsByQueue as $queue => $routedCommands) {
-            $this->producers[$queue]->send($queue, $routedCommands);
+            $this->producerTransports[$queue]->send($queue, $routedCommands);
         }
     }
 
