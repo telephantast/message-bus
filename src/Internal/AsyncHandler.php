@@ -48,7 +48,7 @@ final readonly class AsyncHandler
         $outboxesById = array_column($outboxes, null, 'incomingMessageId');
         $outboxesToRecord = [];
 
-        $transaction = $this->storage->beginTransaction($this->endpoint);
+        $transaction = $this->storage->createLazyTransaction($this->endpoint);
 
         try {
             foreach ($envelopes as $envelope) {

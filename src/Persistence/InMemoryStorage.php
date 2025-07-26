@@ -21,7 +21,7 @@ final class InMemoryStorage implements Storage
      */
     private array $outboxes = [];
 
-    public function beginTransaction(Endpoint $endpoint): LazyTransaction
+    public function createLazyTransaction(Endpoint $endpoint): LazyTransaction
     {
         $endpoint = $endpoint->toString();
 

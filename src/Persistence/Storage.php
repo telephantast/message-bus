@@ -23,7 +23,7 @@ interface Storage
     /**
      * @return LazyTransaction<TTransaction>
      */
-    public function beginTransaction(Endpoint $endpoint): LazyTransaction;
+    public function createLazyTransaction(Endpoint $endpoint): LazyTransaction;
 
     /**
      * @param non-empty-list<non-empty-string> $incomingMessageIds

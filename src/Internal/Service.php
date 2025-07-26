@@ -47,7 +47,7 @@ final readonly class Service
             return $this->handlers->handle($method, $parentContext->child($this->endpoint, $method));
         }
 
-        $lazyTransaction = $this->storage->beginTransaction($this->endpoint);
+        $lazyTransaction = $this->storage->createLazyTransaction($this->endpoint);
 
         try {
             $context = new Context(
