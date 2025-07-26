@@ -61,7 +61,7 @@ final class MessageBusBuilder
     /**
      * @template TTransaction of object
      * @param non-empty-string $name
-     * @param CommandHandlers<TTransaction> $handlers
+     * @param CommandHandlers<TTransaction, true> $handlers
      * @param Storage<TTransaction> $storage
      */
     public function consumer(
@@ -71,9 +71,6 @@ final class MessageBusBuilder
         ConsumerTransport $transport,
         ?string $persistenceKey = null,
     ): self {
-        // todo resolve via types
-        \assert($handlers->commandClasses !== []);
-
         $this->consumers[$name] = new Consumer(
             name: $name,
             handlers: $handlers,
@@ -82,7 +79,8 @@ final class MessageBusBuilder
             persistenceKey: $persistenceKey ?? spl_object_hash($storage),
             wrapper: new Wrapper(), // todo
         );
-        $this->remoteConsumer($name, new AnyOf($handlers->commandClasses), $transport);
+        $this->commandMatchers[$name] = new AnyOf($handlers->commandClasses);
+        $this->producerTransports[$name] = $transport;
 
         return $this;
     }

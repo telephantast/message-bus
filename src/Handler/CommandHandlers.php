@@ -11,11 +11,12 @@ use Thesis\MessageBus\Stamps;
 
 /**
  * @template TTransaction of object = never
+ * @template NonEmpty of bool = false
  */
 final class CommandHandlers
 {
     /**
-     * @var list<class-string>
+     * @var (NonEmpty is true ? non-empty-list<class-string> : list<class-string>)
      */
     public array $commandClasses { get => array_keys($this->handlers); }
 
@@ -29,7 +30,7 @@ final class CommandHandlers
      * @template THandlerTransaction of object = never
      * @param non-empty-list<class-string<TCommand>> $messageClasses
      * @param callable(Envelope<TCommand>, Context<object, THandlerTransaction>): void $handler
-     * @return self<TTransaction|THandlerTransaction>
+     * @return self<TTransaction|THandlerTransaction, true>
      */
     public function with(array $messageClasses, mixed $handler): self
     {
@@ -52,7 +53,7 @@ final class CommandHandlers
      * @template THandlerTransaction of object = never
      * @param callable(TCommand, Context<object, THandlerTransaction>, Stamps): (void|null|Result<null>) $handler
      * @param list<Middleware> $middleware
-     * @return self<TTransaction|THandlerTransaction>
+     * @return self<TTransaction|THandlerTransaction, true>
      */
     public function withFeatured(callable $handler, array $middleware = []): self
     {

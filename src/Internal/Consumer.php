@@ -20,7 +20,7 @@ final readonly class Consumer
 
     /**
      * @param non-empty-string $name
-     * @param CommandHandlers<TTransaction> $handlers
+     * @param CommandHandlers<TTransaction, true> $handlers
      * @param Storage<TTransaction> $storage
      */
     public function __construct(
