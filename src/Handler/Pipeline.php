@@ -29,17 +29,21 @@ final class Pipeline
     ) {}
 
     /**
-     * @todo allow to override envelope
      * @todo revert middleware order for speed?
      * @return TResult
      */
-    public function continue(): mixed
+    public function continue(?Envelope $envelope = null): mixed
     {
         if ($this->middleware === []) {
-            return ($this->handler)($this->envelope, $this->context);
+            return ($this->handler)($envelope ?? $this->envelope, $this->context);
         }
 
         $copy = clone $this;
+
+        if ($envelope !== null) {
+            $copy->envelope = $envelope;
+        }
+
         $copy->middleware = \array_slice($this->middleware, offset: 1);
 
         return $this->middleware[0]->handle($this->envelope, $this->context, $copy);
