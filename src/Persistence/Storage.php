@@ -21,6 +21,8 @@ interface Storage
     public function setup(): void;
 
     /**
+     * This method must not begin transaction.
+     *
      * @return LazyTransaction<TTransaction>
      */
     public function createLazyTransaction(Endpoint $endpoint): LazyTransaction;
