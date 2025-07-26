@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\MessageMatcher;
 
 /**
+ * @internal
  * @template TKey of int|string
  */
 final class Router

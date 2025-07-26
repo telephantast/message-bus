@@ -11,6 +11,9 @@ use Thesis\MessageBus\Handler\Pipeline;
 use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\Stamps;
 
+/**
+ * @internal
+ */
 final readonly class FeaturedHandlerFactory
 {
     /**

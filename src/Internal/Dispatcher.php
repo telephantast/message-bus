@@ -11,6 +11,7 @@ use Thesis\MessageBus\Transport\ProducerTransport;
 use Thesis\MessageBus\Transport\PublisherTransport;
 
 /**
+ * @internal
  * @implements NestedInvoke<object>
  */
 final readonly class Dispatcher implements NestedInvoke

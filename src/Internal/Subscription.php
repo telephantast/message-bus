@@ -11,6 +11,7 @@ use Thesis\MessageBus\Transport\PublisherTransport;
 use Thesis\MessageBus\Transport\Run;
 
 /**
+ * @internal
  * @template TTransaction of object
  */
 final readonly class Subscription

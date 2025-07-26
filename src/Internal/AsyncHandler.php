@@ -11,6 +11,7 @@ use Thesis\MessageBus\Persistence\Outbox;
 use Thesis\MessageBus\Persistence\Storage;
 
 /**
+ * @internal
  * @template TTransaction of object
  */
 final readonly class AsyncHandler
