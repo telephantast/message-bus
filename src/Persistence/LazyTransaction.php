@@ -11,8 +11,7 @@ namespace Thesis\MessageBus\Persistence;
 interface LazyTransaction
 {
     /**
-     * This property must not begin transaction.
-     * Use {@see \ReflectionClass::newLazyProxy()}, {@see \ReflectionClass::newLazyGhost()} or decoration.
+     * This property must begin transaction.
      *
      * @var TTransaction
      * @phpstan-ignore generics.variance

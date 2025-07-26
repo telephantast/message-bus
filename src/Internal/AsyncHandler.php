@@ -48,7 +48,10 @@ final readonly class AsyncHandler
         $outboxesById = array_column($outboxes, null, 'incomingMessageId');
         $outboxesToRecord = [];
 
-        $transaction = $this->storage->createLazyTransaction($this->endpoint);
+        $lazyTransaction = $this->storage->createLazyTransaction($this->endpoint);
+
+        // intentionally trigger transaction
+        $transaction = $lazyTransaction->transaction;
 
         try {
             foreach ($envelopes as $envelope) {
@@ -58,7 +61,7 @@ final readonly class AsyncHandler
 
                 $context = new Context(
                     endpoint: $this->endpoint,
-                    transaction: $transaction->transaction,
+                    transactionFactory: static fn(): object => $transaction,
                     persistenceKey: $this->persistenceKey,
                     wrapper: $this->wrapper,
                     childInvoke: $this->dispatcher,
@@ -74,11 +77,11 @@ final readonly class AsyncHandler
             }
 
             \assert($outboxesToRecord !== []);
-            $transaction->recordOutboxes($outboxesToRecord);
+            $lazyTransaction->recordOutboxes($outboxesToRecord);
 
-            $transaction->commitIfBegun();
+            $lazyTransaction->commitIfBegun();
         } catch (\Throwable $exception) {
-            $transaction->rollbackIfBegun();
+            $lazyTransaction->rollbackIfBegun();
 
             throw $exception;
         }

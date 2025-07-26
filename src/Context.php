@@ -31,7 +31,7 @@ final class Context implements Invoke
     ): self {
         return new self(
             endpoint: $endpoint ?? Endpoint::service('context.stub'),
-            transaction: $transaction,
+            transactionFactory: static fn(): object => $transaction,
             persistenceKey: $persistenceKey,
             wrapper: $wrapper,
             childInvoke: $invoke,
@@ -39,16 +39,28 @@ final class Context implements Invoke
     }
 
     /**
-     * @param TTransaction $transaction
+     * @param callable(): TTransaction $transactionFactory
      * @param NestedInvoke<TSupportedMethods> $childInvoke
      */
     public function __construct(
         public readonly Endpoint $endpoint,
-        private readonly object $transaction,
+        private readonly mixed $transactionFactory,
         public readonly string $persistenceKey,
         private readonly Wrapper $wrapper,
         private readonly NestedInvoke $childInvoke,
     ) {}
+
+    /**
+     * @var ?TTransaction
+     */
+    private ?object $innerTransaction = null;
+
+    /**
+     * @var TTransaction
+     */
+    public object $transaction {
+        get => $this->innerTransaction ??= ($this->transactionFactory)();
+    }
 
     /**
      * @var list<Envelope>
@@ -114,13 +126,14 @@ final class Context implements Invoke
     {
         $child = new self(
             endpoint: $endpoint,
-            transaction: $this->transaction,
+            transactionFactory: $this->transactionFactory,
             persistenceKey: $this->persistenceKey,
             wrapper: $this->wrapper->withCause($method),
             childInvoke: $this->childInvoke,
         );
-        $child->commands = & $this->commands;
-        $child->events = & $this->events;
+        $child->innerTransaction = &$this->innerTransaction;
+        $child->commands = &$this->commands;
+        $child->events = &$this->events;
 
         return $child;
     }

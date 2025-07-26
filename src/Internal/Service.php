@@ -52,7 +52,7 @@ final readonly class Service
         try {
             $context = new Context(
                 endpoint: $this->endpoint,
-                transaction: $lazyTransaction->transaction,
+                transactionFactory: static fn(): object => $lazyTransaction->transaction,
                 persistenceKey: $this->persistenceKey,
                 wrapper: $this->wrapper->withCause($method),
                 childInvoke: $dispatcher,
@@ -67,7 +67,7 @@ final readonly class Service
             );
 
             if (!$outbox->dispatched) {
-                // send service command
+                // todo: send service command
 
                 $lazyTransaction->recordOutboxes([$outbox]);
             }
