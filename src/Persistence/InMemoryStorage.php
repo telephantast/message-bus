@@ -12,12 +12,14 @@ use Thesis\MessageBus\Endpoint;
  */
 final class InMemoryStorage implements Storage
 {
+    public array $transactionClasses { get => [\stdClass::class]; }
+
+    public function setup(): void {}
+
     /**
      * @var array<non-empty-string, array<non-empty-string, Outbox>>
      */
     private array $outboxes = [];
-
-    public function setup(): void {}
 
     public function beginTransaction(Endpoint $endpoint): LazyTransaction
     {
