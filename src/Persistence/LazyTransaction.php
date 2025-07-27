@@ -11,7 +11,7 @@ namespace Thesis\MessageBus\Persistence;
 interface LazyTransaction
 {
     /**
-     * This property must begin transaction.
+     * This property might begin transaction.
      *
      * @var TTransaction
      * @phpstan-ignore generics.variance

@@ -23,7 +23,7 @@ final readonly class SubscriptionFactory
         private string $name,
         private EventListeners $listeners,
         private Storage $storage,
-        private string $persistenceKey,
+        private string $transactionKey,
     ) {}
 
     /**
@@ -52,7 +52,7 @@ final readonly class SubscriptionFactory
             listeners: $this->listeners,
             publisher: $publisher,
             storage: $this->storage,
-            persistenceKey: $this->persistenceKey,
+            transactionKey: $this->transactionKey,
             wrapper: $wrapper,
         );
     }

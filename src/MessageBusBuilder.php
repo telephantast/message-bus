@@ -69,14 +69,14 @@ final class MessageBusBuilder
         CommandHandlers $handlers,
         Storage $storage,
         ConsumerTransport $transport,
-        ?string $persistenceKey = null,
+        ?string $transactionKey = null,
     ): self {
         $this->consumers[$name] = new Consumer(
             name: $name,
             handlers: $handlers,
             receiver: $transport,
             storage: $storage,
-            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
+            transactionKey: $transactionKey ?? spl_object_hash($storage),
             wrapper: new Wrapper(), // todo
         );
         $this->commandMatchers[$name] = new AnyOf($handlers->commandClasses);
@@ -139,13 +139,13 @@ final class MessageBusBuilder
         string $name,
         EventListeners $listeners,
         Storage $storage,
-        ?string $persistenceKey = null,
+        ?string $transactionKey = null,
     ): self {
         $this->subscriptionFactories[$name] = new SubscriptionFactory(
             name: $name,
             listeners: $listeners,
             storage: $storage,
-            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
+            transactionKey: $transactionKey ?? spl_object_hash($storage),
         );
 
         return $this;
@@ -166,14 +166,14 @@ final class MessageBusBuilder
         string $name,
         MethodHandlers $handlers,
         Storage $storage,
-        ?string $persistenceKey = null,
+        ?string $transactionKey = null,
     ): self {
         $this->services[$name] = new Service(
             name: $name,
             handlers: $handlers,
             wrapper: new Wrapper(),
             storage: $storage, // todo
-            persistenceKey: $persistenceKey ?? spl_object_hash($storage),
+            transactionKey: $transactionKey ?? spl_object_hash($storage),
         );
 
         if ($handlers->methodClasses !== []) {

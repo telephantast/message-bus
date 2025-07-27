@@ -28,7 +28,7 @@ final readonly class Consumer
         private CommandHandlers $handlers,
         private ConsumerTransport $receiver,
         private Storage $storage,
-        private string $persistenceKey,
+        private string $transactionKey,
         private Wrapper $wrapper,
     ) {
         $this->endpoint = Endpoint::consumer($name);
@@ -47,7 +47,7 @@ final readonly class Consumer
                 endpoint: $this->endpoint,
                 handler: $this->handlers,
                 storage: $this->storage,
-                persistenceKey: $this->persistenceKey,
+                transactionKey: $this->transactionKey,
                 wrapper: $this->wrapper,
                 dispatcher: $dispatcher,
             ),

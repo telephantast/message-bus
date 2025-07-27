@@ -28,7 +28,7 @@ final readonly class Subscription
         private EventListeners $listeners,
         private PublisherTransport $publisher,
         private Storage $storage,
-        private string $persistenceKey,
+        private string $transactionKey,
         private Wrapper $wrapper,
     ) {
         $this->endpoint = Endpoint::subscription($name);
@@ -51,7 +51,7 @@ final readonly class Subscription
                 endpoint: $this->endpoint,
                 handler: $this->listeners,
                 storage: $this->storage,
-                persistenceKey: $this->persistenceKey,
+                transactionKey: $this->transactionKey,
                 wrapper: $this->wrapper,
                 dispatcher: $dispatcher,
             ),

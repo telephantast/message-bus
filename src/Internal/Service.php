@@ -30,7 +30,7 @@ final readonly class Service
         private MethodHandlers $handlers,
         private Wrapper $wrapper,
         private Storage $storage,
-        private string $persistenceKey,
+        private string $transactionKey,
     ) {
         $this->endpoint = Endpoint::service($name);
     }
@@ -42,7 +42,7 @@ final readonly class Service
      */
     public function invoke(Dispatcher $dispatcher, Envelope $method, ?Context $parentContext): mixed
     {
-        if ($parentContext !== null && $parentContext->persistenceKey === $this->persistenceKey) {
+        if ($parentContext !== null && $parentContext->transactionKey === $this->transactionKey) {
             /** @var Context<object, TTransaction> $parentContext */
             return $this->handlers->handle($method, $parentContext->child($this->endpoint, $method));
         }
@@ -53,7 +53,7 @@ final readonly class Service
             $context = new Context(
                 endpoint: $this->endpoint,
                 transactionFactory: static fn(): object => $lazyTransaction->transaction,
-                persistenceKey: $this->persistenceKey,
+                transactionKey: $this->transactionKey,
                 wrapper: $this->wrapper->withCause($method),
                 childInvoke: $dispatcher,
             );

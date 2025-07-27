@@ -25,14 +25,14 @@ final class Context implements Invoke
     public static function stub(
         NestedInvoke $invoke = new MethodHandlers(),
         object $transaction = new \stdClass(),
-        string $persistenceKey = 'context.stub',
+        string $transactionKey = 'context.stub',
         Wrapper $wrapper = new Wrapper(),
         ?Endpoint $endpoint = null,
     ): self {
         return new self(
             endpoint: $endpoint ?? Endpoint::service('context.stub'),
             transactionFactory: static fn(): object => $transaction,
-            persistenceKey: $persistenceKey,
+            transactionKey: $transactionKey,
             wrapper: $wrapper,
             childInvoke: $invoke,
         );
@@ -45,7 +45,7 @@ final class Context implements Invoke
     public function __construct(
         public readonly Endpoint $endpoint,
         private readonly mixed $transactionFactory,
-        public readonly string $persistenceKey,
+        public readonly string $transactionKey,
         private readonly Wrapper $wrapper,
         private readonly NestedInvoke $childInvoke,
     ) {}
@@ -127,7 +127,7 @@ final class Context implements Invoke
         $child = new self(
             endpoint: $endpoint,
             transactionFactory: $this->transactionFactory,
-            persistenceKey: $this->persistenceKey,
+            transactionKey: $this->transactionKey,
             wrapper: $this->wrapper->withCause($method),
             childInvoke: $this->childInvoke,
         );

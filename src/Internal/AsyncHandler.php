@@ -24,7 +24,7 @@ final readonly class AsyncHandler
         private Endpoint $endpoint,
         private mixed $handler,
         private Storage $storage,
-        private string $persistenceKey,
+        private string $transactionKey,
         private Wrapper $wrapper,
         private Dispatcher $dispatcher,
     ) {}
@@ -62,7 +62,7 @@ final readonly class AsyncHandler
                 $context = new Context(
                     endpoint: $this->endpoint,
                     transactionFactory: static fn(): object => $transaction,
-                    persistenceKey: $this->persistenceKey,
+                    transactionKey: $this->transactionKey,
                     wrapper: $this->wrapper,
                     childInvoke: $this->dispatcher,
                 );
