@@ -25,7 +25,8 @@
         "amphp/sql": "^2.0.1",
         "bamarni/composer-bin-plugin": "^1.8.2",
         "phpunit/phpunit": "^12.2.7",
-        "symfony/var-dumper": "^6.4.15 || ^7.3.1"
+        "symfony/var-dumper": "^6.4.15 || ^7.3.1",
+        "thesis/message-bus-persistence-postgres": "^0.1@dev"
     },
     "autoload": {
         "psr-4": {

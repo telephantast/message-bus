@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Examples\Combo;
 
+use Amp\Postgres\PostgresConfig;
+use Amp\Postgres\PostgresConnectionPool;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Handler\CommandHandlers;
 use Thesis\MessageBus\Handler\EventListeners;
@@ -12,7 +14,7 @@ use Thesis\MessageBus\Handler\Result;
 use Thesis\MessageBus\MessageBusBuilder;
 use Thesis\MessageBus\MessageMatcher\Namespaced;
 use Thesis\MessageBus\Method;
-use Thesis\MessageBus\Persistence\InMemoryStorage;
+use Thesis\MessageBus\Persistence\Postgres\PostgresStorage;
 use Thesis\MessageBus\Stamps;
 use Thesis\MessageBus\Transport\InMemory\InMemoryTransport;
 use function Amp\trapSignal;
@@ -67,12 +69,11 @@ final readonly class App
     }
 }
 
-/*$storage = new PostgresStorage(
+$storage = new PostgresStorage(
     new PostgresConnectionPool(
         PostgresConfig::fromString('host=localhost user=postgres password=postgres db=postgres'),
     ),
-);*/
-$storage = new InMemoryStorage();
+);
 
 $transport = new InMemoryTransport();
 
