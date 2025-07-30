@@ -7,8 +7,8 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Transport\PublisherTransport;
 use Thesis\MessageBus\Transport\Run;
+use Thesis\MessageBus\Transport\SubscriberTransport;
 
 /**
  * @internal
@@ -26,7 +26,7 @@ final readonly class Subscription
     public function __construct(
         string $name,
         private EventListeners $listeners,
-        private PublisherTransport $publisher,
+        private SubscriberTransport $transport,
         private Storage $storage,
         private string $transactionKey,
         private Wrapper $wrapper,
@@ -39,13 +39,13 @@ final readonly class Subscription
         $this->storage->setup();
 
         if ($this->listeners->eventClasses !== []) {
-            $this->publisher->subscribe($this->endpoint->name, $this->listeners->eventClasses);
+            $this->transport->subscribe($this->endpoint->name, $this->listeners->eventClasses);
         }
     }
 
     public function run(Dispatcher $dispatcher): Run
     {
-        return $this->publisher->runSubscription(
+        return $this->transport->runSubscription(
             stream: $this->endpoint->name,
             subscription: new AsyncHandler(
                 endpoint: $this->endpoint,

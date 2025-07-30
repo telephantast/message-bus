@@ -6,7 +6,7 @@ namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Persistence\Storage;
-use Thesis\MessageBus\Transport\PublisherTransport;
+use Thesis\MessageBus\Transport\SubscriberTransport;
 
 /**
  * @internal
@@ -28,29 +28,29 @@ final readonly class SubscriptionFactory
 
     /**
      * @param Router<non-negative-int> $eventRouter
-     * @param list<PublisherTransport> $publisherTransports
+     * @param list<SubscriberTransport> $transports
      * @return Subscription<TTransaction>
      */
-    public function build(Wrapper $wrapper, Router $eventRouter, array $publisherTransports): Subscription
+    public function build(Wrapper $wrapper, Router $eventRouter, array $transports): Subscription
     {
-        $publisher = null;
+        $transport = null;
 
         foreach ($this->listeners->eventClasses as $eventClass) {
-            $matchedPublisher = $publisherTransports[$eventRouter->route($eventClass)];
+            $matchedTransport = $transports[$eventRouter->route($eventClass)];
 
-            if ($publisher !== null && $publisher !== $matchedPublisher) {
+            if ($transport !== null && $transport !== $matchedTransport) {
                 throw new \LogicException();
             }
 
-            $publisher = $matchedPublisher;
+            $transport = $matchedTransport;
         }
 
-        \assert($publisher !== null);
+        \assert($transport !== null);
 
         return new Subscription(
             name: $this->name,
             listeners: $this->listeners,
-            publisher: $publisher,
+            transport: $transport,
             storage: $this->storage,
             transactionKey: $this->transactionKey,
             wrapper: $wrapper,

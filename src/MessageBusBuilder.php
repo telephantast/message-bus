@@ -22,6 +22,7 @@ use Thesis\MessageBus\Persistence\Storage;
 use Thesis\MessageBus\Transport\ConsumerTransport;
 use Thesis\MessageBus\Transport\ProducerTransport;
 use Thesis\MessageBus\Transport\PublisherTransport;
+use Thesis\MessageBus\Transport\SubscriberTransport;
 
 final class MessageBusBuilder
 {
@@ -107,19 +108,19 @@ final class MessageBusBuilder
     }
 
     /**
-     * @var list<PublisherTransport>
+     * @var list<SubscriberTransport>
      */
-    private array $publisherTransports = [];
+    private array $subscriberTransports = [];
 
     /**
      * @var list<MessageMatcher>
      */
     private array $eventMatchers = [];
 
-    public function publisher(MessageMatcher $events, PublisherTransport $transport): self
+    public function publisher(MessageMatcher $events, SubscriberTransport $transport): self
     {
         $this->eventMatchers[] = $events;
-        $this->publisherTransports[] = $transport;
+        $this->subscriberTransports[] = $transport;
 
         return $this;
     }
@@ -200,7 +201,10 @@ final class MessageBusBuilder
                 commandRouter: new Router($this->commandMatchers),
                 producerTransports: $this->producerTransports,
                 eventRouter: $eventRouter,
-                publisherTransports: $this->publisherTransports,
+                publisherTransports: array_filter(
+                    $this->subscriberTransports,
+                    static fn(SubscriberTransport $transport): bool => $transport instanceof PublisherTransport,
+                ),
                 methodRouter: new Router($this->methodMatchers),
                 services: $this->services,
             ),
@@ -209,7 +213,7 @@ final class MessageBusBuilder
                 fn(SubscriptionFactory $factory): Subscription => $factory->build(
                     wrapper: $this->wrapper,
                     eventRouter: $eventRouter,
-                    publisherTransports: $this->publisherTransports,
+                    transports: $this->subscriberTransports,
                 ),
                 $this->subscriptionFactories,
             ),

@@ -20,7 +20,7 @@ final readonly class Dispatcher implements NestedInvoke
      * @param Router<non-empty-string> $commandRouter
      * @param array<non-empty-string, ProducerTransport> $producerTransports
      * @param Router<non-negative-int> $eventRouter
-     * @param list<PublisherTransport> $publisherTransports
+     * @param array<non-negative-int, PublisherTransport> $publisherTransports
      * @param Router<non-empty-string> $methodRouter
      * @param array<non-empty-string, Service<*>> $services
      */
@@ -32,23 +32,6 @@ final readonly class Dispatcher implements NestedInvoke
         private Router $methodRouter,
         private array $services,
     ) {}
-
-    /**
-     * @param non-empty-string $subscription
-     * @param non-empty-list<class-string> $eventClasses
-     */
-    public function subscribe(string $subscription, array $eventClasses): void
-    {
-        $routedEventsByKey = [];
-
-        foreach ($eventClasses as $eventClass) {
-            $routedEventsByKey[$this->eventRouter->route($eventClass)][] = $eventClass;
-        }
-
-        foreach ($routedEventsByKey as $key => $routedEvents) {
-            $this->publisherTransports[$key]->subscribe($subscription, $routedEvents);
-        }
-    }
 
     /**
      * @param non-empty-list<Envelope> $events
