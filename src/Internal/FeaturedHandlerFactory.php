@@ -29,7 +29,7 @@ final readonly class FeaturedHandlerFactory
 
         $messageParameter = $reflection->getParameters()[0] ?? throw new \LogicException();
         /** @var list<class-string<TMessage>> */
-        $messageClasses = self::parseType($messageParameter->getType());
+        $messageClasses = self::parseType($reflection, $messageParameter->getType());
 
         if ($messageClasses === []) {
             throw new \LogicException('Cannot infer message classes');
@@ -58,10 +58,28 @@ final readonly class FeaturedHandlerFactory
     /**
      * @return list<class-string>
      */
-    private static function parseType(?\ReflectionType $type): array
+    private static function parseType(\ReflectionFunction $function, ?\ReflectionType $type): array
     {
         if ($type instanceof \ReflectionNamedType) {
             $name = $type->getName();
+
+            if ($name === 'self') {
+                return [$function->getClosureScopeClass()->name ?? throw new \LogicException()];
+            }
+
+            if ($name === 'parent') {
+                $parent = $function->getClosureScopeClass()?->getParentClass();
+
+                if (!$parent instanceof \ReflectionClass) {
+                    throw new \LogicException();
+                }
+
+                return [$parent->name];
+            }
+
+            if ($name === 'static') {
+                return [$function->getClosureCalledClass()->name ?? throw new \LogicException()];
+            }
 
             if (class_exists($name)) {
                 return [$name];
@@ -71,7 +89,10 @@ final readonly class FeaturedHandlerFactory
         }
 
         if ($type instanceof \ReflectionUnionType) {
-            return array_merge(...array_map(self::parseType(...), $type->getTypes()));
+            return array_merge(...array_map(
+                static fn(\ReflectionType $type): array => self::parseType($function, $type),
+                $type->getTypes(),
+            ));
         }
 
         return [];
