@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\NestedInvoke;
+use Thesis\MessageBus\Transport\ClientTransport;
 use Thesis\MessageBus\Transport\ProducerTransport;
 use Thesis\MessageBus\Transport\PublisherTransport;
 
@@ -22,7 +23,7 @@ final readonly class Dispatcher implements NestedInvoke
      * @param Router<non-negative-int> $eventRouter
      * @param array<non-negative-int, PublisherTransport> $publisherTransports
      * @param Router<non-empty-string> $methodRouter
-     * @param array<non-empty-string, Service<*>> $services
+     * @param array<non-empty-string, Service<*>|ClientTransport> $services
      */
     public function __construct(
         private Router $commandRouter,
@@ -67,6 +68,13 @@ final readonly class Dispatcher implements NestedInvoke
 
     public function nestedInvoke(Envelope $method, ?Context $parentContext = null): mixed
     {
-        return $this->services[$this->methodRouter->route($method->messageClass)]->invoke($this, $method, $parentContext);
+        $serviceName = $this->methodRouter->route($method->messageClass);
+        $service = $this->services[$serviceName];
+
+        if ($service instanceof Service) {
+            return $service->invoke($this, $method, $parentContext);
+        }
+
+        return $service->invoke($serviceName, $method);
     }
 }

@@ -19,6 +19,7 @@ use Thesis\MessageBus\Internal\SubscriptionFactory;
 use Thesis\MessageBus\Internal\Wrapper;
 use Thesis\MessageBus\MessageMatcher\AnyOf;
 use Thesis\MessageBus\Persistence\Storage;
+use Thesis\MessageBus\Transport\ClientTransport;
 use Thesis\MessageBus\Transport\ConsumerTransport;
 use Thesis\MessageBus\Transport\ProducerTransport;
 use Thesis\MessageBus\Transport\PublisherTransport;
@@ -153,7 +154,12 @@ final class MessageBusBuilder
     }
 
     /**
-     * @var array<non-empty-string, Service<*>>
+     * @var array<non-empty-string, MessageMatcher>
+     */
+    private array $methodMatchers = [];
+
+    /**
+     * @var array<non-empty-string, Service<*>|ClientTransport>
      */
     private array $services = [];
 
@@ -187,9 +193,15 @@ final class MessageBusBuilder
     }
 
     /**
-     * @var array<non-empty-string, MessageMatcher>
+     * @param non-empty-string $name
      */
-    private array $methodMatchers = [];
+    public function remoteService(string $name, MessageMatcher $methods, ClientTransport $transport): self
+    {
+        $this->services[$name] = $transport;
+        $this->methodMatchers[$name] = $methods;
+
+        return $this;
+    }
 
     public function build(): MessageBus
     {
