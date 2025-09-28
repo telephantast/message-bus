@@ -47,7 +47,7 @@ final class Envelope
 
     /**
      * @param TMessage $message
-     * @param Stamps|list<Stamp> $stamps
+     * @param Stamps|list<object> $stamps
      */
     public function __construct(
         public readonly object $message,

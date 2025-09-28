@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Envelope;
 
-use Thesis\MessageBus\Stamp;
-
 /**
  * @api
  */
-final readonly class CauseId implements Stamp
+final readonly class CauseId
 {
     /**
      * @param ?non-empty-string $causeId

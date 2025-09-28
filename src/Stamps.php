@@ -8,12 +8,12 @@ namespace Thesis\MessageBus;
 final class Stamps
 {
     /**
-     * @var array<non-empty-string, Stamp|\DateTimeImmutable>
+     * @var array<class-string, object>
      */
     private array $stamps = [];
 
     /**
-     * @param list<Stamp|\DateTimeImmutable> $stamps
+     * @param list<object> $stamps
      */
     public function __construct(array $stamps = [])
     {
@@ -23,12 +23,12 @@ final class Stamps
     }
 
     /**
-     * @var list<Stamp|\DateTimeImmutable>
+     * @var list<object>
      */
     public array $list { get => array_values($this->stamps); }
 
     /**
-     * @param class-string<Stamp|\DateTimeImmutable> $stamp
+     * @param class-string $stamp
      */
     public function has(string $stamp): bool
     {
@@ -36,11 +36,11 @@ final class Stamps
     }
 
     /**
-     * @template TStamp of Stamp|\DateTimeImmutable
+     * @template TStamp of object
      * @param class-string<TStamp> $stamp
      * @return ?TStamp
      */
-    public function find(string $stamp): null|Stamp|\DateTimeImmutable
+    public function find(string $stamp): ?object
     {
         /** @var ?TStamp */
         return $this->stamps[$stamp] ?? null;
@@ -49,7 +49,7 @@ final class Stamps
     /**
      * @no-named-arguments
      */
-    public function with(Stamp|\DateTimeImmutable ...$stamps): static
+    public function with(object ...$stamps): static
     {
         if ($stamps === []) {
             return $this;
@@ -66,7 +66,7 @@ final class Stamps
 
     /**
      * @no-named-arguments
-     * @param class-string<Stamp|\DateTimeImmutable> ...$stampClasses
+     * @param class-string ...$stampClasses
      */
     public function without(string ...$stampClasses): static
     {
