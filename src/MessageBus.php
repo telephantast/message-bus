@@ -2,97 +2,70 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus;
+namespace Thesis;
 
-use Thesis\MessageBus\Internal\Consumer;
-use Thesis\MessageBus\Internal\Dispatcher;
-use Thesis\MessageBus\Internal\Subscription;
-use Thesis\MessageBus\Internal\Wrapper;
-use Thesis\MessageBus\Transport\Run;
-use Thesis\MessageBus\Transport\Runs;
+use Amp\Cancellation;
+use Amp\NullCancellation;
+use Thesis\MessageBus\Dispatch;
+use Thesis\MessageBus\Dispatcher;
+use Thesis\MessageBus\Endpoint;
 
 /**
- * @template-contravariant TSupportedMethods of object = object
- * @implements Invoke<TSupportedMethods>
+ * @api
  */
-final readonly class MessageBus implements Invoke
+final readonly class MessageBus
 {
     /**
-     * @param array<non-empty-string, Consumer<*>> $consumers
-     * @param array<non-empty-string, Subscription<*>> $subscriptions
+     * @var array<non-empty-string, Endpoint<*>>
+     */
+    private array $endpoints;
+
+    /**
+     * @param list<Endpoint<*>> $endpoints
      */
     public function __construct(
-        private Wrapper $wrapper,
         private Dispatcher $dispatcher,
-        private array $consumers,
-        private array $subscriptions,
-    ) {}
+        array $endpoints = [],
+    ) {
+        $this->endpoints = array_column($endpoints, null, 'name');
+    }
 
-    public function setup(): void
+    /**
+     * @param non-empty-string $source
+     */
+    public function dispatch(Dispatch $dispatch, string $source = 'message_bus'): void
     {
-        foreach ($this->consumers as $consumer) {
-            $consumer->setup();
-        }
+        $envelopes = $dispatch->seal(source: $source);
 
-        foreach ($this->subscriptions as $subscription) {
-            $subscription->setup();
+        if ($envelopes !== []) {
+            $this->dispatcher->dispatch($envelopes);
         }
     }
 
     /**
-     * @no-named-arguments
+     * @param non-empty-string|non-empty-list<non-empty-string> $endpoints
+     * @return \Closure(): void
      */
-    public function send(object ...$commands): void
+    public function consume(string|array $endpoints, Cancellation $cancellation = new NullCancellation()): \Closure
     {
-        if ($commands === []) {
-            return;
-        }
+        $cancels = array_map(
+            fn(string $name) => $this->endpoint($name)->run($cancellation),
+            (array) $endpoints,
+        );
 
-        $this->dispatcher->send(array_map($this->wrapper->wrap(...), $commands));
+        return static function () use ($cancels): void {
+            foreach ($cancels as $cancel) {
+                $cancel();
+            }
+        };
     }
 
     /**
-     * @no-named-arguments
+     * @param non-empty-string $name
+     * @return Endpoint<*>
      */
-    public function publish(object ...$events): void
+    private function endpoint(string $name): Endpoint
     {
-        if ($events === []) {
-            return;
-        }
-
-        $this->dispatcher->publish(array_map($this->wrapper->wrap(...), $events));
-    }
-
-    /**
-     * @template TResult
-     * @param TSupportedMethods|Envelope<TSupportedMethods> $method
-     * @return ($method is (Method<TResult>|Envelope<Method<TResult>>) ? TResult : mixed)
-     */
-    public function invoke(object $method): mixed
-    {
-        return $this->dispatcher->nestedInvoke($this->wrapper->wrap($method));
-    }
-
-    public function __invoke(object $method): mixed
-    {
-        return $this->dispatcher->nestedInvoke($this->wrapper->wrap($method));
-    }
-
-    /**
-     * @todo filter by endpoints
-     */
-    public function run(): Run
-    {
-        $runs = [];
-
-        foreach ($this->consumers as $consumer) {
-            $runs[] = $consumer->run($this->dispatcher);
-        }
-
-        foreach ($this->subscriptions as $subscription) {
-            $runs[] = $subscription->run($this->dispatcher);
-        }
-
-        return new Runs($runs);
+        return $this->endpoints[$name] ?? throw new \LogicException("No endpoint `{$name}`");
     }
 }
