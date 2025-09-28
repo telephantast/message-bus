@@ -7,7 +7,7 @@ namespace Thesis\MessageBus\Handler;
 use Thesis\MessageBus\Envelope;
 
 /**
- * @template-covariant TResult
+ * @template-covariant TResult = null
  */
 final readonly class Result
 {

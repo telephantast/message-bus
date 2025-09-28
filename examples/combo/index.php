@@ -45,7 +45,6 @@ final readonly class App
 {
     /**
      * @param Context<object> $context
-     * @return Result<null>
      */
     public static function ping(Ping $ping, Context $context): Result
     {

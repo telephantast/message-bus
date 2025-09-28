@@ -7,9 +7,6 @@ Producer sends Commands to Consumer.
 ```php
 final readonly class Register {}
 
-/**
- * @return Result<null>
- */
 function recommended(): Result
 {
     return send(new Register());
@@ -37,9 +34,6 @@ Publisher publishes Events, Subscriber subscribes to Publisher.
 ```php
 final readonly class Registered {}
 
-/**
- * @return Result<null>
- */
 function recommended(): Result
 {
     return publish(new Registered());
