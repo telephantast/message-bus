@@ -52,6 +52,7 @@ final readonly class Subscription
 
         return $this->transport->runSubscription(
             stream: $this->endpoint->name,
+            eventClasses: $this->listeners->eventClasses,
             subscription: new AsyncHandler(
                 endpoint: $this->endpoint,
                 handler: $this->listeners,

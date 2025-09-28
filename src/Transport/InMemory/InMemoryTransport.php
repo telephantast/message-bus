@@ -49,6 +49,11 @@ final class InMemoryTransport implements ConsumerTransport, PublisherTransport
         }
     }
 
+    public function runSubscription(string $stream, array $eventClasses, callable $subscription): Run
+    {
+        return ($this->streams[$stream] ??= new Queue())->run($subscription, $this->maxBatchSize);
+    }
+
     public function publish(array $events): void
     {
         foreach ($events as $event) {
@@ -56,10 +61,5 @@ final class InMemoryTransport implements ConsumerTransport, PublisherTransport
                 ($this->streams[$subscriptionName] ??= new Queue())->push([$event]);
             }
         }
-    }
-
-    public function runSubscription(string $stream, callable $subscription): Run
-    {
-        return ($this->streams[$stream] ??= new Queue())->run($subscription, $this->maxBatchSize);
     }
 }

@@ -16,7 +16,8 @@ interface SubscriberTransport
 
     /**
      * @param non-empty-string $stream
+     * @param non-empty-list<class-string> $eventClasses
      * @param callable(non-empty-list<Envelope>): void $subscription
      */
-    public function runSubscription(string $stream, callable $subscription): Run;
+    public function runSubscription(string $stream, array $eventClasses, callable $subscription): Run;
 }
