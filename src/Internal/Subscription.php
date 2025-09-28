@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Handler\EventListeners;
 use Thesis\MessageBus\Persistence\Storage;
+use Thesis\MessageBus\Transport\NullRun;
 use Thesis\MessageBus\Transport\Run;
 use Thesis\MessageBus\Transport\SubscriberTransport;
 
@@ -45,6 +46,10 @@ final readonly class Subscription
 
     public function run(Dispatcher $dispatcher): Run
     {
+        if ($this->listeners->eventClasses === []) {
+            return NullRun::Instance;
+        }
+
         return $this->transport->runSubscription(
             stream: $this->endpoint->name,
             subscription: new AsyncHandler(
