@@ -75,6 +75,8 @@ final readonly class Result
     }
 }
 
+const done = new Result();
+
 /**
  * @template TResult
  * @param TResult $result
