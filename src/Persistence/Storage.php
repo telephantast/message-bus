@@ -12,12 +12,6 @@ use Thesis\MessageBus\Endpoint;
  */
 interface Storage
 {
-    /**
-     * @var non-empty-list<class-string<TTransaction>>
-     * @phpstan-ignore generics.variance
-     */
-    public array $transactionClasses { get; }
-
     public function setup(): void;
 
     /**
