@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "phpstan/phpstan": "^2.1.19"
+        "phpstan/phpstan": "^2.1.29"
     },
     "config": {
         "bump-after-update": "dev",
