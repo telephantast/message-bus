@@ -12,28 +12,23 @@ use Thesis\Time\TimeSpan;
  *
  * @template-covariant T of object = object
  */
-final class Envelope
+final readonly class Envelope
 {
     /**
-     * @var class-string<T>
-     */
-    public string $class { get => $this->metadata->class; }
-
-    public bool $isCommand { get => $this->metadata->isCommand; }
-
-    public bool $isEvent { get => $this->metadata->isEvent; }
-
-    /**
-     * @param T $payload
      * @param Metadata<T> $metadata
+     * @param T $payload
      */
     public function __construct(
-        public readonly object $payload,
-        public readonly Metadata $metadata,
-        public readonly TimeSpan $delay = new TimeSpan(),
+        public Metadata $metadata,
+        public object $payload,
+        public TimeSpan $delay = new TimeSpan(),
     ) {
         if ($this->metadata->class !== $this->payload::class) {
-            throw new \InvalidArgumentException();
+            throw new \InvalidArgumentException(\sprintf(
+                'Metadata class `%s` is different from payload class `%s`',
+                $this->metadata->class,
+                $this->payload::class,
+            ));
         }
     }
 }

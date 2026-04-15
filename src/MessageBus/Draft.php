@@ -6,7 +6,6 @@ namespace Thesis\MessageBus;
 
 use Thesis\MessageBus\Envelope\Kind;
 use Thesis\MessageBus\Envelope\Metadata;
-use Thesis\MessageBus\IdGenerator\Random;
 use Thesis\Time\TimeSpan;
 
 /**
@@ -74,25 +73,23 @@ final readonly class Draft
 
     /**
      * @param non-empty-string $source
-     * @param null|non-empty-string|Envelope $cause
      * @return Envelope<T>
      */
-    public function seal(string $source, IdGenerator $idGenerator = new Random(), null|string|Envelope $cause = null): Envelope
-    {
+    public function seal(
+        string $source,
+        IdGenerator $idGenerator = new IdGenerator\Random(),
+        ?Metadata $cause = null,
+    ): Envelope {
         return new Envelope(
-            payload: $this->payload,
             metadata: new Metadata(
                 class: $this->payload::class,
                 kind: $this->kind,
                 source: $source,
                 id: $id = $this->id ?? $idGenerator->generateId(),
-                conversationId: $this->conversationId ?? match (true) {
-                    \is_string($cause) => $cause,
-                    $cause instanceof Envelope => $cause->metadata->conversationId,
-                    default => $id,
-                },
-                causeId: $cause instanceof Envelope ? $cause->metadata->id : $cause,
+                conversationId: $this->conversationId ?? $cause->conversationId ?? $id,
+                causeId: $cause?->id,
             ),
+            payload: $this->payload,
             delay: $this->delay,
         );
     }
@@ -100,6 +97,7 @@ final readonly class Draft
 
 /**
  * @api
+ *
  * @template P of object
  * @param P $payload
  * @param ?non-empty-string $id
@@ -122,6 +120,7 @@ function command(
 
 /**
  * @api
+ *
  * @template P of object
  * @param P $payload
  * @param ?non-empty-string $id

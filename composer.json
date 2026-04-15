@@ -15,9 +15,7 @@
     ],
     "require": {
         "php": "^8.4",
-        "amphp/amp": "^3.1",
         "psr/log": "^3.0",
-        "thesis/formatter": "^0.1",
         "thesis/time-span": "^0.2.3",
         "thesis/transaction": "^0.1.1"
     },
@@ -35,11 +33,7 @@
             "Thesis\\": "src/"
         },
         "files": [
-            "src/MessageBus/Ack.php",
-            "src/MessageBus/Dispatch.php",
-            "src/MessageBus/Draft.php",
-            "src/MessageBus/Reject.php",
-            "src/MessageBus/Retry.php"
+            "autoload.files.php"
         ]
     },
     "autoload-dev": {

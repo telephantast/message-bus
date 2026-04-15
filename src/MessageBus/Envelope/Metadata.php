@@ -9,12 +9,8 @@ namespace Thesis\MessageBus\Envelope;
  *
  * @template-covariant T of object = object
  */
-final class Metadata
+final readonly class Metadata
 {
-    public bool $isCommand { get => $this->kind === Kind::Command; }
-
-    public bool $isEvent { get => $this->kind === Kind::Event; }
-
     /**
      * @param class-string<T> $class
      * @param non-empty-string $source
@@ -23,11 +19,11 @@ final class Metadata
      * @param ?non-empty-string $causeId
      */
     public function __construct(
-        public readonly string $class,
-        public readonly Kind $kind,
-        public readonly string $source,
-        public readonly string $id,
-        public readonly string $conversationId,
-        public readonly ?string $causeId,
+        public string $class,
+        public Kind $kind,
+        public string $source,
+        public string $id,
+        public string $conversationId,
+        public ?string $causeId,
     ) {}
 }
