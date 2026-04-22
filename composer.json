@@ -33,7 +33,7 @@
             "Thesis\\": "src/"
         },
         "files": [
-            "autoload.files.php"
+            "src/MessageBus/Draft.php"
         ]
     },
     "autoload-dev": {
