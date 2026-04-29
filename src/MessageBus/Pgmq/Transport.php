@@ -11,7 +11,7 @@ use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
 use Thesis\MessageBus\Gateway;
-use Thesis\MessageBus\Gateway\TransactionalDispatcher;
+use Thesis\MessageBus\TransactionalDispatcher;
 use Thesis\Pgmq;
 use Thesis\Time\TimeSpan;
 
@@ -86,7 +86,7 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
         return json_encode(value: $data, flags: JSON_THROW_ON_ERROR);
     }
 
-    public function consume(string $consumer, callable $handler, Envelope $envelope): void
+    public function consume(string $endpoint, callable $handler, Envelope $envelope): void
     {
         $tx = $this->pg->beginTransaction();
 
@@ -105,7 +105,7 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
         }
     }
 
-    public function startConsumer(string $consumer, callable $handler): callable
+    public function startConsumer(string $endpoint, callable $handler): Consumer
     {
         $context = Pgmq\createConsumer($this->pg)->consume(
             handler: function (array $messages, Pgmq\ConsumeController $controller) use ($handler): void {
@@ -144,15 +144,12 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
                 $controller->ack($messages);
             },
             config: new Pgmq\ConsumeConfig(
-                queue: $consumer,
+                queue: $endpoint,
                 batch: 1,
             ),
         );
 
-        return static function () use ($context): void {
-            $context->stop();
-            $context->awaitCompletion();
-        };
+        return new Consumer($context);
     }
 
     private static function decode(string $json): mixed

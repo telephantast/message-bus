@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Gateway;
 
+use Thesis\MessageBus\Consumer;
 use Thesis\MessageBus\ConsumptionId;
+use Thesis\MessageBus\Disposition;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
 use Thesis\MessageBus\Gateway;
+use Thesis\MessageBus\Receiver;
+use Thesis\MessageBus\TransactionalDispatcher;
 use Thesis\Transaction;
 
 /**
@@ -30,7 +34,7 @@ final readonly class TransactionalDispatcherGateway implements Gateway
         private Inbox $inbox,
     ) {}
 
-    public function consume(string $consumer, callable $handler, Envelope $envelope): void
+    public function consume(string $endpoint, callable $handler, Envelope $envelope): void
     {
         $txHandle = ($this->beginTransaction)();
         $tx = $txHandle->inner;
@@ -50,16 +54,16 @@ final readonly class TransactionalDispatcherGateway implements Gateway
         }
     }
 
-    public function startConsumer(string $consumer, callable $handler): callable
+    public function startConsumer(string $endpoint, callable $handler): Consumer
     {
-        return $this->receiver->subscribe($consumer, function (Envelope $envelope) use ($consumer, $handler) {
+        return $this->receiver->startConsumer($endpoint, function (Envelope $envelope) use ($endpoint, $handler) {
             $txHandle = null;
 
             try {
                 $txHandle = ($this->beginTransaction)();
                 $tx = $txHandle->inner;
 
-                $id = new ConsumptionId($consumer, $envelope->metadata->id);
+                $id = new ConsumptionId($endpoint, $envelope->metadata->id);
 
                 if ($this->inbox->isHandled($tx, $id)) {
                     $txHandle->rollback();

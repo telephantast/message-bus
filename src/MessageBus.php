@@ -4,35 +4,36 @@ declare(strict_types=1);
 
 namespace Thesis;
 
+use Thesis\MessageBus\Consumer;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Draft;
+use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Gateway;
-use Thesis\MessageBus\Handlers;
+use Thesis\MessageBus\Exception\NoEndpoint;
 use Thesis\MessageBus\IdGenerator;
-use Thesis\MessageBus\Internal\Handler;
 
 /**
  * @api
- *
- * @template-covariant Tx of object
  */
 final readonly class MessageBus
 {
-    public const string DEFAULT_NAME = 'message_bus';
+    /**
+     * @var array<non-empty-string, Endpoint<*>>
+     */
+    private array $endpoints;
 
     /**
-     * @param Gateway<Tx> $gateway
-     * @param Handlers<Tx> $handlers
      * @param non-empty-string $name
+     * @param list<Endpoint<*>> $endpoints
      */
     public function __construct(
         private Dispatcher $dispatcher,
-        private Gateway $gateway,
-        private Handlers $handlers,
+        array $endpoints = [],
+        private string $name = 'message_bus',
         private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
-        private string $name = self::DEFAULT_NAME,
-    ) {}
+    ) {
+        $this->endpoints = array_column($endpoints, null, 'name');
+    }
 
     /**
      * @no-named-arguments
@@ -46,8 +47,8 @@ final readonly class MessageBus
         $this->dispatcher->dispatch(array_map(
             fn(object $command) => match ($command::class) {
                 Envelope::class => $command,
-                Draft::class => $command->seal($this->name, $this->idGenerator),
-                default => Draft::command($command)->seal($this->name, $this->idGenerator),
+                Draft::class => $this->seal($command),
+                default => $this->seal(Draft::command($command)),
             },
             $commands,
         ));
@@ -65,8 +66,8 @@ final readonly class MessageBus
         $this->dispatcher->dispatch(array_map(
             fn(object $event) => match ($event::class) {
                 Envelope::class => $event,
-                Draft::class => $event->seal($this->name, $this->idGenerator),
-                default => Draft::event($event)->seal($this->name, $this->idGenerator),
+                Draft::class => $this->seal($event),
+                default => $this->seal(Draft::event($event)),
             },
             $events,
         ));
@@ -81,42 +82,68 @@ final readonly class MessageBus
             return;
         }
 
-        $this->dispatcher->dispatch(array_map(
-            fn(Draft|Envelope $message) => $message instanceof Envelope
-                ? $message
-                : $message->seal($this->name, $this->idGenerator),
-            $messages,
-        ));
+        $this->dispatcher->dispatch(array_map($this->seal(...), $messages));
+    }
+
+    /**
+     * @param ?non-empty-string $endpoint
+     */
+    public function consume(Draft|Envelope $message, ?string $endpoint = null): void
+    {
+        $message = $this->seal($message);
+
+        if ($endpoint === null) {
+            $this->endpointHandling($message->payload::class)->consume($message);
+
+            return;
+        }
+
+        $this->endpoint($endpoint)->consume($message);
+    }
+
+    /**
+     * @param non-empty-string $endpoint
+     */
+    public function startConsumer(string $endpoint): Consumer
+    {
+        return $this->endpoint($endpoint)->startConsumer();
     }
 
     /**
      * @template T of object
-     * @param non-empty-string $consumer
      * @param Draft<T>|Envelope<T> $message
+     * @return Envelope<T>
      */
-    public function consume(string $consumer, Draft|Envelope $message): void
+    private function seal(Draft|Envelope $message): Envelope
     {
         if ($message instanceof Draft) {
-            $message = $message->seal($this->name, $this->idGenerator);
+            return $message->seal($this->name, $this->idGenerator);
         }
 
-        $this->gateway->consume($consumer, new Handler(
-            name: $consumer,
-            handlers: $this->handlers,
-            idGenerator: $this->idGenerator,
-        ), $message);
+        return $message;
     }
 
     /**
-     * @param non-empty-string $consumer
-     * @return \Closure(): void Stop
+     * @param non-empty-string $name
+     * @return Endpoint<*>
      */
-    public function startConsumer(string $consumer): \Closure
+    private function endpoint(string $name): Endpoint
     {
-        return $this->gateway->startConsumer($consumer, new Handler(
-            name: $consumer,
-            handlers: $this->handlers,
-            idGenerator: $this->idGenerator,
-        ))(...);
+        return $this->endpoints[$name] ?? throw new NoEndpoint($name);
+    }
+
+    /**
+     * @param class-string $messageClass
+     * @return Endpoint<*>
+     */
+    private function endpointHandling(string $messageClass): Endpoint
+    {
+        foreach ($this->endpoints as $endpoint) {
+            if ($endpoint->handles($messageClass)) {
+                return $endpoint;
+            }
+        }
+
+        throw new NoEndpoint();
     }
 }

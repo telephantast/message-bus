@@ -12,15 +12,14 @@ namespace Thesis\MessageBus;
 interface Gateway
 {
     /**
-     * @param non-empty-string $consumer
+     * @param non-empty-string $endpoint
      * @param callable(Envelope, Tx): list<Envelope> $handler
      */
-    public function consume(string $consumer, callable $handler, Envelope $envelope): void;
+    public function consume(string $endpoint, callable $handler, Envelope $envelope): void;
 
     /**
-     * @param non-empty-string $consumer
+     * @param non-empty-string $endpoint
      * @param callable(Envelope, Tx): list<Envelope> $handler
-     * @return callable(): void Stop
      */
-    public function startConsumer(string $consumer, callable $handler): callable;
+    public function startConsumer(string $endpoint, callable $handler): Consumer;
 }

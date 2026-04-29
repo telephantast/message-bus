@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Gateway;
 
+use Thesis\MessageBus\Consumer;
 use Thesis\MessageBus\ConsumptionId;
 use Thesis\MessageBus\Dispatcher;
+use Thesis\MessageBus\Disposition;
 use Thesis\MessageBus\Draft;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
 use Thesis\MessageBus\Gateway;
 use Thesis\MessageBus\Gateway\Outbox\Dispatch;
 use Thesis\MessageBus\IdGenerator;
+use Thesis\MessageBus\Receiver;
 use Thesis\Transaction;
 
 /**
@@ -36,12 +39,12 @@ final readonly class OutboxGateway implements Gateway
         private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
     ) {}
 
-    public function consume(string $consumer, callable $handler, Envelope $envelope): void
+    public function consume(string $endpoint, callable $handler, Envelope $envelope): void
     {
         $txHandle = ($this->beginTransaction)();
         $tx = $txHandle->inner;
 
-        $id = new ConsumptionId($consumer, $envelope->metadata->id);
+        $id = new ConsumptionId($endpoint, $envelope->metadata->id);
 
         try {
             $outgoing = $handler($envelope, $tx);
@@ -50,7 +53,7 @@ final readonly class OutboxGateway implements Gateway
                 $this->outbox->store($id, $tx, $outgoing);
 
                 $this->dispatcher->dispatch([
-                    Draft::command(new Dispatch($id))->seal($consumer, $this->idGenerator, $envelope->metadata),
+                    Draft::command(new Dispatch($id))->seal($endpoint, $this->idGenerator, $envelope->metadata),
                 ]);
             }
 
@@ -69,9 +72,9 @@ final readonly class OutboxGateway implements Gateway
         }
     }
 
-    public function startConsumer(string $consumer, callable $handler): callable
+    public function startConsumer(string $endpoint, callable $handler): Consumer
     {
-        return $this->receiver->subscribe($consumer, function (Envelope $envelope) use ($consumer, $handler) {
+        return $this->receiver->startConsumer($endpoint, function (Envelope $envelope) use ($endpoint, $handler) {
             $txHandle = null;
 
             try {
@@ -82,7 +85,7 @@ final readonly class OutboxGateway implements Gateway
                 $txHandle = ($this->beginTransaction)();
                 $tx = $txHandle->inner;
 
-                $id = new ConsumptionId($consumer, $envelope->metadata->id);
+                $id = new ConsumptionId($endpoint, $envelope->metadata->id);
 
                 if ($this->inbox->isHandled($tx, $id)) {
                     $txHandle->rollback();

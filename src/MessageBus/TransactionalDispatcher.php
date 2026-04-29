@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Gateway;
-
-use Thesis\MessageBus\Envelope;
+namespace Thesis\MessageBus;
 
 /**
  * @api
