@@ -33,7 +33,7 @@ final readonly class OutboxGateway implements Gateway
         private \Closure $beginTransaction,
         private Inbox $inbox,
         private Outbox $outbox,
-        private IdGenerator $idGenerator = new IdGenerator\Random(),
+        private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
     ) {}
 
     public function consume(string $consumer, callable $handler, Envelope $envelope): void

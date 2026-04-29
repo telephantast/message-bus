@@ -77,7 +77,7 @@ final readonly class Draft
      */
     public function seal(
         string $source,
-        IdGenerator $idGenerator = new IdGenerator\Random(),
+        IdGenerator $idGenerator = new IdGenerator\UuidV7(),
         ?Metadata $cause = null,
     ): Envelope {
         return new Envelope(

@@ -26,7 +26,7 @@ final class Context
         public readonly string $consumer,
         public readonly object $transaction,
         private readonly ?Metadata $cause = null,
-        private readonly IdGenerator $idGenerator = new IdGenerator\Random(),
+        private readonly IdGenerator $idGenerator = new IdGenerator\UuidV7(),
     ) {}
 
     /**

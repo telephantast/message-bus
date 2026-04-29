@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis;
 
-use Thesis\MessageBus\Gateway;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Draft;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Gateway;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\IdGenerator;
 use Thesis\MessageBus\Internal\Handler;
@@ -30,7 +30,7 @@ final readonly class MessageBus
         private Dispatcher $dispatcher,
         private Gateway $gateway,
         private Handlers $handlers,
-        private IdGenerator $idGenerator = new IdGenerator\Random(),
+        private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
         private string $name = self::DEFAULT_NAME,
     ) {}
 
