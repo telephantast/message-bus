@@ -22,8 +22,8 @@
     "require-dev": {
         "ext-pcntl": "*",
         "amphp/postgres": "^2.2",
-        "phpunit/phpunit": "^13",
         "symfony/var-dumper": "^8.0.6",
+        "testo/testo": "^0.10.2",
         "thesis/amqp": "^1.0",
         "thesis/pgmq": "^0.1.5",
         "thesis/sync-once": "^0.1.3"
