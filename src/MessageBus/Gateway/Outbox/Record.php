@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Delivery\Outbox;
+namespace Thesis\MessageBus\Gateway\Outbox;
 
 use Thesis\MessageBus\Envelope;
 

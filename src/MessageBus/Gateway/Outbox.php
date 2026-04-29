@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Delivery\Outbox;
+namespace Thesis\MessageBus\Gateway;
 
 use Thesis\MessageBus\ConsumptionId;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Gateway\Outbox\Record;
 
 /**
  * @api
  *
  * @template-contravariant Tx of object
  */
-interface Store
+interface Outbox
 {
     public function find(ConsumptionId $id): ?Record;
 

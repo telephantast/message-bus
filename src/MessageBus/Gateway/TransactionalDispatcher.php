@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Dispatcher;
+namespace Thesis\MessageBus\Gateway;
 
 use Thesis\MessageBus\Envelope;
 
@@ -11,7 +11,7 @@ use Thesis\MessageBus\Envelope;
  *
  * @template-contravariant Tx of object
  */
-interface Transactional
+interface TransactionalDispatcher
 {
     /**
      * @param Tx $transaction

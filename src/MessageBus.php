@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis;
 
-use Thesis\MessageBus\Delivery;
+use Thesis\MessageBus\Gateway;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Draft;
 use Thesis\MessageBus\Envelope;
@@ -22,13 +22,13 @@ final readonly class MessageBus
     public const string DEFAULT_NAME = 'message_bus';
 
     /**
-     * @param Delivery<Tx> $delivery
+     * @param Gateway<Tx> $gateway
      * @param Handlers<Tx> $handlers
      * @param non-empty-string $name
      */
     public function __construct(
         private Dispatcher $dispatcher,
-        private Delivery $delivery,
+        private Gateway $gateway,
         private Handlers $handlers,
         private IdGenerator $idGenerator = new IdGenerator\Random(),
         private string $name = self::DEFAULT_NAME,
@@ -100,7 +100,7 @@ final readonly class MessageBus
             $message = $message->seal($this->name, $this->idGenerator);
         }
 
-        $this->delivery->consume($consumer, new Handler(
+        $this->gateway->consume($consumer, new Handler(
             name: $consumer,
             handlers: $this->handlers,
             idGenerator: $this->idGenerator,
@@ -113,7 +113,7 @@ final readonly class MessageBus
      */
     public function startConsumer(string $consumer): \Closure
     {
-        return $this->delivery->startConsumer($consumer, new Handler(
+        return $this->gateway->startConsumer($consumer, new Handler(
             name: $consumer,
             handlers: $this->handlers,
             idGenerator: $this->idGenerator,

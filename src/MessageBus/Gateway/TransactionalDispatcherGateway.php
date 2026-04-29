@@ -2,30 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Delivery;
+namespace Thesis\MessageBus\Gateway;
 
 use Thesis\MessageBus\ConsumptionId;
-use Thesis\MessageBus\Delivery;
-use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
+use Thesis\MessageBus\Gateway;
 use Thesis\Transaction;
 
 /**
  * @api
  *
  * @template-covariant Tx of object
- * @implements Delivery<Tx>
+ * @implements Gateway<Tx>
  */
-final readonly class Transactional implements Delivery
+final readonly class TransactionalDispatcherGateway implements Gateway
 {
     /**
-     * @param Dispatcher\Transactional<Tx> $dispatcher
+     * @param TransactionalDispatcher<Tx> $dispatcher
      * @param \Closure(): Transaction<Tx> $beginTransaction
      * @param Inbox<Tx> $inbox
      */
     public function __construct(
-        private Dispatcher\Transactional $dispatcher,
+        private TransactionalDispatcher $dispatcher,
         private Receiver $receiver,
         private \Closure $beginTransaction,
         private Inbox $inbox,

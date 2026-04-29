@@ -7,23 +7,24 @@ namespace Thesis\MessageBus\Pgmq;
 use Amp\Postgres\PostgresConnection;
 use Amp\Postgres\PostgresTransaction;
 use Psr\Log\LoggerInterface;
-use Thesis\MessageBus\Delivery;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
+use Thesis\MessageBus\Gateway;
+use Thesis\MessageBus\Gateway\TransactionalDispatcher;
 use Thesis\Pgmq;
 use Thesis\Time\TimeSpan;
 
 /**
  * @api
  *
- * @implements Dispatcher\Transactional<PostgresTransaction>
- * @implements Delivery<PostgresTransaction>
+ * @implements TransactionalDispatcher<PostgresTransaction>
+ * @implements Gateway<PostgresTransaction>
  */
-final readonly class Transport implements Dispatcher, Dispatcher\Transactional, Delivery
+final readonly class Transport implements Dispatcher, TransactionalDispatcher, Gateway
 {
     /**
-     * @param ?Dispatcher\Transactional<PostgresTransaction> $receiverDispatcher use this if By default, messages are dispatched to this transport
+     * @param ?TransactionalDispatcher<PostgresTransaction> $receiverDispatcher By default, messages are dispatched to this transport
      */
     public function __construct(
         private PostgresConnection $pg,
@@ -31,7 +32,7 @@ final readonly class Transport implements Dispatcher, Dispatcher\Transactional, 
         private LoggerInterface $logger,
         private PayloadNormalizer $payloadNormalizer = new PayloadNormalizer\Serialize(),
         private MetadataNormalizer $metadataNormalizer = new MetadataNormalizer\Basic(),
-        private ?Dispatcher\Transactional $receiverDispatcher = null,
+        private ?TransactionalDispatcher $receiverDispatcher = null,
     ) {}
 
     public function setup(): void

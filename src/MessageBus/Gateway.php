@@ -9,7 +9,7 @@ namespace Thesis\MessageBus;
  *
  * @template-covariant Tx of object
  */
-interface Delivery
+interface Gateway
 {
     /**
      * @param non-empty-string $consumer

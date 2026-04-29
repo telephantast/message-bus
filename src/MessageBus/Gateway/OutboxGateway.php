@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Delivery;
+namespace Thesis\MessageBus\Gateway;
 
 use Thesis\MessageBus\ConsumptionId;
-use Thesis\MessageBus\Delivery;
-use Thesis\MessageBus\Delivery\Outbox\Dispatch;
-use Thesis\MessageBus\Delivery\Outbox\Store;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Draft;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
+use Thesis\MessageBus\Gateway;
+use Thesis\MessageBus\Gateway\Outbox\Dispatch;
 use Thesis\MessageBus\IdGenerator;
 use Thesis\Transaction;
 
@@ -19,21 +18,21 @@ use Thesis\Transaction;
  * @api
  *
  * @template-covariant Tx of object
- * @implements Delivery<Tx>
+ * @implements Gateway<Tx>
  */
-final readonly class Outbox implements Delivery
+final readonly class OutboxGateway implements Gateway
 {
     /**
      * @param \Closure(): Transaction<Tx> $beginTransaction
      * @param Inbox<Tx> $inbox
-     * @param Store<Tx> $outbox
+     * @param Outbox<Tx> $outbox
      */
     public function __construct(
         private Dispatcher $dispatcher,
         private Receiver $receiver,
         private \Closure $beginTransaction,
         private Inbox $inbox,
-        private Store $outbox,
+        private Outbox $outbox,
         private IdGenerator $idGenerator = new IdGenerator\Random(),
     ) {}
 
@@ -64,8 +63,7 @@ final readonly class Outbox implements Delivery
 
         if ($outgoing !== []) {
             try {
-                $this->dispatcher->dispatch($outgoing);
-                $this->outbox->markDispatched($id);
+                $this->doDispatch($id, $outgoing);
             } catch (\Throwable) {
             }
         }
@@ -110,8 +108,7 @@ final readonly class Outbox implements Delivery
                 $txHandle = null;
 
                 if ($outgoing !== []) {
-                    $this->dispatcher->dispatch($outgoing);
-                    $this->outbox->markDispatched($id);
+                    $this->doDispatch($id, $outgoing);
                 }
 
                 return Disposition::Ack;
@@ -136,10 +133,18 @@ final readonly class Outbox implements Delivery
         }
 
         if (!$record->dispatched) {
-            $this->dispatcher->dispatch($record->messages);
-            $this->outbox->markDispatched($command->id);
+            $this->doDispatch($command->id, $record->messages);
         }
 
         return Disposition::Ack;
+    }
+
+    /**
+     * @param non-empty-list<Envelope> $messages
+     */
+    private function doDispatch(ConsumptionId $id, array $messages): void
+    {
+        $this->dispatcher->dispatch($messages);
+        $this->outbox->markDispatched($id);
     }
 }
