@@ -62,7 +62,7 @@ final readonly class TransactionalDispatcherGateway implements Gateway
                 $id = new ConsumptionId($consumer, $envelope->metadata->id);
 
                 if ($this->inbox->isHandled($tx, $id)) {
-                    $txHandle->commit();
+                    $txHandle->rollback();
                     $txHandle = null;
 
                     return Disposition::Ack;

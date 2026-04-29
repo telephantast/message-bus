@@ -85,14 +85,13 @@ final readonly class OutboxGateway implements Gateway
                 $id = new ConsumptionId($consumer, $envelope->metadata->id);
 
                 if ($this->inbox->isHandled($tx, $id)) {
-                    $txHandle->commit();
+                    $txHandle->rollback();
                     $txHandle = null;
 
                     $record = $this->outbox->find($id);
 
                     if ($record !== null && !$record->dispatched) {
-                        $this->dispatcher->dispatch($record->messages);
-                        $this->outbox->markDispatched($id);
+                        $this->doDispatch($id, $record->messages);
                     }
 
                     return Disposition::Ack;
