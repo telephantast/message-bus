@@ -7,10 +7,13 @@ namespace Thesis\MessageBus\Pgmq;
 use Amp\Postgres\PostgresConnection;
 use Amp\Postgres\PostgresTransaction;
 use Psr\Log\LoggerInterface;
-use Thesis\MessageBus\Dispatcher;
+use Psr\Log\NullLogger;
+use Thesis\MessageBus\ConsumerRuntime;
+use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Exception\Unrecoverable;
-use Thesis\MessageBus\Gateway;
+use Thesis\MessageBus\Route\Direct;
+use Thesis\MessageBus\Subscriber;
 use Thesis\MessageBus\TransactionalDispatcher;
 use Thesis\Pgmq;
 use Thesis\Time\TimeSpan;
@@ -19,37 +22,43 @@ use Thesis\Time\TimeSpan;
  * @api
  *
  * @implements TransactionalDispatcher<PostgresTransaction>
- * @implements Gateway<PostgresTransaction>
+ * @implements ConsumerRuntime<PostgresTransaction>
  */
-final readonly class Transport implements Dispatcher, TransactionalDispatcher, Gateway
+final readonly class Transport implements Subscriber, TransactionalDispatcher, ConsumerRuntime
 {
     /**
-     * @param ?TransactionalDispatcher<PostgresTransaction> $receiverDispatcher By default, messages are dispatched to this transport
+     * @param ?TransactionalDispatcher<PostgresTransaction> $dispatcher By default, messages are dispatched to this transport
      */
     public function __construct(
         private PostgresConnection $pg,
-        private Router $router,
-        private LoggerInterface $logger,
-        private PayloadNormalizer $payloadNormalizer = new PayloadNormalizer\Serialize(),
-        private MetadataNormalizer $metadataNormalizer = new MetadataNormalizer\Basic(),
-        private ?TransactionalDispatcher $receiverDispatcher = null,
+        private Serializer $serializer = new NativeSerializer(),
+        private LoggerInterface $logger = new NullLogger(),
+        private ?TransactionalDispatcher $dispatcher = null,
     ) {}
 
     public function setup(): void
     {
         Pgmq\createExtension($this->pg);
+    }
 
-        foreach ($this->router->queues as $queue) {
-            Pgmq\createQueue($this->pg, $queue);
+    public function subscribe(string $endpoint, array $eventClasses): void
+    {
+        Pgmq\createQueue($this->pg, $endpoint);
+
+        foreach ($eventClasses as $eventClass) {
+            $this->pg->execute('select pgmq.bind_topic(?, ?)', [
+                self::eventRoutingKey($eventClass),
+                $endpoint,
+            ]);
         }
     }
 
-    public function dispatch(array $messages): void
+    public function dispatch(array $envelopes): void
     {
         $tx = $this->pg->beginTransaction();
 
         try {
-            $this->transactionalDispatch($tx, $messages);
+            $this->transactionalDispatch($tx, $envelopes);
 
             $tx->commit();
         } catch (\Throwable $exception) {
@@ -59,34 +68,34 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
         }
     }
 
-    public function transactionalDispatch(object $transaction, array $messages): void
+    public function transactionalDispatch(object $transaction, array $envelopes): void
     {
-        foreach ($messages as $message) {
-            $sendMessage = null;
+        $cols = [];
+        $params = [];
 
-            foreach ($this->router->route($message->payload::class) as $queue) {
-                Pgmq\send(
-                    pg: $transaction,
-                    queue: $queue,
-                    message: $sendMessage ??= new Pgmq\SendMessage(
-                        valueJson: self::encode($this->payloadNormalizer->normalizePayload($message->payload)),
-                        headerJson: self::encode($this->metadataNormalizer->normalizeMetadata($message->metadata)),
-                    ),
-                    delay: $message->delay,
-                );
+        foreach ($envelopes as $outgoing) {
+            $message = $this->serializer->serialize($outgoing->envelope);
+
+            if ($outgoing->route instanceof Direct) {
+                $cols[] = 'pgmq.send(?, ?, ?, ?::int)';
+                $params[] = $outgoing->route->destination;
+                $params[] = $message->valueJson;
+                $params[] = $message->headerJson;
+                $params[] = $outgoing->route->delay->toSeconds();
+            } else {
+                $cols[] = 'pgmq.send_topic(?, ?, ?, 0::int)';
+                $params[] = self::eventRoutingKey($outgoing->route->eventClass);
+                $params[] = $message->valueJson;
+                $params[] = $message->headerJson;
             }
         }
+
+        $transaction
+            ->execute('select ' . implode(', ', $cols), $params)
+            ->fetchRow();
     }
 
-    /**
-     * @return non-empty-string
-     */
-    private static function encode(mixed $data): string
-    {
-        return json_encode(value: $data, flags: JSON_THROW_ON_ERROR);
-    }
-
-    public function consume(string $endpoint, callable $handler, Envelope $envelope): void
+    public function consume(string $endpoint, Envelope $envelope, callable $handler): void
     {
         $tx = $this->pg->beginTransaction();
 
@@ -94,7 +103,7 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
             $outgoing = $handler($envelope, $tx);
 
             if ($outgoing !== []) {
-                ($this->receiverDispatcher ?? $this)->transactionalDispatch($tx, $outgoing);
+                ($this->dispatcher ?? $this)->transactionalDispatch($tx, $outgoing);
             }
 
             $tx->commit();
@@ -107,20 +116,17 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
 
     public function startConsumer(string $endpoint, callable $handler): Consumer
     {
+        Pgmq\createQueue($this->pg, $endpoint);
+
         $context = Pgmq\createConsumer($this->pg)->consume(
             handler: function (array $messages, Pgmq\ConsumeController $controller) use ($handler): void {
                 try {
-                    [$message] = $messages;
-
-                    $metadata = $this->metadataNormalizer->denormalizeMetadata(self::decode($message->headers ?? '{}'));
-                    $payload = $this->payloadNormalizer->denormalizePayload($metadata->class, self::decode($message->value));
-
-                    $envelope = new Envelope($metadata, $payload);
+                    $envelope = $this->serializer->deserialize($messages[0]);
 
                     $outgoing = $handler($envelope, $controller->tx);
 
                     if ($outgoing !== []) {
-                        ($this->receiverDispatcher ?? $this)->transactionalDispatch($controller->tx, $outgoing);
+                        ($this->dispatcher ?? $this)->transactionalDispatch($controller->tx, $outgoing);
                     }
                 } catch (Unrecoverable $exception) {
                     $this->logger->error('Message rejected: ' . $exception->getMessage(), [
@@ -149,11 +155,15 @@ final readonly class Transport implements Dispatcher, TransactionalDispatcher, G
             ),
         );
 
-        return new Consumer($context);
+        return new Internal\Consumer($context);
     }
 
-    private static function decode(string $json): mixed
+    /**
+     * @param class-string $class
+     * @return non-empty-string
+     */
+    private static function eventRoutingKey(string $class): string
     {
-        return json_decode(json: $json, associative: true, flags: JSON_THROW_ON_ERROR);
+        return str_replace('\\', '.', $class);
     }
 }

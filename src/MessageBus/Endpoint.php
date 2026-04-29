@@ -7,57 +7,52 @@ namespace Thesis\MessageBus;
 /**
  * @api
  *
- * @template Tx of object
+ * @template-contravariant Tx of object
  */
 final readonly class Endpoint
 {
     /**
      * @param non-empty-string $name
      * @param Handlers<Tx> $handlers
-     * @param Gateway<Tx> $gateway
+     * @param Listeners<Tx> $listeners
      */
     public function __construct(
         public string $name,
-        private Handlers $handlers,
-        private Gateway $gateway,
-        private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
+        public Handlers $handlers = new Handlers(),
+        public Listeners $listeners = new Listeners(),
     ) {}
 
     /**
-     * @param class-string $messageClass
+     * @template T of object
+     * @template WithTx of object
+     * @param class-string<T> $messageClass
+     * @param callable(T, Context<WithTx>): void $handler
+     * @return self<Tx|WithTx>
      */
-    public function handles(string $messageClass): bool
+    public function withHandler(string $messageClass, callable $handler): self
     {
-        return $this->handlers->has($messageClass);
-    }
-
-    public function consume(Envelope $message): void
-    {
-        $this->gateway->consume($this->name, $this->handle(...), $message);
-    }
-
-    public function startConsumer(): Consumer
-    {
-        return $this->gateway->startConsumer($this->name, $this->handle(...));
+        return new self(
+            name: $this->name,
+            handlers: $this->handlers->with($messageClass, $handler),
+            /** @phpstan-ignore argument.type */
+            listeners: $this->listeners,
+        );
     }
 
     /**
-     * @param Tx $transaction
-     * @return list<Envelope>
+     * @template T of object
+     * @template WithTx of object
+     * @param class-string<T> $messageClass
+     * @param callable(T, Context<WithTx>): void $listener
+     * @return self<Tx|WithTx>
      */
-    private function handle(Envelope $envelope, object $transaction): array
+    public function withListener(string $messageClass, callable $listener): self
     {
-        $handler = $this->handlers->get($envelope->payload::class);
-
-        $context = new Context(
-            endpoint: $this->name,
-            transaction: $transaction,
-            cause: $envelope->metadata,
-            idGenerator: $this->idGenerator,
+        return new self(
+            name: $this->name,
+            /** @phpstan-ignore argument.type */
+            handlers: $this->handlers,
+            listeners: $this->listeners->with($messageClass, $listener),
         );
-
-        ($handler)($envelope, $context);
-
-        return $context->outgoing;
     }
 }

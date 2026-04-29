@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Envelope\Metadata;
-
 /**
  * @api
  *
@@ -14,9 +12,9 @@ use Thesis\MessageBus\Envelope\Metadata;
 final class Context
 {
     /**
-     * @var list<Envelope>
+     * @var list<Command|Event|Reply>
      */
-    public private(set) array $outgoing = [];
+    public private(set) array $outgoingMessages = [];
 
     /**
      * @param non-empty-string $endpoint
@@ -24,9 +22,8 @@ final class Context
      */
     public function __construct(
         public readonly string $endpoint,
+        public readonly Metadata $metadata,
         public readonly object $transaction,
-        private readonly ?Metadata $cause = null,
-        private readonly IdGenerator $idGenerator = new IdGenerator\UuidV7(),
     ) {}
 
     /**
@@ -35,11 +32,7 @@ final class Context
     public function send(object ...$commands): void
     {
         foreach ($commands as $command) {
-            $this->outgoing[] = match ($command::class) {
-                Envelope::class => $command,
-                Draft::class => $this->seal($command),
-                default => $this->seal(Draft::command($command)),
-            };
+            $this->outgoingMessages[] = Command::from($command);
         }
     }
 
@@ -49,25 +42,12 @@ final class Context
     public function publish(object ...$events): void
     {
         foreach ($events as $event) {
-            $this->outgoing[] = match ($event::class) {
-                Envelope::class => $event,
-                Draft::class => $this->seal($event),
-                default => $this->seal(Draft::event($event)),
-            };
+            $this->outgoingMessages[] = Event::from($event);
         }
     }
 
-    /**
-     * @template T of object
-     * @param Draft<T>|Envelope<T> $message
-     * @return Envelope<T>
-     */
-    private function seal(Draft|Envelope $message): Envelope
+    public function reply(object $reply): void
     {
-        if ($message instanceof Draft) {
-            return $message->seal($this->endpoint, $this->idGenerator, $this->cause);
-        }
-
-        return $message;
+        $this->outgoingMessages[] = Reply::from($reply);
     }
 }

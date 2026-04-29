@@ -4,35 +4,90 @@ declare(strict_types=1);
 
 namespace Thesis;
 
-use Thesis\MessageBus\Consumer;
+use Thesis\MessageBus\Command;
+use Thesis\MessageBus\CommandRouter;
+use Thesis\MessageBus\ConsumerRuntime;
+use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Dispatcher;
-use Thesis\MessageBus\Draft;
-use Thesis\MessageBus\Endpoint;
-use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\Endpoint as EndpointConfig;
+use Thesis\MessageBus\Event;
 use Thesis\MessageBus\Exception\NoEndpoint;
-use Thesis\MessageBus\IdGenerator;
+use Thesis\MessageBus\Internal\Endpoint;
+use Thesis\MessageBus\Internal\EnvelopeFactory;
+use Thesis\MessageBus\Internal\Router;
+use Thesis\MessageBus\Metadata\IdGenerator;
+use Thesis\MessageBus\Subscriber;
 
 /**
  * @api
+ *
+ * @template-covariant Tx of object
  */
 final readonly class MessageBus
 {
     /**
-     * @var array<non-empty-string, Endpoint<*>>
+     * @template BTx of object
+     * @param ConsumerRuntime<BTx> $consumerRuntime
+     * @param list<EndpointConfig<BTx>> $endpoints
+     * @param non-empty-string $name
+     * @return self<BTx>
      */
-    private array $endpoints;
+    public static function build(
+        Subscriber $subscriber,
+        Dispatcher $dispatcher,
+        ConsumerRuntime $consumerRuntime,
+        array $endpoints,
+        CommandRouter $commandRouter = new CommandRouter\Map([]),
+        IdGenerator $idGenerator = new IdGenerator\UuidV7(),
+        string $name = 'message_bus',
+    ): self {
+        $router = Router::build($endpoints, $commandRouter);
+
+        return new self(
+            subscriber: $subscriber,
+            dispatcher: $dispatcher,
+            envelopeFactory: new EnvelopeFactory(
+                origin: $name,
+                idGenerator: $idGenerator,
+                router: $router,
+            ),
+            endpoints: array_combine(
+                array_column($endpoints, 'name'),
+                array_map(
+                    static fn(EndpointConfig $config) => new Endpoint(
+                        name: $config->name,
+                        handlers: $config->handlers,
+                        listeners: $config->listeners,
+                        runtime: $consumerRuntime,
+                        envelopeFactory: new EnvelopeFactory(
+                            origin: $config->name,
+                            idGenerator: $idGenerator,
+                            router: $router,
+                        ),
+                    ),
+                    $endpoints,
+                ),
+            ),
+        );
+    }
 
     /**
-     * @param non-empty-string $name
-     * @param list<Endpoint<*>> $endpoints
+     * @param array<non-empty-string, Endpoint<Tx>> $endpoints
      */
-    public function __construct(
+    private function __construct(
+        private Subscriber $subscriber,
         private Dispatcher $dispatcher,
-        array $endpoints = [],
-        private string $name = 'message_bus',
-        private IdGenerator $idGenerator = new IdGenerator\UuidV7(),
-    ) {
-        $this->endpoints = array_column($endpoints, null, 'name');
+        private EnvelopeFactory $envelopeFactory,
+        private array $endpoints,
+    ) {}
+
+    public function subscribe(): void
+    {
+        foreach ($this->endpoints as $name => $endpoint) {
+            if ($endpoint->subscribedTo !== []) {
+                $this->subscriber->subscribe($name, $endpoint->subscribedTo);
+            }
+        }
     }
 
     /**
@@ -45,11 +100,7 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $command) => match ($command::class) {
-                Envelope::class => $command,
-                Draft::class => $this->seal($command),
-                default => $this->seal(Draft::command($command)),
-            },
+            fn(object $command) => $this->envelopeFactory->buildOutgoing(Command::from($command)),
             $commands,
         ));
     }
@@ -64,41 +115,17 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $event) => match ($event::class) {
-                Envelope::class => $event,
-                Draft::class => $this->seal($event),
-                default => $this->seal(Draft::event($event)),
-            },
+            fn(object $event) => $this->envelopeFactory->buildOutgoing(Event::from($event)),
             $events,
         ));
     }
 
     /**
-     * @no-named-arguments
+     * @param non-empty-string $endpoint
      */
-    public function dispatch(Draft|Envelope ...$messages): void
+    public function consume(string $endpoint, Command|Event $message): void
     {
-        if ($messages === []) {
-            return;
-        }
-
-        $this->dispatcher->dispatch(array_map($this->seal(...), $messages));
-    }
-
-    /**
-     * @param ?non-empty-string $endpoint
-     */
-    public function consume(Draft|Envelope $message, ?string $endpoint = null): void
-    {
-        $message = $this->seal($message);
-
-        if ($endpoint === null) {
-            $this->endpointHandling($message->payload::class)->consume($message);
-
-            return;
-        }
-
-        $this->endpoint($endpoint)->consume($message);
+        $this->endpoint($endpoint)->consume($this->envelopeFactory->build($message));
     }
 
     /**
@@ -110,40 +137,11 @@ final readonly class MessageBus
     }
 
     /**
-     * @template T of object
-     * @param Draft<T>|Envelope<T> $message
-     * @return Envelope<T>
-     */
-    private function seal(Draft|Envelope $message): Envelope
-    {
-        if ($message instanceof Draft) {
-            return $message->seal($this->name, $this->idGenerator);
-        }
-
-        return $message;
-    }
-
-    /**
      * @param non-empty-string $name
-     * @return Endpoint<*>
+     * @return Endpoint<Tx>
      */
     private function endpoint(string $name): Endpoint
     {
         return $this->endpoints[$name] ?? throw new NoEndpoint($name);
-    }
-
-    /**
-     * @param class-string $messageClass
-     * @return Endpoint<*>
-     */
-    private function endpointHandling(string $messageClass): Endpoint
-    {
-        foreach ($this->endpoints as $endpoint) {
-            if ($endpoint->handles($messageClass)) {
-                return $endpoint;
-            }
-        }
-
-        throw new NoEndpoint();
     }
 }

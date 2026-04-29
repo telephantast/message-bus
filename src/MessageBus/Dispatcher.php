@@ -10,7 +10,7 @@ namespace Thesis\MessageBus;
 interface Dispatcher
 {
     /**
-     * @param non-empty-list<Envelope> $messages
+     * @param non-empty-list<OutgoingEnvelope> $envelopes
      */
-    public function dispatch(array $messages): void;
+    public function dispatch(array $envelopes): void;
 }

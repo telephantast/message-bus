@@ -9,11 +9,11 @@ namespace Thesis\MessageBus;
  *
  * @template-contravariant Tx of object
  */
-interface TransactionalDispatcher
+interface TransactionalDispatcher extends Dispatcher
 {
     /**
      * @param Tx $transaction
-     * @param non-empty-list<Envelope> $messages
+     * @param non-empty-list<OutgoingEnvelope> $envelopes
      */
-    public function transactionalDispatch(object $transaction, array $messages): void;
+    public function transactionalDispatch(object $transaction, array $envelopes): void;
 }

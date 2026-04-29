@@ -15,33 +15,28 @@ use Thesis\MessageBus\Exception\NoHandler;
 final class Handlers
 {
     /**
-     * @var array<class-string, \Closure(Envelope, Context<Tx>): void>
+     * @var list<class-string>
+     */
+    public array $messageClasses { get => array_keys($this->handlers); }
+
+    /**
+     * @var array<class-string, \Closure(object, Context<Tx>): void>
      */
     private array $handlers = [];
 
     /**
-     * @param class-string $messageClass
+     * @param Context<Tx> $context
      */
-    public function has(string $messageClass): bool
+    public function handle(object $message, Context $context): void
     {
-        return isset($this->handlers[$messageClass]);
-    }
-
-    /**
-     * @template T of object
-     * @param class-string<T> $messageClass
-     * @return \Closure(Envelope<T>, Context<Tx>): void
-     */
-    public function get(string $messageClass): \Closure
-    {
-        return $this->handlers[$messageClass] ?? throw new NoHandler($messageClass);
+        ($this->handlers[$message::class] ?? throw new NoHandler($message::class))($message, $context);
     }
 
     /**
      * @template T of object
      * @template WithTx of object
      * @param class-string<T> $messageClass
-     * @param callable(Envelope<T>, Context<WithTx>): void $handler
+     * @param callable(T, Context<WithTx>): void $handler
      * @return self<Tx|WithTx>
      */
     public function with(string $messageClass, callable $handler): self
@@ -50,10 +45,10 @@ final class Handlers
             throw new HandlerAlreadyExists($messageClass);
         }
 
-        $handlers = clone $this;
+        $copy = clone $this;
         /** @phpstan-ignore assign.propertyType */
-        $handlers->handlers[$messageClass] = $handler(...);
+        $copy->handlers[$messageClass] = $handler(...);
 
-        return $handlers;
+        return $copy;
     }
 }

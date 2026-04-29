@@ -14,7 +14,7 @@ COMPOSER ?= $(RUN) composer
 t: terminal
 terminal: var ## Start a terminal inside the php container
 	@$(if $(INSIDE_CONTAINER),echo 'Already inside docker container.'; exit 1,)
-	$(DOCKER_COMPOSE) run --rm $(ARGS) php bash
+	$(DOCKER_COMPOSE) run --rm $(ARGS) php /bin/sh
 .PHONY: t terminal
 
 run: ## Run a command using the php container: `make run CMD='php --version'`
