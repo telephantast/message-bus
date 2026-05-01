@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Pgmq;
 
 use Amp\Postgres\PostgresConnection;
+use Amp\Postgres\PostgresLink;
 use Amp\Postgres\PostgresTransaction;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -21,7 +22,7 @@ use Thesis\Time\TimeSpan;
 /**
  * @api
  *
- * @implements TransactionalDispatcher<PostgresTransaction>
+ * @implements TransactionalDispatcher<PostgresLink>
  * @implements ConsumerRuntime<PostgresTransaction>
  */
 final readonly class Transport implements Subscriber, TransactionalDispatcher, ConsumerRuntime
@@ -55,17 +56,7 @@ final readonly class Transport implements Subscriber, TransactionalDispatcher, C
 
     public function dispatch(array $envelopes): void
     {
-        $tx = $this->pg->beginTransaction();
-
-        try {
-            $this->transactionalDispatch($tx, $envelopes);
-
-            $tx->commit();
-        } catch (\Throwable $exception) {
-            $tx->rollback();
-
-            throw $exception;
-        }
+        $this->transactionalDispatch($this->pg, $envelopes);
     }
 
     public function transactionalDispatch(object $transaction, array $envelopes): void
@@ -92,7 +83,7 @@ final readonly class Transport implements Subscriber, TransactionalDispatcher, C
 
         $transaction
             ->execute('select ' . implode(', ', $cols), $params)
-            ->fetchRow();
+            ->getRowCount();
     }
 
     public function consume(string $endpoint, Envelope $envelope, callable $handler): void
