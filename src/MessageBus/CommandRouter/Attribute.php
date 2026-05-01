@@ -16,6 +16,6 @@ final readonly class Attribute implements CommandRouter
         return (new \ReflectionClass($commandClass)
             ->getAttributes(SendTo::class)[0] ?? null)
             ?->newInstance()
-            ->endpoint;
+            ->destination;
     }
 }

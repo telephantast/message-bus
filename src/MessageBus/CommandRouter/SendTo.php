@@ -11,9 +11,9 @@ namespace Thesis\MessageBus\CommandRouter;
 final readonly class SendTo
 {
     /**
-     * @param non-empty-string $endpoint Destination endpoint name
+     * @param non-empty-string $destination Endpoint name
      */
     public function __construct(
-        public string $endpoint,
+        public string $destination,
     ) {}
 }

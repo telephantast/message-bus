@@ -12,6 +12,7 @@ use Thesis\MessageBus\Metadata\IdGenerator;
 use Thesis\MessageBus\Metadata\Kind;
 use Thesis\MessageBus\OutgoingEnvelope;
 use Thesis\MessageBus\Reply;
+use Thesis\Time\TimeSpan;
 
 /**
  * @internal
@@ -51,6 +52,7 @@ final readonly class EnvelopeFactory
         return new OutgoingEnvelope(
             route: $this->router->route($message, $causeMetadata),
             envelope: $this->build($message, $causeMetadata),
+            delay: $message instanceof Command ? $message->delay : new TimeSpan(),
         );
     }
 }

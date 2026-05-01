@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Route;
 
-use Thesis\Time\TimeSpan;
-
 /**
  * @api
  */
@@ -16,6 +14,5 @@ final readonly class Direct
      */
     public function __construct(
         public string $destination,
-        public TimeSpan $delay = new TimeSpan(),
     ) {}
 }

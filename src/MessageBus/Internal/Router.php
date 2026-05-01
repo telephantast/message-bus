@@ -52,14 +52,15 @@ final readonly class Router
     {
         return match ($message::class) {
             Command::class => new Direct(
-                destination: $message->destination
+                $message->destination
                     ?? $this->commandRouter->routeCommand($message->payload::class)
                     ?? throw new CannotRoute('Cannot route command'),
-                delay: $message->delay,
             ),
-            Event::class => new Fanout($message->payload::class),
+            Event::class => new Fanout(
+                $message->payload::class,
+            ),
             Reply::class => new Direct(
-                destination: $causeMetadata->origin ?? throw new CannotReply('Cannot route reply'),
+                $causeMetadata->origin ?? throw new CannotReply('Cannot route reply'),
             ),
         };
     }

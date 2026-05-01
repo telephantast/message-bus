@@ -72,12 +72,13 @@ final readonly class Transport implements Subscriber, TransactionalDispatcher, C
                 $params[] = $outgoing->route->destination;
                 $params[] = $message->valueJson;
                 $params[] = $message->headerJson;
-                $params[] = $outgoing->route->delay->toSeconds();
+                $params[] = $outgoing->delay->toSeconds();
             } else {
-                $cols[] = 'pgmq.send_topic(?, ?, ?, 0::int)';
+                $cols[] = 'pgmq.send_topic(?, ?, ?, ?::int)';
                 $params[] = self::eventRoutingKey($outgoing->route->eventClass);
                 $params[] = $message->valueJson;
                 $params[] = $message->headerJson;
+                $params[] = $outgoing->delay->toSeconds();
             }
         }
 
