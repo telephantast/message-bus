@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\CommandRouter;
+namespace Thesis\MessageBus\CommandRouter\Internal;
 
 use Thesis\MessageBus\CommandRouter;
+use Thesis\MessageBus\CommandRouter\SendTo;
 
 /**
- * @api
+ * @internal
  */
 final readonly class Attribute implements CommandRouter
 {

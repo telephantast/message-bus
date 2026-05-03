@@ -12,10 +12,10 @@ use Thesis\MessageBus\CommandRouter;
 final readonly class Chain implements CommandRouter
 {
     /**
-     * @param array<CommandRouter> $routers
+     * @param iterable<CommandRouter> $routers
      */
     public function __construct(
-        private array $routers,
+        private iterable $routers,
     ) {}
 
     public function routeCommand(string $commandClass): ?string

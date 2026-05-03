@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\CommandRouter;
+namespace Thesis\MessageBus\CommandRouter\Internal;
 
 use Thesis\MessageBus\CommandRouter;
 
 /**
- * @api
+ * @internal
  */
-final class Cached implements CommandRouter
+final class Memoized implements CommandRouter
 {
     /**
      * @var array<class-string, ?non-empty-string>

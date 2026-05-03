@@ -23,7 +23,7 @@ final readonly class Router
     /**
      * @param list<Endpoint<*>> $endpoints
      */
-    public static function build(array $endpoints, CommandRouter $userRouter): self
+    public static function build(array $endpoints, ?CommandRouter $userRouter = null): self
     {
         $endpointRoutes = [];
 
@@ -34,10 +34,10 @@ final readonly class Router
         }
 
         return new self(
-            commandRouter: new CommandRouter\Cached(
+            commandRouter: new CommandRouter\Internal\Memoized(
                 new CommandRouter\Chain([
-                    $userRouter,
-                    new CommandRouter\Attribute(),
+                    ...($userRouter === null ? [] : [$userRouter]),
+                    new CommandRouter\Internal\Attribute(),
                     new CommandRouter\Map($endpointRoutes),
                 ]),
             ),

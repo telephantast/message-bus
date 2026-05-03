@@ -37,7 +37,7 @@ final readonly class MessageBus
         Dispatcher $dispatcher,
         ConsumerRuntime $consumerRuntime,
         array $endpoints,
-        CommandRouter $commandRouter = new CommandRouter\Map([]),
+        ?CommandRouter $commandRouter = null,
         IdGenerator $idGenerator = new IdGenerator\UuidV7(),
         string $name = 'message_bus',
     ): self {
