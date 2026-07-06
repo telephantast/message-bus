@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Thesis;
 
-use Thesis\MessageBus\Command;
+use Thesis\MessageBus\CommandDraft;
 use Thesis\MessageBus\CommandRouter;
 use Thesis\MessageBus\ConsumerRuntime;
 use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Endpoint as EndpointConfig;
-use Thesis\MessageBus\Event;
+use Thesis\MessageBus\EventDraft;
 use Thesis\MessageBus\Exception\NoEndpoint;
+use Thesis\MessageBus\Internal\AttributeCommandRouter;
 use Thesis\MessageBus\Internal\Endpoint;
 use Thesis\MessageBus\Internal\EnvelopeFactory;
 use Thesis\MessageBus\Internal\Router;
@@ -29,6 +30,7 @@ final readonly class MessageBus
      * @template BTx of object
      * @param ConsumerRuntime<BTx> $consumerRuntime
      * @param list<EndpointConfig<BTx>> $endpoints
+     * @param list<CommandRouter> $commandRouters
      * @param non-empty-string $name
      * @return self<BTx>
      */
@@ -37,11 +39,17 @@ final readonly class MessageBus
         Dispatcher $dispatcher,
         ConsumerRuntime $consumerRuntime,
         array $endpoints,
-        ?CommandRouter $commandRouter = null,
+        array $commandRouters = [],
         IdGenerator $idGenerator = new IdGenerator\UuidV7(),
         string $name = 'message_bus',
     ): self {
-        $router = Router::build($endpoints, $commandRouter);
+        $router = new Router(
+            new CommandRouter\Chain([
+                ...$commandRouters,
+                new AttributeCommandRouter(),
+                self::endpointCommandRouter($endpoints),
+            ]),
+        );
 
         return new self(
             subscriber: $subscriber,
@@ -69,6 +77,22 @@ final readonly class MessageBus
                 ),
             ),
         );
+    }
+
+    /**
+     * @param list<EndpointConfig<*>> $endpoints
+     */
+    private static function endpointCommandRouter(array $endpoints): CommandRouter\Map
+    {
+        $endpointRoutes = [];
+
+        foreach ($endpoints as $endpoint) {
+            foreach ($endpoint->handlers->messageClasses as $messageClass) {
+                $endpointRoutes[$messageClass] = $endpoint->name;
+            }
+        }
+
+        return new CommandRouter\Map($endpointRoutes);
     }
 
     /**
@@ -100,7 +124,7 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $command) => $this->envelopeFactory->buildOutgoing(Command::from($command)),
+            fn(object $command) => $this->envelopeFactory->buildOutgoing(CommandDraft::from($command)),
             $commands,
         ));
     }
@@ -115,7 +139,7 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $event) => $this->envelopeFactory->buildOutgoing(Event::from($event)),
+            fn(object $event) => $this->envelopeFactory->buildOutgoing(EventDraft::from($event)),
             $events,
         ));
     }
@@ -123,7 +147,7 @@ final readonly class MessageBus
     /**
      * @param non-empty-string $endpoint
      */
-    public function consume(string $endpoint, Command|Event $message): void
+    public function consume(string $endpoint, CommandDraft|EventDraft $message): void
     {
         $this->endpoint($endpoint)->consume($this->envelopeFactory->build($message));
     }

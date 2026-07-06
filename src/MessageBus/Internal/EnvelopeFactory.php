@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Thesis\MessageBus\Command;
+use Thesis\MessageBus\CommandDraft;
 use Thesis\MessageBus\Envelope;
-use Thesis\MessageBus\Event;
+use Thesis\MessageBus\EventDraft;
 use Thesis\MessageBus\Metadata;
 use Thesis\MessageBus\Metadata\IdGenerator;
 use Thesis\MessageBus\Metadata\Kind;
 use Thesis\MessageBus\OutgoingEnvelope;
-use Thesis\MessageBus\Reply;
+use Thesis\MessageBus\ReplyDraft;
 use Thesis\Time\TimeSpan;
 
 /**
@@ -28,7 +28,7 @@ final readonly class EnvelopeFactory
         private Router $router,
     ) {}
 
-    public function build(Command|Event|Reply $message, ?Metadata $causeMetadata = null): Envelope
+    public function build(CommandDraft|EventDraft|ReplyDraft $message, ?Metadata $causeMetadata = null): Envelope
     {
         return new Envelope(
             payload: $message->payload,
@@ -37,9 +37,9 @@ final readonly class EnvelopeFactory
                 conversationId: $causeMetadata->conversationId ?? $id,
                 causeId: $causeMetadata?->id,
                 kind: match ($message::class) {
-                    Command::class => Kind::Command,
-                    Event::class => Kind::Event,
-                    Reply::class => Kind::Reply,
+                    CommandDraft::class => Kind::Command,
+                    EventDraft::class => Kind::Event,
+                    ReplyDraft::class => Kind::Reply,
                 },
                 origin: $this->origin,
                 createdAt: $message->createdAt,
@@ -47,12 +47,12 @@ final readonly class EnvelopeFactory
         );
     }
 
-    public function buildOutgoing(Command|Event|Reply $message, ?Metadata $causeMetadata = null): OutgoingEnvelope
+    public function buildOutgoing(CommandDraft|EventDraft|ReplyDraft $message, ?Metadata $causeMetadata = null): OutgoingEnvelope
     {
         return new OutgoingEnvelope(
             route: $this->router->route($message, $causeMetadata),
             envelope: $this->build($message, $causeMetadata),
-            delay: $message instanceof Command ? $message->delay : new TimeSpan(),
+            delay: $message instanceof CommandDraft ? $message->delay : new TimeSpan(),
         );
     }
 }
