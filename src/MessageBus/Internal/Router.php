@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Thesis\MessageBus\CommandDraft;
+use Thesis\MessageBus\Command;
 use Thesis\MessageBus\CommandRouter;
-use Thesis\MessageBus\EventDraft;
+use Thesis\MessageBus\Event;
 use Thesis\MessageBus\Exception\CannotReply;
 use Thesis\MessageBus\Exception\CannotRoute;
 use Thesis\MessageBus\Metadata;
-use Thesis\MessageBus\ReplyDraft;
+use Thesis\MessageBus\Reply;
 use Thesis\MessageBus\Route\Direct;
 use Thesis\MessageBus\Route\Fanout;
 
@@ -28,22 +28,22 @@ final class Router
         private readonly CommandRouter $commandRouter,
     ) {}
 
-    public function route(CommandDraft|EventDraft|ReplyDraft $message, ?Metadata $causeMetadata = null): Direct|Fanout
+    public function route(Command|Event|Reply $message, ?Metadata $causeMetadata = null): Direct|Fanout
     {
         return match ($message::class) {
-            CommandDraft::class => $this->routeCommand($message),
-            EventDraft::class => new Fanout($message->payload::class),
-            ReplyDraft::class => new Direct($causeMetadata->origin ?? throw new CannotReply('Cannot route reply')),
+            Command::class => $this->routeCommand($message),
+            Event::class => new Fanout($message->payload::class),
+            Reply::class => new Direct($causeMetadata->origin ?? throw new CannotReply('Cannot route reply')),
         };
     }
 
-    private function routeCommand(CommandDraft $draft): Direct
+    private function routeCommand(Command $command): Direct
     {
-        if ($draft->destination !== null) {
-            return new Direct($draft->destination);
+        if ($command->destination !== null) {
+            return new Direct($command->destination);
         }
 
-        $payloadClass = $draft->payload::class;
+        $payloadClass = $command->payload::class;
 
         if (isset($this->commandRoutes[$payloadClass])) {
             return $this->commandRoutes[$payloadClass];

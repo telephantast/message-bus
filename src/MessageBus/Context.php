@@ -12,7 +12,7 @@ namespace Thesis\MessageBus;
 final class Context
 {
     /**
-     * @var list<CommandDraft|EventDraft|ReplyDraft>
+     * @var list<Command|Event|Reply>
      */
     public private(set) array $outgoingMessages = [];
 
@@ -32,7 +32,7 @@ final class Context
     public function send(object ...$commands): void
     {
         foreach ($commands as $command) {
-            $this->outgoingMessages[] = CommandDraft::from($command);
+            $this->outgoingMessages[] = Command::from($command);
         }
     }
 
@@ -42,12 +42,12 @@ final class Context
     public function publish(object ...$events): void
     {
         foreach ($events as $event) {
-            $this->outgoingMessages[] = EventDraft::from($event);
+            $this->outgoingMessages[] = Event::from($event);
         }
     }
 
     public function reply(object $reply): void
     {
-        $this->outgoingMessages[] = ReplyDraft::from($reply);
+        $this->outgoingMessages[] = Reply::from($reply);
     }
 }

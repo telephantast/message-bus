@@ -6,6 +6,32 @@ namespace Thesis\MessageBus;
 
 /**
  * @api
+ *
+ * @template-covariant T of object = object
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
-final readonly class Reply {}
+final readonly class Reply
+{
+    /**
+     * @template TMessage of object
+     * @param TMessage|self<TMessage> $reply
+     * @return self<TMessage>
+     */
+    public static function from(object $reply): self
+    {
+        if ($reply instanceof self) {
+            return $reply;
+        }
+
+        return new self($reply);
+    }
+
+    /**
+     * @param T $payload
+     * @param ?non-empty-string $id
+     */
+    public function __construct(
+        public object $payload,
+        public ?string $id = null,
+        public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
+    ) {}
+}

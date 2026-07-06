@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Thesis;
 
-use Thesis\MessageBus\CommandDraft;
+use Thesis\MessageBus\Command;
 use Thesis\MessageBus\CommandRouter;
 use Thesis\MessageBus\ConsumerRuntime;
 use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Dispatcher;
 use Thesis\MessageBus\Endpoint as EndpointConfig;
-use Thesis\MessageBus\EventDraft;
+use Thesis\MessageBus\Event;
 use Thesis\MessageBus\Exception\NoEndpoint;
 use Thesis\MessageBus\Internal\AttributeCommandRouter;
 use Thesis\MessageBus\Internal\Endpoint;
@@ -122,7 +122,7 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $command) => $this->envelopeFactory->buildOutgoing(CommandDraft::from($command)),
+            fn(object $command) => $this->envelopeFactory->buildOutgoing(Command::from($command)),
             $commands,
         ));
     }
@@ -137,7 +137,7 @@ final readonly class MessageBus
         }
 
         $this->dispatcher->dispatch(array_map(
-            fn(object $event) => $this->envelopeFactory->buildOutgoing(EventDraft::from($event)),
+            fn(object $event) => $this->envelopeFactory->buildOutgoing(Event::from($event)),
             $events,
         ));
     }
@@ -145,7 +145,7 @@ final readonly class MessageBus
     /**
      * @param non-empty-string $endpoint
      */
-    public function consume(string $endpoint, CommandDraft|EventDraft $message): void
+    public function consume(string $endpoint, Command|Event $message): void
     {
         $this->endpoint($endpoint)->consume($this->envelopeFactory->build($message));
     }
