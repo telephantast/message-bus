@@ -108,9 +108,7 @@ final readonly class MessageBus
     public function subscribe(): void
     {
         foreach ($this->endpoints as $name => $endpoint) {
-            if ($endpoint->subscribedTo !== []) {
-                $this->subscriber->subscribe($name, $endpoint->subscribedTo);
-            }
+            $this->subscriber->subscribe($name, $endpoint->subscribedTo);
         }
     }
 

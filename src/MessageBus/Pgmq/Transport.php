@@ -46,11 +46,21 @@ final readonly class Transport implements Subscriber, TransactionalDispatcher, C
     {
         Pgmq\createQueue($this->pg, $endpoint);
 
-        foreach ($eventClasses as $eventClass) {
-            $this->pg->execute('select pgmq.bind_topic(?, ?)', [
-                self::eventRoutingKey($eventClass),
-                $endpoint,
-            ]);
+        $patterns = array_unique(array_map(self::eventRoutingKey(...), $eventClasses));
+
+        $boundPatterns = [];
+
+        /** @var array{pattern: string} $row */
+        foreach ($this->pg->execute('select pattern from pgmq.list_topic_bindings(?)', [$endpoint]) as $row) {
+            $boundPatterns[] = $row['pattern'];
+        }
+
+        foreach (array_diff($patterns, $boundPatterns) as $pattern) {
+            $this->pg->execute('select pgmq.bind_topic(?, ?)', [$pattern, $endpoint]);
+        }
+
+        foreach (array_diff($boundPatterns, $patterns) as $pattern) {
+            $this->pg->execute('select pgmq.unbind_topic(?, ?)', [$pattern, $endpoint]);
         }
     }
 
