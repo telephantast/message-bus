@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Internal\Payload;
 use Thesis\Time\TimeSpan;
 
 /**
@@ -39,7 +38,5 @@ final readonly class Command
         public ?string $destination = null,
         public ?string $id = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-    ) {
-        Payload::check($payload);
-    }
+    ) {}
 }

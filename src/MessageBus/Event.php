@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
-use Thesis\MessageBus\Internal\Payload;
-
 /**
  * @api
  *
@@ -35,7 +33,5 @@ final readonly class Event
         public object $payload,
         public ?string $id = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-    ) {
-        Payload::check($payload);
-    }
+    ) {}
 }
