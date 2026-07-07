@@ -145,9 +145,17 @@ final readonly class MessageBus
     /**
      * @param non-empty-string $endpoint
      */
-    public function consume(string $endpoint, Command|Event $message): void
+    public function consumeCommand(string $endpoint, object $command): void
     {
-        $this->endpoint($endpoint)->consume($this->envelopeFactory->build($message));
+        $this->endpoint($endpoint)->consume($this->envelopeFactory->build(Command::from($command)));
+    }
+
+    /**
+     * @param non-empty-string $endpoint
+     */
+    public function consumeEvent(string $endpoint, object $event): void
+    {
+        $this->endpoint($endpoint)->consume($this->envelopeFactory->build(Event::from($event)));
     }
 
     /**
