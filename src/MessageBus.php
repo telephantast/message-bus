@@ -22,7 +22,7 @@ use Thesis\MessageBus\Subscriber;
 /**
  * @api
  *
- * @template-covariant Tx of object
+ * @template-covariant Tx of object = object
  */
 final readonly class MessageBus
 {
