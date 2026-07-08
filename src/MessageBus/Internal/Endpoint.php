@@ -22,7 +22,7 @@ final class Endpoint
 {
     /**
      * @param non-empty-string $name
-     * @param ConsumerRuntime<Tx> $runtime
+     * @param ConsumerRuntime<Tx> $consumerRuntime
      * @param Handlers<Tx> $handlers
      * @param Listeners<Tx> $listeners
      */
@@ -30,7 +30,7 @@ final class Endpoint
         private readonly string $name,
         private readonly Handlers $handlers,
         private readonly Listeners $listeners,
-        private readonly ConsumerRuntime $runtime,
+        private readonly ConsumerRuntime $consumerRuntime,
         private readonly EnvelopeFactory $envelopeFactory,
     ) {}
 
@@ -41,12 +41,12 @@ final class Endpoint
 
     public function consume(Envelope $envelope): void
     {
-        $this->runtime->consume($this->name, $envelope, $this->handle(...));
+        $this->consumerRuntime->consume($this->name, $envelope, $this->handle(...));
     }
 
     public function startConsumer(): Consumer
     {
-        return $this->runtime->startConsumer($this->name, $this->handle(...));
+        return $this->consumerRuntime->startConsumer($this->name, $this->handle(...));
     }
 
     /**

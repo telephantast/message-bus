@@ -66,7 +66,7 @@ final readonly class MessageBus
                         name: $config->name,
                         handlers: $config->handlers,
                         listeners: $config->listeners,
-                        runtime: $consumerRuntime,
+                        consumerRuntime: $consumerRuntime,
                         envelopeFactory: new EnvelopeFactory(
                             origin: $config->name,
                             idGenerator: $idGenerator,
