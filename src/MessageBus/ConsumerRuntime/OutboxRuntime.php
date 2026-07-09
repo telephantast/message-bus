@@ -84,6 +84,7 @@ final readonly class OutboxRuntime implements ConsumerRuntime
                     id: $this->idGenerator->generateId(),
                     conversationId: $metadata->conversationId,
                     causeId: $metadata->id,
+                    replyCorrelationId: null,
                     kind: Kind::Command,
                     origin: $endpoint,
                     createdAt: new \DateTimeImmutable(),

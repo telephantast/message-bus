@@ -29,12 +29,14 @@ final readonly class Command
 
     /**
      * @param T $payload
+     * @param ?non-empty-string $replyCorrelationId
      * @param ?non-empty-string $destination
      * @param ?non-empty-string $id
      */
     public function __construct(
         public object $payload,
         public TimeSpan $delay = new TimeSpan(),
+        public ?string $replyCorrelationId = null,
         public ?string $destination = null,
         public ?string $id = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),

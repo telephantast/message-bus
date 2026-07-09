@@ -36,6 +36,11 @@ final readonly class EnvelopeFactory
                 id: $id = $message->id ?? $this->idGenerator->generateId(),
                 conversationId: $causeMetadata->conversationId ?? $id,
                 causeId: $causeMetadata?->id,
+                replyCorrelationId: match ($message::class) {
+                    Command::class => $message->replyCorrelationId,
+                    Event::class => null,
+                    Reply::class => $causeMetadata?->replyCorrelationId,
+                },
                 kind: match ($message::class) {
                     Command::class => Kind::Command,
                     Event::class => Kind::Event,
