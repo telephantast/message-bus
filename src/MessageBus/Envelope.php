@@ -7,7 +7,7 @@ namespace Thesis\MessageBus;
 /**
  * @api
  *
- * @template T of object = object
+ * @template-covariant T of object = object
  */
 final readonly class Envelope
 {
