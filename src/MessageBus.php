@@ -9,7 +9,7 @@ use Thesis\MessageBus\CommandRouter;
 use Thesis\MessageBus\ConsumerRuntime;
 use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Dispatcher;
-use Thesis\MessageBus\Endpoint as EndpointConfig;
+use Thesis\MessageBus\EndpointConfig;
 use Thesis\MessageBus\Event;
 use Thesis\MessageBus\Exception\NoEndpoint;
 use Thesis\MessageBus\Internal\AttributeCommandRouter;
@@ -87,8 +87,8 @@ final readonly class MessageBus
         $endpointRoutes = [];
 
         foreach ($endpoints as $endpoint) {
-            foreach ($endpoint->handlers->messageClasses as $messageClass) {
-                $endpointRoutes[$messageClass] = $endpoint->name;
+            foreach ($endpoint->handlers->payloadClasses as $payloadClass) {
+                $endpointRoutes[$payloadClass] = $endpoint->name;
             }
         }
 

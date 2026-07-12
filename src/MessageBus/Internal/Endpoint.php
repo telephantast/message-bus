@@ -37,7 +37,7 @@ final class Endpoint
     /**
      * @var list<class-string>
      */
-    public array $subscribedTo { get => $this->listeners->messageClasses; }
+    public array $subscribedTo { get => $this->listeners->payloadClasses; }
 
     public function consume(Envelope $envelope): void
     {
@@ -55,21 +55,18 @@ final class Endpoint
      */
     private function handle(Envelope $envelope, object $transaction): array
     {
-        $metadata = $envelope->metadata;
-
         $context = new Context(
             endpoint: $this->name,
-            metadata: $metadata,
             transaction: $transaction,
         );
 
-        match ($metadata->kind) {
-            Kind::Command, Kind::Reply => $this->handlers->handle($envelope->payload, $context),
-            Kind::Event => $this->listeners->on($envelope->payload, $context),
+        match ($envelope->metadata->kind) {
+            Kind::Command, Kind::Reply => $this->handlers->handle($envelope, $context),
+            Kind::Event => $this->listeners->on($envelope, $context),
         };
 
         return array_map(
-            fn(object $message) => $this->envelopeFactory->buildOutgoing($message, $metadata),
+            fn(object $message) => $this->envelopeFactory->buildOutgoing($message, $envelope->metadata),
             $context->outgoingMessages,
         );
     }

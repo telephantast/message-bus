@@ -9,7 +9,7 @@ namespace Thesis\MessageBus;
  *
  * @template-contravariant Tx of object
  */
-final readonly class Endpoint
+final readonly class EndpointConfig
 {
     /**
      * @param non-empty-string $name
@@ -25,15 +25,15 @@ final readonly class Endpoint
     /**
      * @template T of object
      * @template WithTx of object
-     * @param class-string<T> $messageClass
-     * @param callable(T, Context<WithTx>): void $handler
+     * @param class-string<T> $payloadClass
+     * @param callable(Envelope<T>, Context<WithTx>): void $handler
      * @return self<Tx|WithTx>
      */
-    public function withHandler(string $messageClass, callable $handler): self
+    public function withHandler(string $payloadClass, callable $handler): self
     {
         return new self(
             name: $this->name,
-            handlers: $this->handlers->with($messageClass, $handler),
+            handlers: $this->handlers->with($payloadClass, $handler),
             /** @phpstan-ignore argument.type */
             listeners: $this->listeners,
         );
@@ -42,17 +42,17 @@ final readonly class Endpoint
     /**
      * @template T of object
      * @template WithTx of object
-     * @param class-string<T> $messageClass
-     * @param callable(T, Context<WithTx>): void $listener
+     * @param class-string<T> $payloadClass
+     * @param callable(Envelope<T>, Context<WithTx>): void $listener
      * @return self<Tx|WithTx>
      */
-    public function withListener(string $messageClass, callable $listener): self
+    public function withListener(string $payloadClass, callable $listener): self
     {
         return new self(
             name: $this->name,
             /** @phpstan-ignore argument.type */
             handlers: $this->handlers,
-            listeners: $this->listeners->with($messageClass, $listener),
+            listeners: $this->listeners->with($payloadClass, $listener),
         );
     }
 }

@@ -17,37 +17,39 @@ final class Handlers
     /**
      * @var list<class-string>
      */
-    public array $messageClasses { get => array_keys($this->handlers); }
+    public array $payloadClasses { get => array_keys($this->handlers); }
 
     /**
-     * @var array<class-string, \Closure(object, Context<Tx>): void>
+     * @var array<class-string, \Closure(Envelope, Context<Tx>): void>
      */
     private array $handlers = [];
 
     /**
      * @param Context<Tx> $context
      */
-    public function handle(object $message, Context $context): void
+    public function handle(Envelope $envelope, Context $context): void
     {
-        ($this->handlers[$message::class] ?? throw new NoHandler($message::class))($message, $context);
+        $payloadClass = $envelope->payload::class;
+        ($this->handlers[$payloadClass] ?? throw new NoHandler($payloadClass))($envelope, $context);
     }
 
     /**
      * @template T of object
      * @template WithTx of object
-     * @param class-string<T> $messageClass
-     * @param callable(T, Context<WithTx>): void $handler
+     * @param class-string<T> $payloadClass
+     * @param callable(Envelope<T>, Context<WithTx>): void $handler
      * @return self<Tx|WithTx>
      */
-    public function with(string $messageClass, callable $handler): self
+    public function with(string $payloadClass, callable $handler): self
     {
-        if (isset($this->handlers[$messageClass])) {
-            throw new HandlerAlreadyExists($messageClass);
+        if (isset($this->handlers[$payloadClass])) {
+            throw new HandlerAlreadyExists($payloadClass);
         }
 
         $copy = clone $this;
+
         /** @phpstan-ignore assign.propertyType */
-        $copy->handlers[$messageClass] = $handler(...);
+        $copy->handlers[$payloadClass] = $handler(...);
 
         return $copy;
     }

@@ -22,7 +22,6 @@ final class Context
      */
     public function __construct(
         public readonly string $endpoint,
-        public readonly Metadata $metadata,
         public readonly object $transaction,
     ) {}
 
