@@ -6,7 +6,6 @@ namespace Thesis\MessageBus\Internal;
 
 use Thesis\MessageBus\ConsumerRuntime;
 use Thesis\MessageBus\ConsumerRuntime\Consumer;
-use Thesis\MessageBus\Context;
 use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\Listeners;

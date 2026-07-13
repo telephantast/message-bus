@@ -17,14 +17,14 @@ final class Listeners
     public array $payloadClasses { get => array_keys($this->listeners); }
 
     /**
-     * @var array<class-string, non-empty-list<\Closure(Envelope, Context<Tx>): void>>
+     * @var array<class-string, non-empty-list<callable(Envelope, HandlerContext<Tx>): void>>
      */
     private array $listeners = [];
 
     /**
-     * @param Context<Tx> $context
+     * @param HandlerContext<Tx> $context
      */
-    public function on(Envelope $envelope, Context $context): void
+    public function on(Envelope $envelope, HandlerContext $context): void
     {
         foreach ($this->listeners[$envelope->payload::class] ?? [] as $listener) {
             $listener($envelope, $context);
@@ -35,7 +35,7 @@ final class Listeners
      * @template T of object
      * @template WithTx of object
      * @param class-string<T> $payloadClass
-     * @param callable(Envelope<T>, Context<WithTx>): void $listener
+     * @param callable(Envelope<T>, HandlerContext<WithTx>): void $listener
      * @return self<Tx|WithTx>
      */
     public function with(string $payloadClass, callable $listener): self
@@ -43,7 +43,7 @@ final class Listeners
         $copy = clone $this;
 
         /** @phpstan-ignore assign.propertyType */
-        $copy->listeners[$payloadClass][] = $listener(...);
+        $copy->listeners[$payloadClass][] = $listener;
 
         return $copy;
     }

@@ -20,24 +20,24 @@ final class Handlers
     public array $payloadClasses { get => array_keys($this->handlers); }
 
     /**
-     * @var array<class-string, \Closure(Envelope, Context<Tx>): void>
+     * @var array<class-string, callable(Envelope, HandlerContext<Tx>): void>
      */
     private array $handlers = [];
 
     /**
-     * @param Context<Tx> $context
+     * @param HandlerContext<Tx> $context
      */
-    public function handle(Envelope $envelope, Context $context): void
+    public function handle(Envelope $envelope, HandlerContext $context): void
     {
-        $payloadClass = $envelope->payload::class;
-        ($this->handlers[$payloadClass] ?? throw new NoHandler($payloadClass))($envelope, $context);
+        $handler = $this->handlers[$envelope->payload::class] ?? throw new NoHandler($envelope->payload::class);
+        $handler($envelope, $context);
     }
 
     /**
      * @template T of object
      * @template WithTx of object
      * @param class-string<T> $payloadClass
-     * @param callable(Envelope<T>, Context<WithTx>): void $handler
+     * @param callable(Envelope<T>, HandlerContext<WithTx>): void $handler
      * @return self<Tx|WithTx>
      */
     public function with(string $payloadClass, callable $handler): self
@@ -47,9 +47,8 @@ final class Handlers
         }
 
         $copy = clone $this;
-
         /** @phpstan-ignore assign.propertyType */
-        $copy->handlers[$payloadClass] = $handler(...);
+        $copy->handlers[$payloadClass] = $handler;
 
         return $copy;
     }

@@ -2,14 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus;
+namespace Thesis\MessageBus\Internal;
+
+use Thesis\MessageBus\Command;
+use Thesis\MessageBus\Event;
+use Thesis\MessageBus\HandlerContext;
+use Thesis\MessageBus\Reply;
 
 /**
- * @api
+ * @internal
  *
- * @template-covariant Tx of object = object
+ * @template-covariant Tx of object
+ *
+ * @implements HandlerContext<Tx>
  */
-final class Context
+final class Context implements HandlerContext
 {
     /**
      * @var list<Command|Event|Reply>
@@ -25,9 +32,6 @@ final class Context
         public readonly object $transaction,
     ) {}
 
-    /**
-     * @no-named-arguments
-     */
     public function send(object ...$commands): void
     {
         foreach ($commands as $command) {
@@ -35,9 +39,6 @@ final class Context
         }
     }
 
-    /**
-     * @no-named-arguments
-     */
     public function publish(object ...$events): void
     {
         foreach ($events as $event) {
