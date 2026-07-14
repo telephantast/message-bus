@@ -41,4 +41,19 @@ final readonly class Command
         public ?string $id = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
     ) {}
+
+    /**
+     * @param non-empty-string $replyCorrelationId
+     */
+    public function withReplyCorrelationId(string $replyCorrelationId): static
+    {
+        return new self(
+            payload: $this->payload,
+            delay: $this->delay,
+            replyCorrelationId: $replyCorrelationId,
+            destination: $this->destination,
+            id: $this->id,
+            createdAt: $this->createdAt,
+        );
+    }
 }
