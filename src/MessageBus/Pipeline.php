@@ -54,7 +54,7 @@ final class Pipeline
         private readonly mixed $handler,
         private readonly array $middleware,
         private Envelope $envelope,
-        private HandlerContext $context,
+        private readonly HandlerContext $context,
     ) {}
 
     /**
@@ -67,11 +67,10 @@ final class Pipeline
      * `null` is merely a stand-in for `void`, which PHPStan cannot carry as a `@template` value.
      *
      * @param ?Envelope<T> $nextEnvelope pass only to replace the envelope downstream; omit to forward it unchanged
-     * @param ?HandlerContext<Tx> $nextContext pass only to replace the context downstream; omit to forward it unchanged
      * @return TContinue
      * @phpstan-this-out self<T, Tx, never>
      */
-    public function continue(?Envelope $nextEnvelope = null, ?HandlerContext $nextContext = null): null
+    public function continue(?Envelope $nextEnvelope = null): null
     {
         if ($this->closed) {
             throw new \LogicException('Middleware must not call $next more than once (retrying is not allowed).');
@@ -79,10 +78,6 @@ final class Pipeline
 
         if ($nextEnvelope !== null) {
             $this->envelope = $nextEnvelope;
-        }
-
-        if ($nextContext !== null) {
-            $this->context = $nextContext;
         }
 
         try {
