@@ -10,6 +10,7 @@ use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\Listeners;
+use Thesis\MessageBus\Metadata;
 use Thesis\MessageBus\Metadata\Kind;
 use Thesis\MessageBus\OutgoingEnvelope;
 
@@ -55,19 +56,27 @@ final class Endpoint
      */
     private function handle(Envelope $envelope, object $transaction): array
     {
+        $metadata = $envelope->metadata;
+
         $context = new HandlerContext(
             endpoint: $this->name,
             transaction: $transaction,
+            canReply: self::canReplyTo($metadata),
         );
 
-        match ($envelope->metadata->kind) {
+        match ($metadata->kind) {
             Kind::Command, Kind::Reply => $this->handlers->handle($envelope, $context),
             Kind::Event => $this->listeners->on($envelope, $context),
         };
 
         return array_map(
-            fn(object $message) => $this->envelopeFactory->buildOutgoing($message, $envelope->metadata),
+            fn(object $message) => $this->envelopeFactory->buildOutgoing($message, $metadata),
             $context->outgoingMessages,
         );
+    }
+
+    private static function canReplyTo(Metadata $metadata): bool
+    {
+        return $metadata->kind === Kind::Command && $metadata->replyCorrelationId !== null;
     }
 }

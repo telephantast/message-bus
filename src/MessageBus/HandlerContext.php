@@ -18,6 +18,7 @@ final class HandlerContext
     public function __construct(
         public readonly string $endpoint,
         public readonly object $transaction,
+        public readonly bool $canReply = false,
     ) {}
 
     /**
@@ -45,8 +46,19 @@ final class HandlerContext
         }
     }
 
+    public private(set) bool $replied = false;
+
     public function reply(object $reply): void
     {
+        if (!$this->canReply) {
+            throw new \LogicException('Cannot reply to this message');
+        }
+
+        if ($this->replied) {
+            throw new \LogicException('Cannot reply more than once');
+        }
+
+        $this->replied = true;
         $this->outgoingMessages[] = Reply::from($reply);
     }
 }

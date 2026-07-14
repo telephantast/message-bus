@@ -39,7 +39,8 @@ final readonly class EnvelopeFactory
                 replyCorrelationId: match ($message::class) {
                     Command::class => $message->replyCorrelationId,
                     Event::class => null,
-                    Reply::class => $causeMetadata?->replyCorrelationId,
+                    Reply::class => $causeMetadata->replyCorrelationId
+                        ?? throw new \LogicException('Cannot build a reply envelope: the cause message has no reply correlation id'),
                 },
                 kind: match ($message::class) {
                     Command::class => Kind::Command,
