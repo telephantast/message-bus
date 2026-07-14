@@ -10,7 +10,6 @@ use Thesis\MessageBus\Envelope;
 use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\Listeners;
-use Thesis\MessageBus\Metadata;
 use Thesis\MessageBus\Metadata\Kind;
 use Thesis\MessageBus\OutgoingEnvelope;
 
@@ -61,7 +60,6 @@ final class Endpoint
         $context = new HandlerContext(
             endpoint: $this->name,
             transaction: $transaction,
-            canReply: self::canReplyTo($metadata),
         );
 
         match ($metadata->kind) {
@@ -73,10 +71,5 @@ final class Endpoint
             fn(object $message) => $this->envelopeFactory->buildOutgoing($message, $metadata),
             $context->outgoingMessages,
         );
-    }
-
-    private static function canReplyTo(Metadata $metadata): bool
-    {
-        return $metadata->kind === Kind::Command && $metadata->replyCorrelationId !== null;
     }
 }

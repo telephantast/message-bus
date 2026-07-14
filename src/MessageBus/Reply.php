@@ -27,10 +27,12 @@ final readonly class Reply
 
     /**
      * @param T $payload
+     * @param ?non-empty-string $correlationId
      * @param ?non-empty-string $id
      */
     public function __construct(
         public object $payload,
+        public ?string $correlationId = null,
         public ?string $id = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
     ) {}
