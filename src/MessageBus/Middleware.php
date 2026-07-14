@@ -15,7 +15,7 @@ interface Middleware
      * @template T of object
      * @param Envelope<T> $envelope
      * @param HandlerContext<Tx> $context
-     * @param callable(Envelope<T>, HandlerContext<Tx>): void $handler
+     * @param Pipeline<T, Tx> $pipeline
      */
-    public function process(Envelope $envelope, HandlerContext $context, callable $handler): void;
+    public function process(Envelope $envelope, HandlerContext $context, Pipeline $pipeline): void;
 }
