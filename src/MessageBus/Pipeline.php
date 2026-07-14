@@ -9,6 +9,7 @@ namespace Thesis\MessageBus;
  *
  * @template T of object
  * @template Tx of object
+ * @template-covariant TContinue of null = null
  */
 final class Pipeline
 {
@@ -57,21 +58,31 @@ final class Pipeline
     ) {}
 
     /**
-     * @param ?Envelope<T> $envelope
-     * @param ?HandlerContext<Tx> $context
+     * Must be called at most once per middleware; calling it again (e.g. to retry) throws.
+     *
+     * The call-once rule is also enforced statically: `@phpstan-this-out` rebinds `$this` to
+     * `self<T, Tx, never>` after the call, so `TContinue` collapses to `never` and a second
+     * `continue()` is typed as never-returning — PHPStan then reports the retry as unreachable code.
+     *
+     * `null` is merely a stand-in for `void`, which PHPStan cannot carry as a `@template` value.
+     *
+     * @param ?Envelope<T> $nextEnvelope pass only to replace the envelope downstream; omit to forward it unchanged
+     * @param ?HandlerContext<Tx> $nextContext pass only to replace the context downstream; omit to forward it unchanged
+     * @return TContinue
+     * @phpstan-this-out self<T, Tx, never>
      */
-    public function continue(?Envelope $envelope = null, ?HandlerContext $context = null): void
+    public function continue(?Envelope $nextEnvelope = null, ?HandlerContext $nextContext = null): null
     {
         if ($this->closed) {
             throw new \LogicException('Middleware must not call $next more than once (retrying is not allowed).');
         }
 
-        if ($envelope !== null) {
-            $this->envelope = $envelope;
+        if ($nextEnvelope !== null) {
+            $this->envelope = $nextEnvelope;
         }
 
-        if ($context !== null) {
-            $this->context = $context;
+        if ($nextContext !== null) {
+            $this->context = $nextContext;
         }
 
         try {
@@ -79,12 +90,17 @@ final class Pipeline
 
             if ($middleware !== null) {
                 ++$this->middlewareOffset;
+
                 $middleware->process($this->envelope, $this->context, $this);
 
-                return;
+                /** @phpstan-ignore return.type */
+                return null;
             }
 
             ($this->handler)($this->envelope, $this->context);
+
+            /** @phpstan-ignore return.type */
+            return null;
         } finally {
             $this->closed = true;
         }
