@@ -9,27 +9,44 @@ namespace Thesis\MessageBus;
  *
  * @template-covariant Tx of object
  */
-interface HandlerContext
+final class HandlerContext
 {
     /**
-     * @var non-empty-string
+     * @param non-empty-string $endpoint
+     * @param Tx $transaction
      */
-    public string $endpoint { get; }
+    public function __construct(
+        public readonly string $endpoint,
+        public readonly object $transaction,
+    ) {}
 
     /**
-     * @var Tx
+     * @var list<Command|Event|Reply>
      */
-    public object $transaction { get; }
+    public private(set) array $outgoingMessages = [];
 
     /**
      * @no-named-arguments
      */
-    public function send(object ...$commands): void;
+    public function send(object ...$commands): void
+    {
+        foreach ($commands as $command) {
+            $this->outgoingMessages[] = Command::from($command);
+        }
+    }
 
     /**
      * @no-named-arguments
      */
-    public function publish(object ...$events): void;
+    public function publish(object ...$events): void
+    {
+        foreach ($events as $event) {
+            $this->outgoingMessages[] = Event::from($event);
+        }
+    }
 
-    public function reply(object $reply): void;
+    public function reply(object $reply): void
+    {
+        $this->outgoingMessages[] = Reply::from($reply);
+    }
 }

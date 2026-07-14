@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\MessageBus\ConsumerRuntime;
 use Thesis\MessageBus\ConsumerRuntime\Consumer;
 use Thesis\MessageBus\Envelope;
+use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handlers;
 use Thesis\MessageBus\Listeners;
 use Thesis\MessageBus\Metadata\Kind;
@@ -54,7 +55,7 @@ final class Endpoint
      */
     private function handle(Envelope $envelope, object $transaction): array
     {
-        $context = new Context(
+        $context = new HandlerContext(
             endpoint: $this->name,
             transaction: $transaction,
         );
