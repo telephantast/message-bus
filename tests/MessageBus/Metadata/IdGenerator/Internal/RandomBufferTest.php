@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Metadata\IdGenerator\Internal;
+namespace Thesis\MessageBus\Identification\Internal;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Test;
+use Thesis\MessageBus\Internal\RandomBuffer;
 
 #[Test]
 #[Covers(RandomBuffer::class)]

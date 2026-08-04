@@ -12,16 +12,15 @@ use Thesis\MessageBus\Transport\TransportOptions;
  *
  * @template-covariant T of object = object
  */
-final readonly class Reply
+final readonly class Publish
 {
     public Headers $headers;
 
     /**
-     * @param T $reply
+     * @param T $event
      */
     public function __construct(
-        public object $reply,
-        public ?ReplyTo $to = null,
+        public object $event,
         Headers $headers = new Headers(),
         public ?TransportOptions $transportOptions = null,
     ) {

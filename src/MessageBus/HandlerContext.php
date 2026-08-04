@@ -4,49 +4,158 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus;
 
+use Thesis\Headers;
+use Thesis\MessageBus\Transport\TransportOptions;
+use Thesis\Time\TimeSpan;
+
 /**
  * @api
- *
- * @template-covariant Tx of object
  */
-final class HandlerContext
+abstract class HandlerContext
 {
     /**
-     * @param non-empty-string $endpoint
-     * @param Tx $transaction
+     * @var non-empty-string
      */
-    public function __construct(
-        public readonly string $endpoint,
-        public readonly object $transaction,
-    ) {}
+    abstract public string $endpoint { get; }
+
+    abstract public Headers $headers { get; }
 
     /**
-     * @var list<Command|Event|Reply>
+     * @phpstan-ignore property.uninitialized
      */
-    public private(set) array $outgoingMessages = [];
+    final public ReplyTo $replyTo {
+        get => $this->replyTo ??= ReplyTo::fromRequestHeaders($this->headers);
+    }
 
     /**
-     * @no-named-arguments
+     * @param ?non-empty-string $endpoint
+     *
+     * @throws InvalidOutboundMessage
      */
-    public function send(object ...$commands): void
-    {
-        foreach ($commands as $command) {
-            $this->outgoingMessages[] = Command::from($command);
-        }
+    final public function send(
+        object $command,
+        ?string $endpoint = null,
+        Headers $headers = new Headers(),
+        TimeSpan $delay = new TimeSpan(0),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatch(
+            new Send(
+                command: $command,
+                destinationEndpoint: $endpoint,
+                headers: $headers,
+                delay: $delay,
+                transportOptions: $transportOptions,
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidOutboundMessage
+     */
+    final public function publish(
+        object $event,
+        Headers $headers = new Headers(),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatch(
+            new Publish(
+                event: $event,
+                headers: $headers,
+                transportOptions: $transportOptions,
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidOutboundMessage
+     */
+    final public function reply(
+        object $reply,
+        ?ReplyTo $to = null,
+        Headers $headers = new Headers(),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatch(
+            new Reply(
+                reply: $reply,
+                to: $to,
+                headers: $headers,
+                transportOptions: $transportOptions,
+            ),
+        );
     }
 
     /**
      * @no-named-arguments
+     *
+     * @throws InvalidOutboundMessage
      */
-    public function publish(object ...$events): void
-    {
-        foreach ($events as $event) {
-            $this->outgoingMessages[] = Event::from($event);
-        }
+    abstract public function dispatch(Send|Publish|Reply ...$intents): void;
+
+    /**
+     * @param ?non-empty-string $endpoint
+     *
+     * @throws InvalidOutboundMessage
+     */
+    final public function sendImmediately(
+        object $command,
+        ?string $endpoint = null,
+        Headers $headers = new Headers(),
+        TimeSpan $delay = new TimeSpan(0),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatchImmediately(
+            new Send(
+                command: $command,
+                destinationEndpoint: $endpoint,
+                headers: $headers,
+                delay: $delay,
+                transportOptions: $transportOptions,
+            ),
+        );
     }
 
-    public function reply(object $reply): void
-    {
-        $this->outgoingMessages[] = Reply::from($reply);
+    /**
+     * @throws InvalidOutboundMessage
+     */
+    final public function publishImmediately(
+        object $event,
+        Headers $headers = new Headers(),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatchImmediately(
+            new Publish(
+                event: $event,
+                headers: $headers,
+                transportOptions: $transportOptions,
+            ),
+        );
     }
+
+    /**
+     * @throws InvalidOutboundMessage
+     */
+    final public function replyImmediately(
+        object $reply,
+        ?ReplyTo $to = null,
+        Headers $headers = new Headers(),
+        ?TransportOptions $transportOptions = null,
+    ): void {
+        $this->dispatchImmediately(
+            new Reply(
+                reply: $reply,
+                to: $to,
+                headers: $headers,
+                transportOptions: $transportOptions,
+            ),
+        );
+    }
+
+    /**
+     * @no-named-arguments
+     *
+     * @throws InvalidOutboundMessage
+     */
+    abstract public function dispatchImmediately(Send|Publish|Reply ...$intents): void;
 }

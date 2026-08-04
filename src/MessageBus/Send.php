@@ -6,23 +6,26 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers;
 use Thesis\MessageBus\Transport\TransportOptions;
+use Thesis\Time\TimeSpan;
 
 /**
  * @api
  *
  * @template-covariant T of object = object
  */
-final readonly class Reply
+final readonly class Send
 {
     public Headers $headers;
 
     /**
-     * @param T $reply
+     * @param T $command
+     * @param ?non-empty-string $destinationEndpoint
      */
     public function __construct(
-        public object $reply,
-        public ?ReplyTo $to = null,
+        public object $command,
+        public ?string $destinationEndpoint = null,
         Headers $headers = new Headers(),
+        public TimeSpan $delay = new TimeSpan(0),
         public ?TransportOptions $transportOptions = null,
     ) {
         $this->headers = $headers->withDefault(CREATED_AT, static fn() => new \DateTimeImmutable());

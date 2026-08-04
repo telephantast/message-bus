@@ -16,9 +16,17 @@
     "require": {
         "php": "^8.4",
         "amphp/amp": "^3.1",
+        "amphp/pipeline": "^1.2",
         "amphp/postgres": "^2.2",
+        "psr/clock": "^1.0",
         "psr/log": "^3.0",
+        "revolt/event-loop": "^1.0",
+        "symfony/polyfill-php85": "^1.41",
+        "thesis/clock": "^0.1.0",
+        "thesis/exceptionally": "^0.3.0",
+        "thesis/headers": "^0.1.1",
         "thesis/pgmq": "^0.1.7",
+        "thesis/sync-once": "^0.2",
         "thesis/time-span": "^0.2.3",
         "thesis/transaction": "^0.1.1"
     },
@@ -28,14 +36,15 @@
         "testo/assert": "^0.1.11",
         "testo/codecov": "^0.1.11",
         "testo/test": "^0.1.6",
-        "testo/testo": "^0.10.29",
-        "thesis/amqp": "^1.0",
-        "thesis/sync-once": "^0.1.3"
+        "testo/testo": "^0.10.29"
     },
     "autoload": {
         "psr-4": {
             "Thesis\\": "src/"
-        }
+        },
+        "files": [
+            "src/MessageBus/headers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
