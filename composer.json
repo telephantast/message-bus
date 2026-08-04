@@ -24,7 +24,7 @@
         "symfony/polyfill-php85": "^1.41",
         "thesis/clock": "^0.1.0",
         "thesis/exceptionally": "^0.3.0",
-        "thesis/headers": "^0.1.1",
+        "thesis/headers": "^0.2.0",
         "thesis/pgmq": "^0.1.7",
         "thesis/sync-once": "^0.2",
         "thesis/time-span": "^0.2.3",
