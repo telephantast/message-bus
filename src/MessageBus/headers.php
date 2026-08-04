@@ -21,8 +21,8 @@ const ORIGIN_ENDPOINT = new NonEmptyStringHeader('thesis-origin-endpoint');
 const REPLY_TO_ENDPOINT = new NonEmptyStringHeader('thesis-reply-to-endpoint');
 
 const CREATED_AT = new TimeHeader('thesis-created-at');
-const SENT_AT = new TimeHeader('thesis-sent-at');
 
 \define(__NAMESPACE__ . '\RETRY_COUNT', IntHeader::nonNegative('thesis-retry-count'));
 const RETRY_STARTED_AT = new TimeHeader('thesis-retry-started-at');
+
 // todo const expiresAt = new TimeHeader('thesis-expires-at');
