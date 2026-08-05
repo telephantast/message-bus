@@ -15,6 +15,8 @@ use const Thesis\MessageBus\MESSAGE_ID;
  */
 final class PostgresDeadLetterStorage implements DeadLetterStorage
 {
+    private const string TIME_FORMAT = 'Y-m-d\TH:i:s.uP';
+
     /**
      * @param non-empty-string $table
      */
@@ -103,7 +105,7 @@ final class PostgresDeadLetterStorage implements DeadLetterStorage
                 'error_code' => $context->error->getCode(),
                 'error_trace' => $context->error->getTraceAsString(),
                 'retry_count' => $context->delayedRetryCount,
-                'failed_at' => $context->startedAt->format(\DateTimeInterface::ATOM),
+                'failed_at' => $context->startedAt->format(self::TIME_FORMAT),
             ],
         );
     }
@@ -121,7 +123,7 @@ final class PostgresDeadLetterStorage implements DeadLetterStorage
             $context->error->getCode(),
             $context->error->getTraceAsString(),
             $context->delayedRetryCount,
-            $context->startedAt->format(\DateTimeInterface::ATOM),
+            $context->startedAt->format(self::TIME_FORMAT),
         ]));
     }
 
