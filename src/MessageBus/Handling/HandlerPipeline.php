@@ -13,13 +13,13 @@ use Thesis\MessageBus\HandlerContext;
  * @template Tx of object
  * @template-covariant TContinue of null = null
  */
-final class Pipeline
+final class HandlerPipeline
 {
     /**
      * @template FT of object
      * @template FTx of object
      * @param callable(FT, HandlerContext, FTx): void $handler
-     * @param iterable<Middleware<FTx>> $middleware
+     * @param iterable<HandlerMiddleware<FTx>> $middleware
      * @return callable(FT, HandlerContext, FTx): void
      */
     public static function wrap(callable $handler, iterable $middleware): callable
@@ -48,7 +48,7 @@ final class Pipeline
 
     /**
      * @param callable(T, HandlerContext, Tx): void $handler
-     * @param non-empty-list<Middleware<Tx>> $middleware
+     * @param non-empty-list<HandlerMiddleware<Tx>> $middleware
      * @param T $message
      * @param Tx $transaction
      */

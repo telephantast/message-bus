@@ -9,7 +9,7 @@ use Thesis\MessageBus\Processing\Retry;
 /**
  * @api
  */
-final readonly class ChainRecoverabilityPolicy implements RecoverabilityPolicy
+final readonly class RecoverabilityPolicies implements RecoverabilityPolicy
 {
     /**
      * @param list<RecoverabilityPolicy> $policies

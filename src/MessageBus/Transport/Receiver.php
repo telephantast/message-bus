@@ -10,8 +10,7 @@ namespace Thesis\MessageBus\Transport;
 interface Receiver
 {
     /**
-     * @param non-empty-string $endpoint
-     * @param callable(InboundEnvelope): Disposition $handler
+     * @param non-empty-string $queue
      */
-    public function startConsumer(string $endpoint, callable $handler): Consumer;
+    public function startConsumer(string $queue, ConsumerHandler $handler): Consumer;
 }

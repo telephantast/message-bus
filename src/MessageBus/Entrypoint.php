@@ -52,7 +52,6 @@ final readonly class Entrypoint
                     classifier: new MessageClassifiers($messageClassifiers),
                     typeResolver: new MessageTypeResolvers($messageTypeResolvers),
                     commandRouter: new CommandRouters($commandRouters),
-                    knownClasses: [],
                 ),
                 serializer: $serializer,
                 idGenerator: $idGenerator,

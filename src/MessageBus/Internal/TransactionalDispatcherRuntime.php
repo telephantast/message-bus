@@ -5,77 +5,62 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Internal;
 
 use Psr\Log\LoggerInterface;
+use Thesis\Headers;
 use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Processing\Deduplicator;
 use Thesis\MessageBus\Processing\ProcessingId;
+use Thesis\MessageBus\Transport\ConsumerHandler;
+use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
 use Thesis\MessageBus\Transport\TransactionalDispatcher;
+use const Thesis\MessageBus\MESSAGE_ID;
 
 /**
  * @internal
  *
  * @template-covariant Tx of object
- * @implements Runtime<Tx>
  */
-final readonly class TransactionalDispatcherRuntime implements Runtime
+final readonly class TransactionalDispatcherRuntime implements ImmediateMessageHandler, ConsumerHandler
 {
     /**
+     * @param non-empty-string $endpoint
      * @param TransactionalDispatcher<Tx> $dispatcher
      * @param TransactionScopeFactory<Tx> $transactionScopeFactory
      * @param Deduplicator<Tx> $deduplicator
+     * @param HandlerExecutor<Tx> $handlerExecutor
      */
     public function __construct(
+        private string $endpoint,
+        private HandlerExecutor $handlerExecutor,
+        private InboundMessageFactory $inboundMessageFactory,
         private TransactionalDispatcher $dispatcher,
         private TransactionScopeFactory $transactionScopeFactory,
         private Deduplicator $deduplicator,
         private LoggerInterface $logger,
     ) {}
 
-    public function dispatch(string $endpoint, array $envelopes): void
+    public function handleImmediately(object $message, Headers $headers): void
     {
-        $this->dispatcher->dispatch($envelopes);
-    }
+        if ($headers->has(MESSAGE_ID)) {
+            $this->handleMessageIdempotently($message, $headers);
 
-    public function dispatchIdempotently(ProcessingId $id, array $envelopes): void
-    {
-        $txScope = $this->transactionScopeFactory->create();
-        $txScope->begin();
-
-        try {
-            if (!$this->deduplicator->markHandledInTransaction($txScope->transaction, $id)) {
-                $this->logger->debug('Dispatch already handled; skipping.', [
-                    'endpoint' => $id->endpoint,
-                    'message_id' => $id->messageId,
-                ]);
-
-                $txScope->rollbackIfActive();
-
-                return;
-            }
-
-            $this->dispatcher->dispatchInTransaction($txScope->transaction, $envelopes);
-
-            $txScope->commitIfBegun();
-        } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
-
-            throw $exception;
+            return;
         }
-    }
 
-    public function handle(string $endpoint, callable $handler): void
-    {
         $txScope = $this->transactionScopeFactory->create();
 
         try {
-            $outboundEnvelopes = $handler($txScope->transaction, $this->dispatcher);
+            $outboundEnvelopes = $this->handlerExecutor->execute(
+                message: $message,
+                headers: $headers,
+                transaction: $txScope->transaction,
+            );
 
             if ($outboundEnvelopes !== []) {
-                if ($txScope->hasBegun) {
-                    $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
-                } else {
-                    $this->dispatcher->dispatch($outboundEnvelopes);
-                }
+                match ($txScope->hasBegun) {
+                    true => $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes),
+                    false => $this->dispatcher->dispatch($outboundEnvelopes),
+                };
             }
 
             $txScope->commitIfBegun();
@@ -86,8 +71,13 @@ final readonly class TransactionalDispatcherRuntime implements Runtime
         }
     }
 
-    public function handleIdempotently(ProcessingId $id, callable $handler): void
+    private function handleMessageIdempotently(object $message, Headers $headers): void
     {
+        $id = new ProcessingId(
+            endpoint: $this->endpoint,
+            messageId: $headers->get(MESSAGE_ID),
+        );
+
         if ($this->deduplicator->isHandled($id)) {
             $this->logger->debug('Message already handled; skipping.', [
                 'endpoint' => $id->endpoint,
@@ -100,10 +90,14 @@ final readonly class TransactionalDispatcherRuntime implements Runtime
         $txScope = $this->transactionScopeFactory->create();
 
         try {
-            $outboundEnvelopes = $handler($txScope->transaction, $this->dispatcher);
+            $outboundEnvelopes = $this->handlerExecutor->execute(
+                message: $message,
+                headers: $headers,
+                transaction: $txScope->transaction,
+            );
 
             if ($outboundEnvelopes !== []) {
-                $txScope->begin();
+                $txScope->ensureBegun();
             }
 
             $marked = match ($txScope->hasBegun) {
@@ -134,8 +128,64 @@ final readonly class TransactionalDispatcherRuntime implements Runtime
         }
     }
 
-    public function consumeIdempotently(ProcessingId $id, InboundEnvelope $envelope, callable $handler): void
+    public function handle(InboundEnvelope $envelope): Disposition
     {
-        $this->handleIdempotently($id, $handler);
+        $id = new ProcessingId(
+            endpoint: $this->endpoint,
+            messageId: $envelope->headers->get(MESSAGE_ID),
+        );
+
+        if ($this->deduplicator->isHandled($id)) {
+            $this->logger->debug('Message already handled; skipping.', [
+                'endpoint' => $id->endpoint,
+                'message_id' => $id->messageId,
+            ]);
+
+            return Disposition::Ack;
+        }
+
+        $message = $this->inboundMessageFactory->build($envelope);
+
+        $txScope = $this->transactionScopeFactory->create();
+
+        try {
+            $outboundEnvelopes = $this->handlerExecutor->execute(
+                message: $message,
+                headers: $envelope->headers,
+                transaction: $txScope->transaction,
+            );
+
+            if ($outboundEnvelopes !== []) {
+                $txScope->ensureBegun();
+            }
+
+            $marked = match ($txScope->hasBegun) {
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
+                false => $this->deduplicator->markHandled($id),
+            };
+
+            if (!$marked) {
+                $this->logger->debug('Message was handled concurrently; skipping.', [
+                    'endpoint' => $id->endpoint,
+                    'message_id' => $id->messageId,
+                ]);
+
+                $txScope->rollbackIfActive();
+
+                return Disposition::Ack;
+            }
+
+            if ($outboundEnvelopes !== []) {
+                $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
+            }
+
+            $txScope->commitIfBegun();
+
+            return Disposition::Ack;
+        } catch (\Throwable $exception) {
+            $txScope->rollbackIfActive();
+
+            throw $exception;
+        }
     }
 }

@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Thesis\MessageBus\Internal;
+
+use Thesis\MessageBus\Metadata\InvalidMetadata;
+use Thesis\MessageBus\Metadata\MessageTypeResolver;
+use Thesis\MessageBus\Serialization\Deserializer;
+use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
+use Thesis\MessageBus\Serialization\SerializedMessage;
+use Thesis\MessageBus\Transport\InboundEnvelope;
+use const Thesis\MessageBus\CONTENT_ENCODING;
+use const Thesis\MessageBus\CONTENT_TYPE;
+use const Thesis\MessageBus\MESSAGE_TYPE;
+
+/**
+ * @internal
+ */
+final readonly class InboundMessageFactory
+{
+    /**
+     * @param list<class-string> $knownClasses
+     */
+    public static function fromClasses(
+        array $knownClasses,
+        MessageTypeResolver $typeResolver,
+        Deserializer $deserializer,
+    ): self {
+        $typeMap = [];
+
+        foreach (array_unique($knownClasses) as $messageClass) {
+            $type = $typeResolver->typeOf($messageClass) ?? throw new InvalidMetadata(\sprintf(
+                'Message class "%s" must have a message type.',
+                $messageClass,
+            ));
+
+            if (isset($typeMap[$type])) {
+                throw new InvalidMetadata(\sprintf(
+                    'Message type "%s" is used by both "%s" and "%s".',
+                    $type,
+                    $typeMap[$type],
+                    $messageClass,
+                ));
+            }
+
+            $typeMap[$type] = $messageClass;
+        }
+
+        return new self($typeMap, $deserializer);
+    }
+
+    /**
+     * @param array<non-empty-string, class-string> $typeMap
+     */
+    public function __construct(
+        private array $typeMap,
+        private Deserializer $deserializer,
+    ) {}
+
+    public function build(InboundEnvelope $envelope): object
+    {
+        $headers = $envelope->headers;
+
+        return $this->deserializer->deserialize(
+            serializedMessage: new SerializedMessage(
+                payload: $envelope->payload,
+                contentType: $headers->find(CONTENT_TYPE),
+                contentEncoding: $headers->find(CONTENT_ENCODING),
+            ),
+            messageClass: $this->resolveClass($headers->get(MESSAGE_TYPE)),
+        );
+    }
+
+    /**
+     * @param non-empty-string $type
+     * @return class-string
+     */
+    private function resolveClass(string $type): string
+    {
+        return $this->typeMap[$type]
+            ?? throw new MessageDeserializationFailed(\sprintf('Unknown message type "%s"', $type));
+    }
+}

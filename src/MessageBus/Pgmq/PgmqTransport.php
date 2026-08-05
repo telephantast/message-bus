@@ -12,11 +12,12 @@ use Revolt\EventLoop;
 use Thesis\Headers;
 use Thesis\Headers\BoolHeader;
 use Thesis\MessageBus\Pgmq\Internal\PgmqConsumer;
+use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 use Thesis\MessageBus\Transport\Receiver;
-use Thesis\MessageBus\Transport\TopologyConfigurator;
+use Thesis\MessageBus\Transport\SubscriptionConfigurator;
 use Thesis\MessageBus\Transport\TransactionalDispatcher;
 use Thesis\Pgmq;
 use Thesis\Pgmq\Internal\AggregateWatcher;
@@ -30,7 +31,7 @@ use Thesis\Time\TimeSpan;
  *
  * @implements TransactionalDispatcher<PostgresLink>
  */
-final readonly class PgmqTransport implements TransactionalDispatcher, Receiver, TopologyConfigurator
+final readonly class PgmqTransport implements TransactionalDispatcher, Receiver, SubscriptionConfigurator
 {
     private TimeSpan $visibilityTimeout;
 
@@ -87,23 +88,23 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         );
     }
 
-    public function subscribeEndpointToEvents(string $endpoint, array $eventTypes): void
+    public function subscribe(string $queue, array $messageTypes): void
     {
-        Pgmq\createQueue($this->pg, $endpoint);
+        Pgmq\createQueue($this->pg, $queue);
 
         $boundEventTypes = [];
 
         /** @var array{pattern: non-empty-string} $row */
-        foreach ($this->pg->execute('select pattern from pgmq.list_topic_bindings(?)', [$endpoint]) as $row) {
+        foreach ($this->pg->execute('select pattern from pgmq.list_topic_bindings(?)', [$queue]) as $row) {
             $boundEventTypes[] = $row['pattern'];
         }
 
-        foreach (array_diff($eventTypes, $boundEventTypes) as $eventType) {
-            Pgmq\bindTopic($this->pg, $eventType, $endpoint);
+        foreach (array_diff($messageTypes, $boundEventTypes) as $eventType) {
+            Pgmq\bindTopic($this->pg, $eventType, $queue);
         }
 
-        foreach (array_diff($boundEventTypes, $eventTypes) as $eventType) {
-            Pgmq\unbindTopic($this->pg, $eventType, $endpoint);
+        foreach (array_diff($boundEventTypes, $messageTypes) as $eventType) {
+            Pgmq\unbindTopic($this->pg, $eventType, $queue);
         }
     }
 
@@ -168,9 +169,9 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         ];
     }
 
-    public function startConsumer(string $endpoint, callable $handler): PgmqConsumer
+    public function startConsumer(string $queue, ConsumerHandler $handler): PgmqConsumer
     {
-        $queue = Pgmq\createQueue($this->pg, $endpoint);
+        $queue = Pgmq\createQueue($this->pg, $queue);
 
         /** @var DeferredFuture<void> $completion */
         $completion = new DeferredFuture();
@@ -194,19 +195,15 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
         $iterator = $polls->iterate();
 
-        EventLoop::queue(function () use ($endpoint, $handler, $completion, $watcher, $iterator): void {
+        EventLoop::queue(function () use ($queue, $handler, $completion, $watcher, $iterator): void {
             $watcher->watch();
 
             try {
                 while ($iterator->continue()) {
-                    $messages = [
-                        ...Pgmq\readBatch(
-                            pg: $this->pg,
-                            queue: $endpoint,
-                            count: $this->batchSize,
-                            visibilityTimeout: $this->visibilityTimeout,
-                        ),
-                    ];
+                    $messages = [...$queue->readBatch(
+                        count: $this->batchSize,
+                        visibilityTimeout: $this->visibilityTimeout,
+                    )];
 
                     if ($messages === []) {
                         continue;
@@ -217,10 +214,8 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
                     $updateVisibilityId = EventLoop::repeat(
                         interval: $this->visibilityTimeout->toSeconds(precision: 4) / 2,
-                        closure: function () use ($endpoint, &$unhandledMessageIds): void {
-                            Pgmq\setVisibilityTimeout(
-                                pg: $this->pg,
-                                queue: $endpoint,
+                        closure: function () use ($queue, &$unhandledMessageIds): void {
+                            $queue->setVisibilityTimeout(
                                 messageIds: array_values($unhandledMessageIds),
                                 visibilityTimeout: $this->visibilityTimeout,
                             );
@@ -229,15 +224,9 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
                     try {
                         foreach ($messages as $message) {
-                            match ($handler($this->decode($message))) {
-                                Disposition::Ack => Pgmq\archive(
-                                    pg: $this->pg,
-                                    queue: $endpoint,
-                                    messageId: $message->id,
-                                ),
-                                Disposition::Requeue => Pgmq\setVisibilityTimeout(
-                                    pg: $this->pg,
-                                    queue: $endpoint,
+                            match ($handler->handle($this->decode($message))) {
+                                Disposition::Ack => $queue->archive($message->id),
+                                Disposition::Requeue => $queue->setVisibilityTimeout(
                                     messageIds: [$message->id],
                                     visibilityTimeout: $this->requeueDelay,
                                 ),

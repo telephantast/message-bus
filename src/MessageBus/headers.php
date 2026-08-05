@@ -25,4 +25,4 @@ const CREATED_AT = new TimeHeader('thesis-created-at');
 \define(__NAMESPACE__ . '\RETRY_COUNT', IntHeader::nonNegative('thesis-retry-count'));
 const RETRY_STARTED_AT = new TimeHeader('thesis-retry-started-at');
 
-// todo const expiresAt = new TimeHeader('thesis-expires-at');
+const EXPIRES_AT = new TimeHeader('thesis-expires-at');

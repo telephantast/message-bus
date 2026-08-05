@@ -11,13 +11,13 @@ use Thesis\MessageBus\HandlerContext;
  *
  * @template Tx of object = object
  */
-interface Middleware
+interface HandlerMiddleware
 {
     /**
      * @template T of object
      * @param T $message
      * @param Tx $transaction
-     * @param Pipeline<T, Tx> $pipeline
+     * @param HandlerPipeline<T, Tx> $pipeline
      */
-    public function process(object $message, HandlerContext $context, object $transaction, Pipeline $pipeline): void;
+    public function process(object $message, HandlerContext $context, object $transaction, HandlerPipeline $pipeline): void;
 }

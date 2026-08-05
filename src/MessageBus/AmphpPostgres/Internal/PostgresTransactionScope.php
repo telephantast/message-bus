@@ -40,7 +40,7 @@ final class PostgresTransactionScope implements TransactionScopeInterface, Postg
         get => $this->pgTransaction !== null;
     }
 
-    public function begin(): void
+    public function ensureBegun(): void
     {
         $this->begunTransaction();
     }

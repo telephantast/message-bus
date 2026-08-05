@@ -38,7 +38,7 @@ interface TransactionScope
      * calls must not begin nested transactions or otherwise change the scope
      * state.
      */
-    public function begin(): void;
+    public function ensureBegun(): void;
 
     /**
      * Commits the underlying transaction only if this scope has begun it.

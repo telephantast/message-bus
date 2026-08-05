@@ -9,16 +9,22 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Thesis\Headers;
 use Thesis\Headers\HeaderException;
+use Thesis\MessageBus\Consumption\ConsumerMiddleware;
 use Thesis\MessageBus\Handling\HandlerRegistry;
 use Thesis\MessageBus\Handling\NoHandler;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
+use Thesis\MessageBus\Internal\ConsumerMiddlewareStack;
+use Thesis\MessageBus\Internal\DiscardExpiredMessagesMiddleware;
+use Thesis\MessageBus\Internal\EndpointTopology;
+use Thesis\MessageBus\Internal\FailureHandlingMiddleware;
+use Thesis\MessageBus\Internal\HandlerExecutor;
+use Thesis\MessageBus\Internal\ImmediateMessageHandler;
+use Thesis\MessageBus\Internal\InboundMessageFactory;
 use Thesis\MessageBus\Internal\MessageMetadataRegistry;
 use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Internal\OutboxRuntime;
-use Thesis\MessageBus\Internal\Recoverability;
-use Thesis\MessageBus\Internal\Runtime;
-use Thesis\MessageBus\Internal\RuntimeHandlerContext;
+use Thesis\MessageBus\Internal\RequeueOnUnhandledFailureMiddleware;
 use Thesis\MessageBus\Internal\TransactionalDispatcherRuntime;
 use Thesis\MessageBus\Metadata\AttributeCommandRouter;
 use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
@@ -34,23 +40,20 @@ use Thesis\MessageBus\Metadata\MessageTypeResolvers;
 use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Processing\Deduplicator;
 use Thesis\MessageBus\Processing\OutboxStorage;
-use Thesis\MessageBus\Processing\ProcessingId;
-use Thesis\MessageBus\Recoverability\ChainRecoverabilityPolicy;
 use Thesis\MessageBus\Recoverability\DeadLetterStorage;
 use Thesis\MessageBus\Recoverability\LinearRetryPolicy;
+use Thesis\MessageBus\Recoverability\RecoverabilityPolicies;
 use Thesis\MessageBus\Recoverability\RecoverabilityPolicy;
 use Thesis\MessageBus\Recoverability\UnrecoverableErrorPolicy;
 use Thesis\MessageBus\Serialization\Deserializer;
 use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
 use Thesis\MessageBus\Serialization\MessageSerializationFailed;
-use Thesis\MessageBus\Serialization\SerializedMessage;
 use Thesis\MessageBus\Serialization\Serializer;
 use Thesis\MessageBus\Transport\Consumer;
+use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
-use Thesis\MessageBus\Transport\InboundEnvelope;
-use Thesis\MessageBus\Transport\OutboundEnvelope;
 use Thesis\MessageBus\Transport\Receiver;
-use Thesis\MessageBus\Transport\TopologyConfigurator;
+use Thesis\MessageBus\Transport\SubscriptionConfigurator;
 use Thesis\MessageBus\Transport\TransactionalDispatcher;
 use Thesis\MessageBus\Transport\TransportOptions;
 use Thesis\Time\TimeSpan;
@@ -58,8 +61,6 @@ use Thesis\Time\WallClock;
 
 /**
  * @api
- *
- * @template-contravariant Tx of object
  */
 final readonly class Endpoint
 {
@@ -73,12 +74,12 @@ final readonly class Endpoint
      * @param list<MessageClassifier> $messageClassifiers
      * @param list<MessageTypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
-     * @return self<STx>
+     * @param list<ConsumerMiddleware> $consumerMiddleware
      */
     public static function outbox(
         string $name,
         HandlerRegistry $handlerRegistry,
-        Dispatcher&Receiver&TopologyConfigurator $transport,
+        Dispatcher&Receiver&SubscriptionConfigurator $transport,
         TransactionScopeFactory $transactionScopeFactory,
         OutboxStorage $outboxStorage,
         DeadLetterStorage $deadLetterStorage,
@@ -88,55 +89,84 @@ final readonly class Endpoint
         array $messageClassifiers = [new AttributeMessageClassifier()],
         array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
+        array $consumerMiddleware = [],
         IdGenerator $idGenerator = new UuidV7Generator(),
         ClockInterface $clock = new WallClock(),
         ?TimeSpan $outboxTriggerTtl = null,
+        ?TimeSpan $outboxTriggerRetryInterval = null,
     ): self {
-        $metadataRegistry = new MessageMetadataRegistry(
+        $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
+        $messageMetadataRegistry = new MessageMetadataRegistry(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+            typeResolver: $typeResolver,
             commandRouter: new CommandRouters($commandRouters),
-            knownClasses: $handlerRegistry->messageClasses,
+        );
+        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
+            messageMetadataRegistry: $messageMetadataRegistry,
+            serializer: $serializer,
+            idGenerator: $idGenerator,
+        );
+        $runtime = new OutboxRuntime(
+            endpoint: $name,
+            handlerExecutor: new HandlerExecutor(
+                endpoint: $name,
+                handlerRegistry: $handlerRegistry,
+                outboundEnvelopeFactory: $outboundEnvelopeFactory,
+                dispatcher: $transport,
+            ),
+            inboundMessageFactory: InboundMessageFactory::fromClasses(
+                knownClasses: $handlerRegistry->messageClasses,
+                typeResolver: $typeResolver,
+                deserializer: $serializer,
+            ),
+            dispatcher: $transport,
+            transactionScopeFactory: $transactionScopeFactory,
+            outboxStorage: $outboxStorage,
+            logger: $logger,
+            idGenerator: $idGenerator,
+            clock: $clock,
+            triggerTtl: $outboxTriggerTtl,
+            triggerRetryInterval: $outboxTriggerRetryInterval,
         );
 
         return new self(
             name: $name,
-            handlerRegistry: $handlerRegistry,
-            runtime: new OutboxRuntime(
-                dispatcher: $transport,
-                transactionScopeFactory: $transactionScopeFactory,
-                outboxStorage: $outboxStorage,
-                idGenerator: $idGenerator,
-                clock: $clock,
-                triggerTtl: $outboxTriggerTtl,
-                logger: $logger,
+            immediateHandler: $runtime,
+            consumerHandler: ConsumerMiddlewareStack::from(
+                endpoint: $name,
+                handler: $runtime,
+                middlewares: [
+                    new RequeueOnUnhandledFailureMiddleware($logger),
+                    new DiscardExpiredMessagesMiddleware($clock, $logger),
+                    new FailureHandlingMiddleware(
+                        policy: new RecoverabilityPolicies([
+                            new UnrecoverableErrorPolicy([
+                                MessageSerializationFailed::class,
+                                MessageDeserializationFailed::class,
+                                InvalidMetadata::class,
+                                NoHandler::class,
+                                HeaderException::class,
+                            ]),
+                            ...$recoverabilityPolicies,
+                        ]),
+                        dispatcher: $transport,
+                        deadLetterStorage: $deadLetterStorage,
+                        clock: $clock,
+                        logger: $logger,
+                    ),
+                    ...$consumerMiddleware,
+                ],
             ),
+            outboundEnvelopeFactory: $outboundEnvelopeFactory,
+            dispatcher: $transport,
             receiver: $transport,
-            topology: $transport,
-            deserializer: $serializer,
-            messageMetadataRegistry: $metadataRegistry,
-            outboundEnvelopeFactory: new OutboundEnvelopeFactory(
-                messageMetadataRegistry: $metadataRegistry,
-                serializer: $serializer,
-                idGenerator: $idGenerator,
-            ),
-            recoverability: new Recoverability(
-                policy: new ChainRecoverabilityPolicy([
-                    new UnrecoverableErrorPolicy([
-                        MessageSerializationFailed::class,
-                        MessageDeserializationFailed::class,
-                        InvalidMetadata::class,
-                        NoHandler::class,
-                        HeaderException::class,
-                    ]),
-                    ...$recoverabilityPolicies,
-                ]),
-                dispatcher: $transport,
-                deadLetterStore: $deadLetterStorage,
-                clock: $clock,
+            topology: new EndpointTopology(
+                endpoint: $name,
+                messageClasses: $handlerRegistry->messageClasses,
+                messageMetadataRegistry: $messageMetadataRegistry,
+                subscriptionConfigurator: $transport,
                 logger: $logger,
             ),
-            logger: $logger,
         );
     }
 
@@ -144,19 +174,19 @@ final readonly class Endpoint
      * @template STx of object
      * @param non-empty-string $name
      * @param HandlerRegistry<STx> $handlerRegistry
-     * @param TransactionalDispatcher<STx>&Receiver&TopologyConfigurator $transport
+     * @param TransactionalDispatcher<STx>&Receiver&SubscriptionConfigurator $transport
      * @param TransactionScopeFactory<STx> $transactionScopeFactory
      * @param Deduplicator<STx> $deduplicator
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
      * @param list<MessageTypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
-     * @return self<STx>
+     * @param list<ConsumerMiddleware> $consumerMiddleware
      */
     public static function transactional(
         string $name,
         HandlerRegistry $handlerRegistry,
-        TransactionalDispatcher&Receiver&TopologyConfigurator $transport,
+        TransactionalDispatcher&Receiver&SubscriptionConfigurator $transport,
         TransactionScopeFactory $transactionScopeFactory,
         Deduplicator $deduplicator,
         DeadLetterStorage $deadLetterStorage,
@@ -166,92 +196,97 @@ final readonly class Endpoint
         array $messageClassifiers = [new AttributeMessageClassifier()],
         array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
+        array $consumerMiddleware = [],
         IdGenerator $idGenerator = new UuidV7Generator(),
         ClockInterface $clock = new WallClock(),
     ): self {
-        $metadataRegistry = new MessageMetadataRegistry(
+        $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
+        $messageMetadataRegistry = new MessageMetadataRegistry(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+            typeResolver: $typeResolver,
             commandRouter: new CommandRouters($commandRouters),
-            knownClasses: $handlerRegistry->messageClasses,
+        );
+        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
+            messageMetadataRegistry: $messageMetadataRegistry,
+            serializer: $serializer,
+            idGenerator: $idGenerator,
+        );
+        $runtime = new TransactionalDispatcherRuntime(
+            endpoint: $name,
+            handlerExecutor: new HandlerExecutor(
+                endpoint: $name,
+                handlerRegistry: $handlerRegistry,
+                outboundEnvelopeFactory: $outboundEnvelopeFactory,
+                dispatcher: $transport,
+            ),
+            inboundMessageFactory: InboundMessageFactory::fromClasses(
+                knownClasses: $handlerRegistry->messageClasses,
+                typeResolver: $typeResolver,
+                deserializer: $serializer,
+            ),
+            dispatcher: $transport,
+            transactionScopeFactory: $transactionScopeFactory,
+            deduplicator: $deduplicator,
+            logger: $logger,
         );
 
         return new self(
             name: $name,
-            handlerRegistry: $handlerRegistry,
-            runtime: new TransactionalDispatcherRuntime(
-                dispatcher: $transport,
-                transactionScopeFactory: $transactionScopeFactory,
-                deduplicator: $deduplicator,
-                logger: $logger,
+            immediateHandler: $runtime,
+            consumerHandler: ConsumerMiddlewareStack::from(
+                endpoint: $name,
+                handler: $runtime,
+                middlewares: [
+                    new RequeueOnUnhandledFailureMiddleware($logger),
+                    new DiscardExpiredMessagesMiddleware($clock, $logger),
+                    new FailureHandlingMiddleware(
+                        policy: new RecoverabilityPolicies([
+                            new UnrecoverableErrorPolicy([
+                                MessageSerializationFailed::class,
+                                MessageDeserializationFailed::class,
+                                InvalidMetadata::class,
+                                NoHandler::class,
+                                HeaderException::class,
+                            ]),
+                            ...$recoverabilityPolicies,
+                        ]),
+                        dispatcher: $transport,
+                        deadLetterStorage: $deadLetterStorage,
+                        clock: $clock,
+                        logger: $logger,
+                    ),
+                    ...$consumerMiddleware,
+                ],
             ),
+            outboundEnvelopeFactory: $outboundEnvelopeFactory,
+            dispatcher: $transport,
             receiver: $transport,
-            topology: $transport,
-            deserializer: $serializer,
-            messageMetadataRegistry: $metadataRegistry,
-            outboundEnvelopeFactory: new OutboundEnvelopeFactory(
-                messageMetadataRegistry: $metadataRegistry,
-                serializer: $serializer,
-                idGenerator: $idGenerator,
-            ),
-            recoverability: new Recoverability(
-                policy: new ChainRecoverabilityPolicy([
-                    new UnrecoverableErrorPolicy([
-                        MessageSerializationFailed::class,
-                        MessageDeserializationFailed::class,
-                        InvalidMetadata::class,
-                        NoHandler::class,
-                        HeaderException::class,
-                    ]),
-                    ...$recoverabilityPolicies,
-                ]),
-                dispatcher: $transport,
-                deadLetterStore: $deadLetterStorage,
-                clock: $clock,
+            topology: new EndpointTopology(
+                endpoint: $name,
+                messageClasses: $handlerRegistry->messageClasses,
+                messageMetadataRegistry: $messageMetadataRegistry,
+                subscriptionConfigurator: $transport,
                 logger: $logger,
             ),
-            logger: $logger,
         );
     }
 
     /**
      * @param non-empty-string $name
-     * @param HandlerRegistry<Tx> $handlerRegistry
-     * @param Runtime<Tx> $runtime
      */
     private function __construct(
         public string $name,
-        private HandlerRegistry $handlerRegistry,
-        private Runtime $runtime,
-        private Receiver $receiver,
-        private TopologyConfigurator $topology,
-        private Deserializer $deserializer,
-        private MessageMetadataRegistry $messageMetadataRegistry,
+        private ImmediateMessageHandler $immediateHandler,
+        private ConsumerHandler $consumerHandler,
         private OutboundEnvelopeFactory $outboundEnvelopeFactory,
-        private Recoverability $recoverability,
-        private LoggerInterface $logger,
+        private Dispatcher $dispatcher,
+        private Receiver $receiver,
+        private EndpointTopology $topology,
     ) {}
 
     public function setup(): void
     {
-        $eventTypes = [];
-
-        foreach ($this->handlerRegistry->messageClasses as $messageClass) {
-            $metadata = $this->messageMetadataRegistry->forClass($messageClass);
-
-            if ($metadata->isEvent) {
-                $eventTypes[] = $metadata->type;
-            }
-        }
-
-        $eventTypes = array_values(array_unique($eventTypes));
-
-        $this->logger->debug('Subscribing endpoint to events.', [
-            'endpoint' => $this->name,
-            'event_types' => $eventTypes,
-        ]);
-
-        $this->topology->subscribeEndpointToEvents($this->name, $eventTypes);
+        $this->topology->setup();
     }
 
     /**
@@ -297,140 +332,29 @@ final readonly class Endpoint
     /**
      * @no-named-arguments
      */
-    public function dispatch(Send|Publish ...$intents): void
+    public function dispatch(Send|Publish $intent): void
     {
-        if ($intents === []) {
-            return;
-        }
-
-        $this->runtime->dispatch(
-            endpoint: $this->name,
-            envelopes: array_map(
-                fn(object $intent) => $this->outboundEnvelopeFactory->build(
-                    intent: $intent,
-                    originEndpoint: $this->name,
-                ),
-                $intents,
+        $this->dispatcher->dispatch([
+            $this->outboundEnvelopeFactory->build(
+                intent: $intent,
+                originEndpoint: $this->name,
             ),
-        );
-    }
-
-    /**
-     * @no-named-arguments
-     *
-     * @param non-empty-string $id
-     */
-    public function dispatchIdempotently(string $id, Send|Publish ...$intents): void
-    {
-        if ($intents === []) {
-            return;
-        }
-
-        $this->runtime->dispatchIdempotently(
-            id: $this->processingIdFor($id),
-            envelopes: array_map(
-                fn(object $intent) => $this->outboundEnvelopeFactory->build(
-                    intent: $intent,
-                    originEndpoint: $this->name,
-                ),
-                $intents,
-            ),
-        );
+        ]);
     }
 
     public function handle(object $message, Headers $headers = new Headers()): void
     {
-        $messageId = $headers->find(MESSAGE_ID);
-
-        if ($messageId === null) {
-            $this->runtime->handle(
-                endpoint: $this->name,
-                handler: fn(object $tx, Dispatcher $d) => $this->handleMessage($message, $headers, $tx, $d),
-            );
-
-            return;
-        }
-
-        $this->runtime->handleIdempotently(
-            id: $this->processingIdFor($messageId),
-            handler: fn(object $tx, Dispatcher $d) => $this->handleMessage($message, $headers, $tx, $d),
+        $this->immediateHandler->handleImmediately(
+            message: $message,
+            headers: $headers,
         );
     }
 
     public function startConsumer(): Consumer
     {
         return $this->receiver->startConsumer(
-            endpoint: $this->name,
-            handler: fn(InboundEnvelope $envelope) => $this->recoverability->process(
-                endpoint: $this->name,
-                envelope: $envelope,
-                operation: fn() => $this->runtime->consumeIdempotently(
-                    id: $this->processingIdFor($envelope->headers->get(MESSAGE_ID)),
-                    envelope: $envelope,
-                    handler: fn(object $tx, Dispatcher $d) => $this->handleEnvelope($envelope, $tx, $d),
-                ),
-            ),
-        );
-    }
-
-    /**
-     * @param Tx $transaction
-     * @return list<OutboundEnvelope>
-     */
-    private function handleEnvelope(InboundEnvelope $envelope, object $transaction, Dispatcher $dispatcher): array
-    {
-        $headers = $envelope->headers;
-
-        $messageClass = $this
-            ->messageMetadataRegistry
-            ->forType($headers->get(MESSAGE_TYPE))
-            ->class;
-
-        $message = $this->deserializer->deserialize(
-            serializedMessage: new SerializedMessage(
-                payload: $envelope->payload,
-                contentType: $headers->find(CONTENT_TYPE),
-                contentEncoding: $headers->find(CONTENT_ENCODING),
-            ),
-            messageClass: $messageClass,
-        );
-
-        return $this->handleMessage($message, $envelope->headers, $transaction, $dispatcher);
-    }
-
-    /**
-     * @param Tx $transaction
-     * @return list<OutboundEnvelope>
-     */
-    private function handleMessage(object $message, Headers $headers, object $transaction, Dispatcher $dispatcher): array
-    {
-        $handler = $this->handlerRegistry->handlerFor($message::class)
-            ?? throw new NoHandler($message::class);
-
-        $context = new RuntimeHandlerContext(
-            endpoint: $this->name,
-            headers: $headers,
-            envelopeFactory: $this->outboundEnvelopeFactory,
-            dispatcher: $dispatcher,
-        );
-
-        try {
-            $handler($message, $context, $transaction);
-        } finally {
-            $context->disableDispatch();
-        }
-
-        return $context->outboundEnvelopes;
-    }
-
-    /**
-     * @param non-empty-string $messageId
-     */
-    private function processingIdFor(string $messageId): ProcessingId
-    {
-        return new ProcessingId(
-            endpoint: $this->name,
-            messageId: $messageId,
+            queue: $this->name,
+            handler: $this->consumerHandler,
         );
     }
 }

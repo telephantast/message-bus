@@ -15,40 +15,16 @@ use Thesis\MessageBus\Metadata\MessageTypeResolver;
  */
 final class MessageMetadataRegistry
 {
-    /**
-     * @param list<class-string> $knownClasses
-     */
     public function __construct(
         private readonly MessageClassifier $classifier,
         private readonly MessageTypeResolver $typeResolver,
         private readonly CommandRouter $commandRouter,
-        array $knownClasses,
-    ) {
-        foreach (array_unique($knownClasses) as $messageClass) {
-            $metadata = $this->forClass($messageClass);
-
-            if (isset($this->byType[$metadata->type])) {
-                throw new InvalidMetadata(\sprintf(
-                    'Message type "%s" is used by both "%s" and "%s".',
-                    $metadata->type,
-                    $this->byType[$metadata->type]->class,
-                    $messageClass,
-                ));
-            }
-
-            $this->byType[$metadata->type] = $metadata;
-        }
-    }
+    ) {}
 
     /**
      * @var array<class-string, MessageMetadata>
      */
     private array $byClass = [];
-
-    /**
-     * @var array<non-empty-string, MessageMetadata>
-     */
-    private array $byType = [];
 
     /**
      * @template T of object
@@ -58,17 +34,6 @@ final class MessageMetadataRegistry
     public function forClass(string $messageClass): MessageMetadata
     {
         return $this->byClass[$messageClass] ??= $this->create($messageClass);
-    }
-
-    /**
-     * @param non-empty-string $type
-     */
-    public function forType(string $type): MessageMetadata
-    {
-        return $this->byType[$type] ?? throw new InvalidMetadata(\sprintf(
-            'Message type "%s" is not registered.',
-            $type,
-        ));
     }
 
     /**
