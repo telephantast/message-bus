@@ -16,10 +16,10 @@ final class Handlers implements HandlerRegistry
 {
     /**
      * @template STx of object
-     * @param class-string<STx> $transactioClass
+     * @param class-string<STx> $transactionClass
      * @return self<STx>
      */
-    public static function tx(string $transactioClass): self
+    public static function tx(string $transactionClass): self
     {
         /** @var self<STx> */
         return new self();

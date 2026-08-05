@@ -67,10 +67,10 @@ final readonly class FailureHandlingMiddleware implements ConsumerMiddleware
                     delayedRetryCount: $delayedRetryCount,
                 );
 
-                $decision = $this->policy->onFailure($context) ?? Action::Bury;
+                $action = $this->policy->onFailure($context) ?? Action::Bury;
 
-                if ($decision instanceof Retry) {
-                    if ($decision->delay->isNegativeOrZero()) {
+                if ($action instanceof Retry) {
+                    if ($action->delay->isNegativeOrZero()) {
                         $this->logger->warning('Message handling failed; retrying immediately.', [
                             ...$logContext,
                             'exception' => $error,
@@ -86,7 +86,7 @@ final readonly class FailureHandlingMiddleware implements ConsumerMiddleware
                         'exception' => $error,
                         'immediate_retry_count' => $immediateRetryCount,
                         'delayed_retry_count' => $delayedRetryCount,
-                        'delay_seconds' => $decision->delay->toSeconds(),
+                        'delay_seconds' => $action->delay->toSeconds(),
                     ]);
 
                     $this->dispatcher->dispatch([
@@ -97,14 +97,14 @@ final readonly class FailureHandlingMiddleware implements ConsumerMiddleware
                             headers: $envelope->headers
                                 ->withDefault(RETRY_STARTED_AT, $startedAt)
                                 ->with(RETRY_COUNT, $delayedRetryCount + 1),
-                            delay: $decision->delay,
+                            delay: $action->delay,
                         ),
                     ]);
 
                     return Disposition::Ack;
                 }
 
-                if ($decision === Action::Bury) {
+                if ($action === Action::Bury) {
                     $this->logger->error('Message handling failed; storing in dead letter.', $logContext + [
                         'exception' => $error,
                         'immediate_retry_count' => $immediateRetryCount,

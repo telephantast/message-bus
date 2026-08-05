@@ -80,7 +80,7 @@ $pg = new PostgresConnectionPool(
 );
 $transport = new PgmqTransport($pg);
 $deduplicator = new PostgresDeduplicator($pg);
-$deadLetters = new PostgresDeadLetterStorage($pg);
+$deadLetterStorage = new PostgresDeadLetterStorage($pg);
 
 $endpoint = Endpoint::transactional(
     name: 'registration',
@@ -91,14 +91,14 @@ $endpoint = Endpoint::transactional(
     transport: $transport,
     transactionScopeFactory: new PostgresTransactionScopeFactory($pg),
     deduplicator: $deduplicator,
-    deadLetterStorage: $deadLetters,
+    deadLetterStorage: $deadLetterStorage,
     serializer: new PhpNativeSerializer(),
 );
 
-$setup = static function () use ($endpoint, $deadLetters, $deduplicator, $transport): void {
+$setup = static function () use ($endpoint, $deadLetterStorage, $deduplicator, $transport): void {
     $transport->setup();
     $deduplicator->setup();
-    $deadLetters->setup();
+    $deadLetterStorage->setup();
     $endpoint->setup();
 };
 
