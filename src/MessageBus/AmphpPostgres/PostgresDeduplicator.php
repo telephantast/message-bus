@@ -38,7 +38,7 @@ final class PostgresDeduplicator implements Deduplicator
                     endpoint text not null,
                     message_id text not null,
                     handled_at timestamptz not null default now(),
-                    primary key (endpoint, message_id)
+                    primary key (message_id, endpoint)
                 )
                 SQL,
         );
