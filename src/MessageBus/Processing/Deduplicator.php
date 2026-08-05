@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Processing;
 
 /**
+ * @api
+ *
  * @template-contravariant Tx of object
  */
 interface Deduplicator
