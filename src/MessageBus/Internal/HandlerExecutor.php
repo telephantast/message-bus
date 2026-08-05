@@ -7,6 +7,7 @@ namespace Thesis\MessageBus\Internal;
 use Thesis\Headers;
 use Thesis\MessageBus\Handling\HandlerRegistry;
 use Thesis\MessageBus\Handling\NoHandler;
+use Thesis\MessageBus\Handling\TransactionScope;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 
@@ -29,10 +30,10 @@ final readonly class HandlerExecutor
     ) {}
 
     /**
-     * @param Tx $transaction
+     * @param TransactionScope<Tx> $txScope
      * @return list<OutboundEnvelope>
      */
-    public function execute(object $message, Headers $headers, object $transaction): array
+    public function execute(object $message, Headers $headers, TransactionScope $txScope): array
     {
         $handler = $this->handlerRegistry->handlerFor($message::class)
             ?? throw new NoHandler($message::class);
@@ -45,7 +46,7 @@ final readonly class HandlerExecutor
         );
 
         try {
-            $handler($message, $context, $transaction);
+            $handler($message, $context, $txScope);
         } finally {
             $context->disableDispatch();
         }

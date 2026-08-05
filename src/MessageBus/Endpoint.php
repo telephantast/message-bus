@@ -25,7 +25,7 @@ use Thesis\MessageBus\Internal\MessageMetadataRegistry;
 use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Internal\OutboxRuntime;
 use Thesis\MessageBus\Internal\RequeueOnUnhandledFailureMiddleware;
-use Thesis\MessageBus\Internal\TransactionalDispatcherRuntime;
+use Thesis\MessageBus\Internal\TransactionalRuntime;
 use Thesis\MessageBus\Metadata\AttributeCommandRouter;
 use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
 use Thesis\MessageBus\Metadata\AttributeMessageTypeResolver;
@@ -37,7 +37,7 @@ use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
 use Thesis\MessageBus\Metadata\MessageTypeResolver;
 use Thesis\MessageBus\Metadata\MessageTypeResolvers;
-use Thesis\MessageBus\Persistence\TransactionScopeFactory;
+use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Processing\Deduplicator;
 use Thesis\MessageBus\Processing\OutboxStorage;
 use Thesis\MessageBus\Recoverability\DeadLetterStorage;
@@ -68,7 +68,7 @@ final readonly class Endpoint
      * @template STx of object
      * @param non-empty-string $name
      * @param HandlerRegistry<STx> $handlerRegistry
-     * @param TransactionScopeFactory<STx> $transactionScopeFactory
+     * @param Connection<STx> $connection
      * @param OutboxStorage<STx> $outboxStorage
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
@@ -80,7 +80,7 @@ final readonly class Endpoint
         string $name,
         HandlerRegistry $handlerRegistry,
         Dispatcher&Receiver&SubscriptionConfigurator $transport,
-        TransactionScopeFactory $transactionScopeFactory,
+        Connection $connection,
         OutboxStorage $outboxStorage,
         DeadLetterStorage $deadLetterStorage,
         Serializer&Deserializer $serializer,
@@ -120,7 +120,7 @@ final readonly class Endpoint
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
-            transactionScopeFactory: $transactionScopeFactory,
+            connection: $connection,
             outboxStorage: $outboxStorage,
             logger: $logger,
             idGenerator: $idGenerator,
@@ -175,7 +175,7 @@ final readonly class Endpoint
      * @param non-empty-string $name
      * @param HandlerRegistry<STx> $handlerRegistry
      * @param TransactionalDispatcher<STx>&Receiver&SubscriptionConfigurator $transport
-     * @param TransactionScopeFactory<STx> $transactionScopeFactory
+     * @param Connection<STx> $connection
      * @param Deduplicator<STx> $deduplicator
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
@@ -187,7 +187,7 @@ final readonly class Endpoint
         string $name,
         HandlerRegistry $handlerRegistry,
         TransactionalDispatcher&Receiver&SubscriptionConfigurator $transport,
-        TransactionScopeFactory $transactionScopeFactory,
+        Connection $connection,
         Deduplicator $deduplicator,
         DeadLetterStorage $deadLetterStorage,
         Serializer&Deserializer $serializer,
@@ -211,7 +211,7 @@ final readonly class Endpoint
             serializer: $serializer,
             idGenerator: $idGenerator,
         );
-        $runtime = new TransactionalDispatcherRuntime(
+        $runtime = new TransactionalRuntime(
             endpoint: $name,
             handlerExecutor: new HandlerExecutor(
                 endpoint: $name,
@@ -225,7 +225,7 @@ final readonly class Endpoint
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
-            transactionScopeFactory: $transactionScopeFactory,
+            connection: $connection,
             deduplicator: $deduplicator,
             logger: $logger,
         );

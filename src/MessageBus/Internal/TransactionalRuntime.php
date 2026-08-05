@@ -6,7 +6,7 @@ namespace Thesis\MessageBus\Internal;
 
 use Psr\Log\LoggerInterface;
 use Thesis\Headers;
-use Thesis\MessageBus\Persistence\TransactionScopeFactory;
+use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Processing\Deduplicator;
 use Thesis\MessageBus\Processing\ProcessingId;
 use Thesis\MessageBus\Transport\ConsumerHandler;
@@ -20,12 +20,12 @@ use const Thesis\MessageBus\MESSAGE_ID;
  *
  * @template-covariant Tx of object
  */
-final readonly class TransactionalDispatcherRuntime implements ImmediateMessageHandler, ConsumerHandler
+final readonly class TransactionalRuntime implements ImmediateMessageHandler, ConsumerHandler
 {
     /**
      * @param non-empty-string $endpoint
      * @param TransactionalDispatcher<Tx> $dispatcher
-     * @param TransactionScopeFactory<Tx> $transactionScopeFactory
+     * @param Connection<Tx> $connection
      * @param Deduplicator<Tx> $deduplicator
      * @param HandlerExecutor<Tx> $handlerExecutor
      */
@@ -34,7 +34,7 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
         private HandlerExecutor $handlerExecutor,
         private InboundMessageFactory $inboundMessageFactory,
         private TransactionalDispatcher $dispatcher,
-        private TransactionScopeFactory $transactionScopeFactory,
+        private Connection $connection,
         private Deduplicator $deduplicator,
         private LoggerInterface $logger,
     ) {}
@@ -47,25 +47,25 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
             return;
         }
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             if ($outboundEnvelopes !== []) {
                 match ($txScope->hasBegun) {
-                    true => $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes),
+                    true => $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes),
                     false => $this->dispatcher->dispatch($outboundEnvelopes),
                 };
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }
@@ -87,21 +87,21 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
             return;
         }
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             if ($outboundEnvelopes !== []) {
-                $txScope->ensureBegun();
+                $txScope->begin();
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->handle, $id),
                 false => $this->deduplicator->markHandled($id),
             };
 
@@ -111,18 +111,18 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->rollbackIfActive();
+                $txScope->close();
 
                 return;
             }
 
             if ($outboundEnvelopes !== []) {
-                $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
+                $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes);
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }
@@ -146,21 +146,21 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
 
         $message = $this->inboundMessageFactory->build($envelope);
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $envelope->headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             if ($outboundEnvelopes !== []) {
-                $txScope->ensureBegun();
+                $txScope->begin();
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->handle, $id),
                 false => $this->deduplicator->markHandled($id),
             };
 
@@ -170,20 +170,20 @@ final readonly class TransactionalDispatcherRuntime implements ImmediateMessageH
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->rollbackIfActive();
+                $txScope->close();
 
                 return Disposition::Ack;
             }
 
             if ($outboundEnvelopes !== []) {
-                $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
+                $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes);
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
 
             return Disposition::Ack;
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }

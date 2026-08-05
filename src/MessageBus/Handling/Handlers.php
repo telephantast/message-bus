@@ -16,10 +16,10 @@ final class Handlers implements HandlerRegistry
 {
     /**
      * @template STx of object
-     * @param class-string<STx> $transactionClass
+     * @param class-string<STx> $txClass
      * @return self<STx>
      */
-    public static function tx(string $transactionClass): self
+    public static function tx(string $txClass): self
     {
         /** @var self<STx> */
         return new self();
@@ -33,14 +33,14 @@ final class Handlers implements HandlerRegistry
     }
 
     /**
-     * @var array<class-string, callable(object, HandlerContext, Tx): void>
+     * @var array<class-string, callable(object, HandlerContext, TransactionScope<Tx>): void>
      */
     private array $handlers = [];
 
     /**
      * @template T of object
      * @param class-string<T> $class
-     * @param callable(T, HandlerContext, Tx): void $handler
+     * @param callable(T, HandlerContext, TransactionScope<Tx>): void $handler
      * @return self<Tx>
      */
     public function with(string $class, callable $handler): self

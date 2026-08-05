@@ -9,10 +9,10 @@ namespace Thesis\MessageBus\Persistence;
  *
  * @template-covariant Tx of object
  */
-interface TransactionScopeFactory
+interface Connection
 {
     /**
-     * @return TransactionScope<Tx>
+     * @return Transaction<Tx>
      */
-    public function create(): TransactionScope;
+    public function begin(): Transaction;
 }

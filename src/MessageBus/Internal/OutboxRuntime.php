@@ -8,8 +8,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Thesis\Headers;
 use Thesis\MessageBus\Identification\IdGenerator;
-use Thesis\MessageBus\Persistence\TransactionScope;
-use Thesis\MessageBus\Persistence\TransactionScopeFactory;
+use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Processing\Outbox;
 use Thesis\MessageBus\Processing\OutboxStorage;
 use Thesis\MessageBus\Processing\ProcessingId;
@@ -54,7 +53,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
     /**
      * @param non-empty-string $endpoint
-     * @param TransactionScopeFactory<Tx> $transactionScopeFactory
+     * @param Connection<Tx> $connection
      * @param OutboxStorage<Tx> $outboxStorage
      * @param HandlerExecutor<Tx> $handlerExecutor
      */
@@ -63,7 +62,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         private HandlerExecutor $handlerExecutor,
         private InboundMessageFactory $inboundMessageFactory,
         private Dispatcher $dispatcher,
-        private TransactionScopeFactory $transactionScopeFactory,
+        private Connection $connection,
         private OutboxStorage $outboxStorage,
         private LoggerInterface $logger,
         private IdGenerator $idGenerator,
@@ -83,13 +82,13 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             return;
         }
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             if ($outboundEnvelopes !== []) {
@@ -99,7 +98,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                 );
 
                 // because failed trigger dispatch should rollback storeOutbox()
-                $txScope->ensureBegun();
+                $txScope->begin();
 
                 if (!$this->storeOutbox($txScope, $id, new Outbox($outboundEnvelopes))) {
                     throw new \LogicException('Outbox record could not be stored for a random processing id.');
@@ -108,9 +107,9 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                 $this->dispatchTrigger($id);
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }
@@ -134,19 +133,19 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             return;
         }
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             $outbox = new Outbox($outboundEnvelopes);
 
             if ($outboundEnvelopes !== []) {
-                $txScope->ensureBegun();
+                $txScope->begin();
             }
 
             if (!$this->storeOutbox($txScope, $id, $outbox)) {
@@ -155,7 +154,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->rollbackIfActive();
+                $txScope->close();
 
                 return;
             }
@@ -164,9 +163,9 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                 $this->dispatchTrigger($id);
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }
@@ -219,13 +218,13 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
         $message = $this->inboundMessageFactory->build($envelope);
 
-        $txScope = $this->transactionScopeFactory->create();
+        $txScope = new RuntimeTransactionScope($this->connection);
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $envelope->headers,
-                transaction: $txScope->transaction,
+                txScope: $txScope,
             );
 
             $outbox = new Outbox($outboundEnvelopes);
@@ -236,14 +235,14 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->rollbackIfActive();
+                $txScope->close();
 
                 return Disposition::Ack;
             }
 
-            $txScope->commitIfBegun();
+            $txScope->commit();
         } catch (\Throwable $exception) {
-            $txScope->rollbackIfActive();
+            $txScope->close();
 
             throw $exception;
         }
@@ -302,12 +301,12 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
     }
 
     /**
-     * @param TransactionScope<Tx> $txScope
+     * @param RuntimeTransactionScope<Tx> $txScope
      */
-    private function storeOutbox(TransactionScope $txScope, ProcessingId $id, Outbox $outbox): bool
+    private function storeOutbox(RuntimeTransactionScope $txScope, ProcessingId $id, Outbox $outbox): bool
     {
         if ($txScope->hasBegun) {
-            return $this->outboxStorage->storeInTransaction($txScope->transaction, $id, $outbox);
+            return $this->outboxStorage->storeInTransaction($txScope->handle, $id, $outbox);
         }
 
         return $this->outboxStorage->store($id, $outbox);
