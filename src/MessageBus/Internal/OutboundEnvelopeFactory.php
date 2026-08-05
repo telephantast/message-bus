@@ -52,17 +52,17 @@ final readonly class OutboundEnvelopeFactory
      */
     private function buildCommand(Send $send, string $originEndpoint, Headers $causeHeaders = new Headers()): OutboundEnvelope
     {
-        $metadata = $this->messageMetadataRegistry->forClass($send->command::class);
+        $metadata = $this->messageMetadataRegistry->forClass($send->message::class);
 
         if (!$metadata->isCommand) {
             throw new InvalidOutboundMessage(\sprintf(
                 'Cannot send %s "%s": expected command.',
                 self::kindName($metadata->kind),
-                $send->command::class,
+                $send->message::class,
             ));
         }
 
-        $serializedMessage = $this->serializer->serialize($send->command);
+        $serializedMessage = $this->serializer->serialize($send->message);
 
         return new OutboundEnvelope(
             operation: Operation::Send,
@@ -70,7 +70,7 @@ final readonly class OutboundEnvelopeFactory
                 ?? $metadata->destinationEndpoint
                 ?? throw new InvalidOutboundMessage(\sprintf(
                     'Command "%s" has no destination endpoint. Pass destination explicitly or configure SendTo.',
-                    $send->command::class,
+                    $send->message::class,
                 )),
             payload: $serializedMessage->payload,
             headers: $this->buildHeaders(
@@ -91,17 +91,17 @@ final readonly class OutboundEnvelopeFactory
      */
     private function buildEvent(Publish $publish, string $originEndpoint, Headers $causeHeaders = new Headers()): OutboundEnvelope
     {
-        $metadata = $this->messageMetadataRegistry->forClass($publish->event::class);
+        $metadata = $this->messageMetadataRegistry->forClass($publish->message::class);
 
         if (!$metadata->isEvent) {
             throw new InvalidOutboundMessage(\sprintf(
                 'Cannot publish %s "%s": expected event.',
                 self::kindName($metadata->kind),
-                $publish->event::class,
+                $publish->message::class,
             ));
         }
 
-        $serializedMessage = $this->serializer->serialize($publish->event);
+        $serializedMessage = $this->serializer->serialize($publish->message);
 
         return new OutboundEnvelope(
             operation: Operation::Publish,
@@ -126,17 +126,17 @@ final readonly class OutboundEnvelopeFactory
     {
         $to = $reply->to ?? ReplyTo::fromRequestHeaders($causeHeaders);
 
-        $metadata = $this->messageMetadataRegistry->forClass($reply->reply::class);
+        $metadata = $this->messageMetadataRegistry->forClass($reply->message::class);
 
         if (!$metadata->isReply) {
             throw new InvalidOutboundMessage(\sprintf(
                 'Cannot reply with %s "%s": expected reply.',
                 self::kindName($metadata->kind),
-                $reply->reply::class,
+                $reply->message::class,
             ));
         }
 
-        $serializedMessage = $this->serializer->serialize($reply->reply);
+        $serializedMessage = $this->serializer->serialize($reply->message);
 
         return new OutboundEnvelope(
             operation: Operation::Send,

@@ -11,19 +11,22 @@ use Thesis\MessageBus\Transport\TransportOptions;
  * @api
  *
  * @template-covariant T of object = object
+ * @extends Intent<T>
  */
-final readonly class Publish
+final class Publish extends Intent
 {
-    public Headers $headers;
-
     /**
      * @param T $event
      */
     public function __construct(
-        public object $event,
+        object $event,
         Headers $headers = new Headers(),
-        public ?TransportOptions $transportOptions = null,
+        ?TransportOptions $transportOptions = null,
     ) {
-        $this->headers = $headers->withDefault(CREATED_AT, static fn() => new \DateTimeImmutable());
+        parent::__construct(
+            message: $event,
+            headers: $headers,
+            transportOptions: $transportOptions,
+        );
     }
 }

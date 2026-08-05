@@ -12,22 +12,44 @@ use Thesis\Time\TimeSpan;
  * @api
  *
  * @template-covariant T of object = object
+ * @extends Intent<T>
  */
-final readonly class Send
+final class Send extends Intent
 {
-    public Headers $headers;
-
     /**
      * @param T $command
      * @param ?non-empty-string $destinationEndpoint
      */
     public function __construct(
-        public object $command,
-        public ?string $destinationEndpoint = null,
+        object $command,
+        public private(set) ?string $destinationEndpoint = null,
         Headers $headers = new Headers(),
-        public TimeSpan $delay = new TimeSpan(0),
-        public ?TransportOptions $transportOptions = null,
+        public private(set) TimeSpan $delay = new TimeSpan(0),
+        ?TransportOptions $transportOptions = null,
     ) {
-        $this->headers = $headers->withDefault(CREATED_AT, static fn() => new \DateTimeImmutable());
+        parent::__construct(
+            message: $command,
+            headers: $headers,
+            transportOptions: $transportOptions,
+        );
+    }
+
+    /**
+     * @param ?non-empty-string $endpoint
+     */
+    public function withDestinationEndpoint(?string $endpoint): static
+    {
+        $intent = clone $this;
+        $intent->destinationEndpoint = $endpoint;
+
+        return $intent;
+    }
+
+    public function withDelay(TimeSpan $delay): static
+    {
+        $intent = clone $this;
+        $intent->delay = $delay;
+
+        return $intent;
     }
 }
