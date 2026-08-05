@@ -25,7 +25,28 @@ final class PostgresTransactionScope implements TransactionScopeInterface, Postg
     /**
      * @var ?Once<PostgresTransaction>
      */
-    private ?Once $pgTransaction = null;
+    private ?Once $state = null;
+
+    private PostgresTransaction $begunTransaction {
+        get {
+            if ($this->state !== null) {
+                return $this->state->await();
+            }
+
+            $pg = $this->pg;
+            $this->state = new Once($pg->beginTransaction(...));
+
+            $transaction = $this->state->await();
+
+            foreach ($this->onCloseCallbacks as $onClose) {
+                $transaction->onClose($onClose);
+            }
+
+            $this->onCloseCallbacks = [];
+
+            return $transaction;
+        }
+    }
 
     /**
      * @var list<\Closure(): void>
@@ -37,55 +58,58 @@ final class PostgresTransactionScope implements TransactionScopeInterface, Postg
     }
 
     public bool $hasBegun {
-        get => $this->pgTransaction !== null;
+        get => $this->state !== null;
     }
 
     public function ensureBegun(): void
     {
-        $this->begunTransaction();
+        $this->begunTransaction;
     }
 
     public function commitIfBegun(): void
     {
-        $this->pgTransaction?->await()->commit();
+        // todo onCloseCallbacks
+        $this->state?->await()->commit();
     }
 
     public function rollbackIfActive(): void
     {
-        if ($this->pgTransaction === null) {
+        if ($this->state === null) {
+            // todo onCloseCallbacks
+
             return;
         }
 
-        if (!$this->begunTransaction()->isActive()) {
+        if (!$this->begunTransaction->isActive()) {
             return;
         }
 
-        $this->begunTransaction()->rollback();
+        $this->begunTransaction->rollback();
     }
 
     public function query(string $sql): PostgresResult
     {
-        return $this->begunTransaction()->query($sql);
+        return $this->begunTransaction->query($sql);
     }
 
     public function prepare(string $sql): PostgresStatement
     {
-        return $this->begunTransaction()->prepare($sql);
+        return $this->begunTransaction->prepare($sql);
     }
 
     public function execute(string $sql, array $params = []): PostgresResult
     {
-        return $this->begunTransaction()->execute($sql, $params);
+        return $this->begunTransaction->execute($sql, $params);
     }
 
     public function notify(string $channel, string $payload = ''): PostgresResult
     {
-        return $this->begunTransaction()->notify($channel, $payload);
+        return $this->begunTransaction->notify($channel, $payload);
     }
 
     public function beginTransaction(): PostgresTransaction
     {
-        return $this->begunTransaction()->beginTransaction();
+        return $this->begunTransaction->beginTransaction();
     }
 
     public function quoteLiteral(string $data): string
@@ -110,42 +134,22 @@ final class PostgresTransactionScope implements TransactionScopeInterface, Postg
 
     public function close(): void
     {
-        $this->rollbackIfActive();
+        // todo
     }
 
     public function isClosed(): bool
     {
-        return $this->pgTransaction?->await()->isClosed() ?? false;
+        return $this->state?->await()->isClosed() ?? false;
     }
 
     public function onClose(\Closure $onClose): void
     {
-        if ($this->pgTransaction !== null) {
-            $this->begunTransaction()->onClose($onClose);
+        if ($this->state !== null) {
+            $this->begunTransaction->onClose($onClose);
 
             return;
         }
 
         $this->onCloseCallbacks[] = $onClose;
-    }
-
-    private function begunTransaction(): PostgresTransaction
-    {
-        if ($this->pgTransaction !== null) {
-            return $this->pgTransaction->await();
-        }
-
-        $pg = $this->pg;
-        $this->pgTransaction = new Once($pg->beginTransaction(...));
-
-        $transaction = $this->pgTransaction->await();
-
-        foreach ($this->onCloseCallbacks as $onClose) {
-            $transaction->onClose($onClose);
-        }
-
-        $this->onCloseCallbacks = [];
-
-        return $transaction;
     }
 }
