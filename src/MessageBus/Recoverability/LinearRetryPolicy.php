@@ -14,19 +14,15 @@ final readonly class LinearRetryPolicy implements RecoverabilityPolicy
 {
     private TimeSpan $delayedRetryTimeIncrease;
 
+    /**
+     * @param non-negative-int $immediateRetries
+     * @param non-negative-int $delayedRetries
+     */
     public function __construct(
         private int $immediateRetries = 1,
         private int $delayedRetries = 3,
         ?TimeSpan $delayedRetryInterval = null,
     ) {
-        if ($this->immediateRetries < 0) {
-            throw new \InvalidArgumentException('Immediate retry count must be non-negative.');
-        }
-
-        if ($this->delayedRetries < 0) {
-            throw new \InvalidArgumentException('Delayed retry count must be non-negative.');
-        }
-
         $this->delayedRetryTimeIncrease = $delayedRetryInterval ?? TimeSpan::fromSeconds(5);
     }
 
