@@ -71,7 +71,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         ?TimeSpan $triggerRetryInterval,
     ) {
         $this->triggerTtl = $triggerTtl ?? TimeSpan::fromMinutes(30);
-        $this->triggerRetryInterval = $triggerRetryInterval ?? TimeSpan::fromMinutes(1);
+        $this->triggerRetryInterval = $triggerRetryInterval ?? TimeSpan::fromSeconds(10);
     }
 
     public function handleImmediately(object $message, Headers $headers): void
@@ -235,6 +235,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                     'message_id' => $id->messageId,
                 ]);
 
+                // todo finnally
                 $txScope->close();
 
                 return Disposition::Ack;
