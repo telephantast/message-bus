@@ -59,10 +59,9 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         Pgmq\createExtension($this->pg);
         Pgmq\createQueue($this->pg, $name);
 
-        $this->pg->execute(
+        $this->pg->query('create schema if not exists thesis_message_bus;');
+        $this->pg->query(
             <<<'SQL'
-                create schema if not exists thesis_message_bus;
-
                 create or replace function thesis_message_bus.pgmq_dispatch_v1(
                     operations text[],
                     addresses text[],

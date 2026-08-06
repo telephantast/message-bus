@@ -32,7 +32,7 @@ final class PostgresDeduplicator implements Deduplicator
 
     public function setup(string $endpoint): void
     {
-        $this->pg->execute(
+        $this->pg->query(
             <<<SQL
                 create table if not exists {$this->escapedTable} (
                     endpoint text not null,
