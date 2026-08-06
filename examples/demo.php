@@ -92,13 +92,7 @@ $endpoint = Endpoint::transactional(
     serializer: new PhpNativeSerializer(),
 );
 
-$setup = static function () use ($endpoint, $deduplicator, $transport): void {
-    $transport->setup();
-    $deduplicator->setup();
-    $endpoint->setup();
-};
-
-$setup();
+$endpoint->setup();
 
 $sendId = EventLoop::repeat(2, static function () use ($endpoint): void {
     $endpoint->send(new Register('Valentin'));

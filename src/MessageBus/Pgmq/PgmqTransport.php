@@ -54,9 +54,10 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         $this->payloadJsonEncodedHeader = new BoolHeader('thesis-pgmq-payload-json-encoded');
     }
 
-    public function setup(): void
+    public function createQueue(string $name): void
     {
         Pgmq\createExtension($this->pg);
+        Pgmq\createQueue($this->pg, $name);
 
         $this->pg->execute(
             <<<'SQL'
@@ -92,8 +93,6 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
     public function subscribe(string $queue, array $messageTypes): void
     {
-        Pgmq\createQueue($this->pg, $queue);
-
         $boundEventTypes = [];
 
         /** @var array{pattern: non-empty-string} $row */
@@ -173,7 +172,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
     public function startConsumer(string $queue, ConsumerHandler $handler): PgmqConsumer
     {
-        $queue = Pgmq\createQueue($this->pg, $queue);
+        $queue = Pgmq\findQueue($this->pg, $queue);
 
         /** @var DeferredFuture<void> $completion */
         $completion = new DeferredFuture();

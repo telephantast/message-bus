@@ -30,7 +30,7 @@ final class PostgresDeduplicator implements Deduplicator
         get => $this->escapedTable ??= $this->pg->quoteIdentifier($this->table);
     }
 
-    public function setup(): void
+    public function setup(string $endpoint): void
     {
         $this->pg->execute(
             <<<SQL

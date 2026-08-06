@@ -16,7 +16,6 @@ use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
 use Thesis\MessageBus\Internal\ConsumerMiddlewareStack;
 use Thesis\MessageBus\Internal\DiscardExpiredMessagesMiddleware;
-use Thesis\MessageBus\Internal\EndpointTopology;
 use Thesis\MessageBus\Internal\HandlerExecutor;
 use Thesis\MessageBus\Internal\ImmediateMessageHandler;
 use Thesis\MessageBus\Internal\InboundMessageFactory;
@@ -25,6 +24,7 @@ use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Internal\OutboxRuntime;
 use Thesis\MessageBus\Internal\RecoverabilityMiddleware;
 use Thesis\MessageBus\Internal\RequeueOnUnhandledFailureMiddleware;
+use Thesis\MessageBus\Internal\SetupSubscription;
 use Thesis\MessageBus\Internal\TransactionalRuntime;
 use Thesis\MessageBus\Metadata\AttributeCommandRouter;
 use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
@@ -130,6 +130,7 @@ final readonly class Endpoint
             triggerTtl: $outboxTriggerTtl,
             triggerRetryInterval: $outboxTriggerRetryInterval,
         );
+        $deadLetterQueue ??= $name . '_dlq';
 
         return new self(
             name: $name,
@@ -152,7 +153,7 @@ final readonly class Endpoint
                             ...$recoverabilityPolicies,
                         ]),
                         dispatcher: $transport,
-                        deadLetterQueue: $deadLetterQueue ?? $name . '_dlq',
+                        deadLetterQueue: $deadLetterQueue,
                         clock: $clock,
                         logger: $logger,
                     ),
@@ -162,13 +163,17 @@ final readonly class Endpoint
             outboundEnvelopeFactory: $outboundEnvelopeFactory,
             dispatcher: $transport,
             receiver: $transport,
-            topology: new EndpointTopology(
-                endpoint: $name,
-                messageClasses: $handlerRegistry->messageClasses,
-                messageMetadataRegistry: $messageMetadataRegistry,
-                subscriptionConfigurator: $transport,
-                logger: $logger,
-            ),
+            setups: [
+                static fn() => $transport->createQueue($name),
+                static fn() => $transport->createQueue($deadLetterQueue),
+                new SetupSubscription(
+                    endpoint: $name,
+                    messageClasses: $handlerRegistry->messageClasses,
+                    messageMetadataRegistry: $messageMetadataRegistry,
+                    subscriptionConfigurator: $transport,
+                ),
+                static fn() => $outboxStorage->setup($name),
+            ],
         );
     }
 
@@ -232,6 +237,7 @@ final readonly class Endpoint
             deduplicator: $deduplicator,
             logger: $logger,
         );
+        $deadLetterQueue ??= $name . '_dlq';
 
         return new self(
             name: $name,
@@ -254,7 +260,7 @@ final readonly class Endpoint
                             ...$recoverabilityPolicies,
                         ]),
                         dispatcher: $transport,
-                        deadLetterQueue: $deadLetterQueue ?? $name . '_dlq',
+                        deadLetterQueue: $deadLetterQueue,
                         clock: $clock,
                         logger: $logger,
                     ),
@@ -264,18 +270,23 @@ final readonly class Endpoint
             outboundEnvelopeFactory: $outboundEnvelopeFactory,
             dispatcher: $transport,
             receiver: $transport,
-            topology: new EndpointTopology(
-                endpoint: $name,
-                messageClasses: $handlerRegistry->messageClasses,
-                messageMetadataRegistry: $messageMetadataRegistry,
-                subscriptionConfigurator: $transport,
-                logger: $logger,
-            ),
+            setups: [
+                static fn() => $transport->createQueue($name),
+                static fn() => $transport->createQueue($deadLetterQueue),
+                new SetupSubscription(
+                    endpoint: $name,
+                    messageClasses: $handlerRegistry->messageClasses,
+                    messageMetadataRegistry: $messageMetadataRegistry,
+                    subscriptionConfigurator: $transport,
+                ),
+                static fn() => $deduplicator->setup($name),
+            ],
         );
     }
 
     /**
      * @param non-empty-string $name
+     * @param non-empty-list<callable(): void> $setups
      */
     private function __construct(
         public string $name,
@@ -284,12 +295,14 @@ final readonly class Endpoint
         private OutboundEnvelopeFactory $outboundEnvelopeFactory,
         private Dispatcher $dispatcher,
         private Receiver $receiver,
-        private EndpointTopology $topology,
+        private array $setups,
     ) {}
 
     public function setup(): void
     {
-        $this->topology->setup();
+        foreach ($this->setups as $setup) {
+            $setup();
+        }
     }
 
     /**

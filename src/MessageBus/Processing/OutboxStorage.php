@@ -12,6 +12,11 @@ namespace Thesis\MessageBus\Processing;
 interface OutboxStorage
 {
     /**
+     * @param non-empty-string $endpoint
+     */
+    public function setup(string $endpoint): void;
+
+    /**
      * @return Outbox|null null when no outbox record exists for the processing id
      */
     public function find(ProcessingId $id): ?Outbox;

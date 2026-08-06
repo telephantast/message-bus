@@ -10,6 +10,11 @@ namespace Thesis\MessageBus\Transport;
 interface Receiver
 {
     /**
+     * @param non-empty-string $name
+     */
+    public function createQueue(string $name): void;
+
+    /**
      * @param non-empty-string $queue
      */
     public function startConsumer(string $queue, ConsumerHandler $handler): Consumer;

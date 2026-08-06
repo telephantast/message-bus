@@ -11,6 +11,11 @@ namespace Thesis\MessageBus\Processing;
  */
 interface Deduplicator
 {
+    /**
+     * @param non-empty-string $endpoint
+     */
+    public function setup(string $endpoint): void;
+
     public function isHandled(ProcessingId $id): bool;
 
     public function markHandled(ProcessingId $id): bool;

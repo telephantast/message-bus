@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
-use Psr\Log\LoggerInterface;
 use Thesis\MessageBus\Transport\SubscriptionConfigurator;
 
 /**
  * @internal
  */
-final readonly class EndpointTopology
+final readonly class SetupSubscription
 {
     /**
      * @param non-empty-string $endpoint
@@ -21,10 +20,9 @@ final readonly class EndpointTopology
         private array $messageClasses,
         private MessageMetadataRegistry $messageMetadataRegistry,
         private SubscriptionConfigurator $subscriptionConfigurator,
-        private LoggerInterface $logger,
     ) {}
 
-    public function setup(): void
+    public function __invoke(): void
     {
         $eventTypes = [];
 
@@ -39,10 +37,5 @@ final readonly class EndpointTopology
         $eventTypes = array_values(array_unique($eventTypes));
 
         $this->subscriptionConfigurator->subscribe($this->endpoint, $eventTypes);
-
-        $this->logger->debug('Subscribed endpoint to events.', [
-            'endpoint' => $this->endpoint,
-            'event_types' => $eventTypes,
-        ]);
     }
 }
