@@ -227,7 +227,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
                     try {
                         foreach ($messages as $message) {
                             match ($handler->handle($this->decode($message))) {
-                                Disposition::Ack => $queue->archive($message->id),
+                                Disposition::Ack, Disposition::Nack => $queue->delete($message->id),
                                 Disposition::Requeue => $queue->setVisibilityTimeout(
                                     messageIds: [$message->id],
                                     visibilityTimeout: $this->requeueDelay,

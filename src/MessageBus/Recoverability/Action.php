@@ -10,7 +10,7 @@ namespace Thesis\MessageBus\Recoverability;
 enum Action
 {
     /**
-     * Store the failed message in {@see DeadLetterStorage} for later inspection or manual recovery.
+     * Send the failed message to the configured dead-letter queue for later inspection or manual recovery.
      */
     case Bury;
 

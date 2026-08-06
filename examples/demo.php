@@ -7,7 +7,6 @@ use Amp\Postgres\PostgresConnectionPool;
 use Amp\Postgres\PostgresLink;
 use Revolt\EventLoop;
 use Thesis\MessageBus\AmphpPostgres\PostgresConnection;
-use Thesis\MessageBus\AmphpPostgres\PostgresDeadLetterStorage;
 use Thesis\MessageBus\AmphpPostgres\PostgresDeduplicator;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\HandlerContext;
@@ -80,7 +79,6 @@ $pg = new PostgresConnectionPool(
 );
 $transport = new PgmqTransport($pg);
 $deduplicator = new PostgresDeduplicator($pg);
-$deadLetterStorage = new PostgresDeadLetterStorage($pg);
 
 $endpoint = Endpoint::transactional(
     name: 'registration',
@@ -91,14 +89,12 @@ $endpoint = Endpoint::transactional(
     transport: $transport,
     connection: new PostgresConnection($pg),
     deduplicator: $deduplicator,
-    deadLetterStorage: $deadLetterStorage,
     serializer: new PhpNativeSerializer(),
 );
 
-$setup = static function () use ($endpoint, $deadLetterStorage, $deduplicator, $transport): void {
+$setup = static function () use ($endpoint, $deduplicator, $transport): void {
     $transport->setup();
     $deduplicator->setup();
-    $deadLetterStorage->setup();
     $endpoint->setup();
 };
 

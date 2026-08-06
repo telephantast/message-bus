@@ -17,7 +17,7 @@ final readonly class FailureContext
     public function __construct(
         public string $endpoint,
         public \Throwable $error,
-        public \DateTimeImmutable $startedAt,
+        public \DateTimeImmutable $firstFailedAt,
         public int $immediateRetryCount,
         public int $delayedRetryCount,
     ) {}

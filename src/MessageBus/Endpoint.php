@@ -17,13 +17,13 @@ use Thesis\MessageBus\Identification\UuidV7Generator;
 use Thesis\MessageBus\Internal\ConsumerMiddlewareStack;
 use Thesis\MessageBus\Internal\DiscardExpiredMessagesMiddleware;
 use Thesis\MessageBus\Internal\EndpointTopology;
-use Thesis\MessageBus\Internal\FailureHandlingMiddleware;
 use Thesis\MessageBus\Internal\HandlerExecutor;
 use Thesis\MessageBus\Internal\ImmediateMessageHandler;
 use Thesis\MessageBus\Internal\InboundMessageFactory;
 use Thesis\MessageBus\Internal\MessageMetadataRegistry;
 use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Internal\OutboxRuntime;
+use Thesis\MessageBus\Internal\RecoverabilityMiddleware;
 use Thesis\MessageBus\Internal\RequeueOnUnhandledFailureMiddleware;
 use Thesis\MessageBus\Internal\TransactionalRuntime;
 use Thesis\MessageBus\Metadata\AttributeCommandRouter;
@@ -40,7 +40,6 @@ use Thesis\MessageBus\Metadata\MessageTypeResolvers;
 use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Processing\Deduplicator;
 use Thesis\MessageBus\Processing\OutboxStorage;
-use Thesis\MessageBus\Recoverability\DeadLetterStorage;
 use Thesis\MessageBus\Recoverability\LinearRetryPolicy;
 use Thesis\MessageBus\Recoverability\RecoverabilityPolicies;
 use Thesis\MessageBus\Recoverability\RecoverabilityPolicy;
@@ -64,6 +63,8 @@ use Thesis\Time\WallClock;
  */
 final readonly class Endpoint
 {
+    private const string DLQ = 'dlq';
+
     /**
      * @template STx of object
      * @param non-empty-string $name
@@ -74,6 +75,7 @@ final readonly class Endpoint
      * @param list<MessageClassifier> $messageClassifiers
      * @param list<MessageTypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
+     * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
      */
     public static function outbox(
@@ -82,13 +84,13 @@ final readonly class Endpoint
         Dispatcher&Receiver&SubscriptionConfigurator $transport,
         Connection $connection,
         OutboxStorage $outboxStorage,
-        DeadLetterStorage $deadLetterStorage,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
         array $commandRouters = [new AttributeCommandRouter()],
         array $messageClassifiers = [new AttributeMessageClassifier()],
         array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
+        string $deadLetterQueue = self::DLQ,
         array $consumerMiddleware = [],
         IdGenerator $idGenerator = new UuidV7Generator(),
         ClockInterface $clock = new WallClock(),
@@ -138,7 +140,7 @@ final readonly class Endpoint
                 middlewares: [
                     new RequeueOnUnhandledFailureMiddleware($logger),
                     new DiscardExpiredMessagesMiddleware($clock, $logger),
-                    new FailureHandlingMiddleware(
+                    new RecoverabilityMiddleware(
                         policy: new RecoverabilityPolicies([
                             new UnrecoverableErrorPolicy([
                                 MessageSerializationFailed::class,
@@ -150,7 +152,7 @@ final readonly class Endpoint
                             ...$recoverabilityPolicies,
                         ]),
                         dispatcher: $transport,
-                        deadLetterStorage: $deadLetterStorage,
+                        deadLetterQueue: $deadLetterQueue ?? $name . '_dlq',
                         clock: $clock,
                         logger: $logger,
                     ),
@@ -181,6 +183,7 @@ final readonly class Endpoint
      * @param list<MessageClassifier> $messageClassifiers
      * @param list<MessageTypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
+     * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
      */
     public static function transactional(
@@ -189,13 +192,13 @@ final readonly class Endpoint
         TransactionalDispatcher&Receiver&SubscriptionConfigurator $transport,
         Connection $connection,
         Deduplicator $deduplicator,
-        DeadLetterStorage $deadLetterStorage,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
         array $commandRouters = [new AttributeCommandRouter()],
         array $messageClassifiers = [new AttributeMessageClassifier()],
         array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
+        string $deadLetterQueue = self::DLQ,
         array $consumerMiddleware = [],
         IdGenerator $idGenerator = new UuidV7Generator(),
         ClockInterface $clock = new WallClock(),
@@ -239,7 +242,7 @@ final readonly class Endpoint
                 middlewares: [
                     new RequeueOnUnhandledFailureMiddleware($logger),
                     new DiscardExpiredMessagesMiddleware($clock, $logger),
-                    new FailureHandlingMiddleware(
+                    new RecoverabilityMiddleware(
                         policy: new RecoverabilityPolicies([
                             new UnrecoverableErrorPolicy([
                                 MessageSerializationFailed::class,
@@ -251,7 +254,7 @@ final readonly class Endpoint
                             ...$recoverabilityPolicies,
                         ]),
                         dispatcher: $transport,
-                        deadLetterStorage: $deadLetterStorage,
+                        deadLetterQueue: $deadLetterQueue ?? $name . '_dlq',
                         clock: $clock,
                         logger: $logger,
                     ),

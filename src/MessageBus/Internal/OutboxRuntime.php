@@ -198,9 +198,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         $headers = $envelope->headers;
 
         if ($headers->find(MESSAGE_TYPE) === self::TRIGGER_TYPE) {
-            $this->handleTrigger($envelope);
-
-            return Disposition::Ack;
+            return $this->handleTrigger($envelope);
         }
 
         $id = new ProcessingId(
@@ -253,7 +251,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         return Disposition::Ack;
     }
 
-    private function handleTrigger(InboundEnvelope $envelope): void
+    private function handleTrigger(InboundEnvelope $envelope): Disposition
     {
         try {
             $payload = json_decode($envelope->payload, associative: true, flags: JSON_THROW_ON_ERROR);
@@ -275,14 +273,14 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         if ($outbox !== null) {
             $this->dispatchOutbox($id, $outbox);
 
-            return;
+            return Disposition::Ack;
         }
 
         /**
          * Defensive check: {@see DiscardExpiredMessagesMiddleware} should normally discard expired messages.
          */
         if ($envelope->headers->get(EXPIRES_AT) <= $this->clock->now()) {
-            return;
+            return Disposition::Ack;
         }
 
         $this->logger->debug('Outbox trigger arrived before outbox record is visible.', [
@@ -299,6 +297,8 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                 delay: $this->triggerRetryInterval,
             ),
         ]);
+
+        return Disposition::Nack;
     }
 
     /**

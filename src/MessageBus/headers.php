@@ -6,6 +6,7 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers\IntHeader;
 use Thesis\Headers\NonEmptyStringHeader;
+use Thesis\Headers\StringHeader;
 use Thesis\Headers\TimeHeader;
 
 const MESSAGE_TYPE = new NonEmptyStringHeader('thesis-message-type');
@@ -22,7 +23,11 @@ const REPLY_TO_ENDPOINT = new NonEmptyStringHeader('thesis-reply-to-endpoint');
 
 const CREATED_AT = new TimeHeader('thesis-created-at');
 
+const FIRST_FAILED_AT = new TimeHeader('thesis-first-failed-at');
 \define(__NAMESPACE__ . '\RETRY_COUNT', IntHeader::nonNegative('thesis-retry-count'));
-const RETRY_STARTED_AT = new TimeHeader('thesis-retry-started-at');
+const FAILURE_ENDPOINT = new NonEmptyStringHeader('thesis-failure-endpoint');
+const ERROR_CLASS = new NonEmptyStringHeader('thesis-error-class');
+const ERROR_FILE = new StringHeader('thesis-error-file');
+const ERROR_LINE = new IntHeader('thesis-error-line');
 
 const EXPIRES_AT = new TimeHeader('thesis-expires-at');
