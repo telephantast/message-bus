@@ -60,7 +60,9 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
         $this->pg->execute(
             <<<'SQL'
-                create or replace function thesis_message_bus_pgmq_dispatch(
+                create schema if not exists thesis_message_bus;
+
+                create or replace function thesis_message_bus.pgmq_dispatch_v1(
                     operations text[],
                     addresses text[],
                     payloads jsonb[],
@@ -130,7 +132,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
         $result = $transaction->execute(
             <<<'SQL'
-                select thesis_message_bus_pgmq_dispatch(
+                select thesis_message_bus.pgmq_dispatch_v1(
                     :operations::text[],
                     :addresses::text[],
                     :payloads::jsonb[],
