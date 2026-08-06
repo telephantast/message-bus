@@ -64,10 +64,8 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $txScope->commit();
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
     }
 
@@ -111,8 +109,6 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->close();
-
                 return;
             }
 
@@ -121,10 +117,8 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $txScope->commit();
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
     }
 
@@ -170,8 +164,6 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->close();
-
                 return Disposition::Ack;
             }
 
@@ -182,10 +174,8 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             $txScope->commit();
 
             return Disposition::Ack;
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
     }
 }

@@ -241,10 +241,10 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
                 }
 
                 $completion->complete();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable $error) {
                 $watcher->cancel();
                 $iterator->dispose();
-                $completion->error($exception);
+                $completion->error($error);
             }
         });
 

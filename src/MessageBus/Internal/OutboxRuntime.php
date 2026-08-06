@@ -108,10 +108,8 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             }
 
             $txScope->commit();
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
     }
 
@@ -154,8 +152,6 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                     'message_id' => $id->messageId,
                 ]);
 
-                $txScope->close();
-
                 return;
             }
 
@@ -164,10 +160,8 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             }
 
             $txScope->commit();
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
     }
 
@@ -233,17 +227,12 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                     'message_id' => $id->messageId,
                 ]);
 
-                // todo finnally
-                $txScope->close();
-
                 return Disposition::Ack;
             }
 
             $txScope->commit();
-        } catch (\Throwable $exception) {
+        } finally {
             $txScope->close();
-
-            throw $exception;
         }
 
         $this->dispatchOutbox($id, $outbox);
