@@ -130,7 +130,6 @@ final readonly class Endpoint
             triggerTtl: $outboxTriggerTtl,
             triggerRetryInterval: $outboxTriggerRetryInterval,
         );
-        $deadLetterQueue ??= $name . '_dlq';
 
         return new self(
             name: $name,
@@ -237,7 +236,6 @@ final readonly class Endpoint
             deduplicator: $deduplicator,
             logger: $logger,
         );
-        $deadLetterQueue ??= $name . '_dlq';
 
         return new self(
             name: $name,
