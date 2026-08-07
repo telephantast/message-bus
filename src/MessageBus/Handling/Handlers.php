@@ -39,15 +39,15 @@ final class Handlers implements HandlerRegistry
 
     /**
      * @template T of object
-     * @param class-string<T> $class
+     * @param class-string<T> $messageClass
      * @param callable(T, HandlerContext, TransactionScope<Tx>): void $handler
      * @return self<Tx>
      */
-    public function with(string $class, callable $handler): self
+    public function with(string $messageClass, callable $handler): self
     {
         $copy = clone $this;
         /** @phpstan-ignore assign.propertyType */
-        $copy->handlers[$class] = $handler;
+        $copy->handlers[$messageClass] = $handler;
 
         return $copy;
     }
