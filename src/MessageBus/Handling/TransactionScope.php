@@ -13,7 +13,9 @@ interface TransactionScope
 {
     /**
      * The persistence-specific transaction handle available to the handler.
-     * Implementation may begin the underlying transaction when this handle is first used.
+     * Implementations may begin the underlying transaction when this handle is first used.
+     * Concurrent coroutine access must observe the same transaction handle and must not
+     * start more than one underlying transaction for the same scope.
      *
      * @var Tx
      */
