@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Headers;
+use Thesis\MessageBus\Routing\CannotRouteCommand;
 use Thesis\MessageBus\Transport\TransportOptions;
 use Thesis\Time\TimeSpan;
 
@@ -24,13 +25,14 @@ abstract class HandlerContext
      * @phpstan-ignore property.uninitialized
      */
     final public ReplyTo $replyTo {
-        get => $this->replyTo ??= ReplyTo::fromRequestHeaders($this->headers);
+        get => $this->replyTo ??= ReplyTo::fromHeaders($this->headers);
     }
 
     /**
      * @param ?non-empty-string $endpoint
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     final public function send(
         object $command,
@@ -51,7 +53,7 @@ abstract class HandlerContext
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     final public function publish(
         object $event,
@@ -68,7 +70,7 @@ abstract class HandlerContext
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     final public function reply(
         object $reply,
@@ -89,14 +91,16 @@ abstract class HandlerContext
     /**
      * @no-named-arguments
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     abstract public function dispatch(Send|Publish|Reply ...$intents): void;
 
     /**
      * @param ?non-empty-string $endpoint
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     final public function sendImmediately(
         object $command,
@@ -117,7 +121,7 @@ abstract class HandlerContext
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     final public function publishImmediately(
         object $event,
@@ -134,7 +138,7 @@ abstract class HandlerContext
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     final public function replyImmediately(
         object $reply,
@@ -155,7 +159,8 @@ abstract class HandlerContext
     /**
      * @no-named-arguments
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     abstract public function dispatchImmediately(Send|Publish|Reply ...$intents): void;
 }

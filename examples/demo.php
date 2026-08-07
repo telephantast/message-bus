@@ -12,7 +12,6 @@ use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handling\Handlers;
 use Thesis\MessageBus\Metadata\Command;
-use Thesis\MessageBus\Metadata\Destination;
 use Thesis\MessageBus\Metadata\Event;
 use Thesis\MessageBus\Metadata\Reply;
 use Thesis\MessageBus\Pgmq\PgmqTransport;

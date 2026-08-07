@@ -10,41 +10,42 @@ use Psr\Log\NullLogger;
 use Thesis\Headers;
 use Thesis\Headers\HeaderException;
 use Thesis\MessageBus\Consumption\ConsumerMiddleware;
+use Thesis\MessageBus\Consumption\Deduplicator;
+use Thesis\MessageBus\Consumption\Internal\ConsumerMiddlewareStack;
+use Thesis\MessageBus\Consumption\Internal\DiscardExpiredMessagesMiddleware;
+use Thesis\MessageBus\Consumption\Internal\ImmediateMessageHandler;
+use Thesis\MessageBus\Consumption\Internal\InboundMessageFactory;
+use Thesis\MessageBus\Consumption\Internal\OutboxRuntime;
+use Thesis\MessageBus\Consumption\Internal\RecoverabilityMiddleware;
+use Thesis\MessageBus\Consumption\Internal\RequeueOnUnhandledFailureMiddleware;
+use Thesis\MessageBus\Consumption\Internal\TransactionalRuntime;
+use Thesis\MessageBus\Consumption\OutboxStorage;
+use Thesis\MessageBus\Consumption\Recoverability\LinearRetryPolicy;
+use Thesis\MessageBus\Consumption\Recoverability\RecoverabilityPolicies;
+use Thesis\MessageBus\Consumption\Recoverability\RecoverabilityPolicy;
+use Thesis\MessageBus\Consumption\Recoverability\UnrecoverableErrorPolicy;
 use Thesis\MessageBus\Handling\HandlerRegistry;
+use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
+use Thesis\MessageBus\Handling\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Handling\NoHandler;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
-use Thesis\MessageBus\Internal\ConsumerMiddlewareStack;
-use Thesis\MessageBus\Internal\DiscardExpiredMessagesMiddleware;
-use Thesis\MessageBus\Internal\HandlerExecutor;
-use Thesis\MessageBus\Internal\ImmediateMessageHandler;
-use Thesis\MessageBus\Internal\InboundMessageFactory;
-use Thesis\MessageBus\Internal\MessageMetadataRegistry;
-use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
-use Thesis\MessageBus\Internal\OutboxRuntime;
-use Thesis\MessageBus\Internal\RecoverabilityMiddleware;
-use Thesis\MessageBus\Internal\RequeueOnUnhandledFailureMiddleware;
 use Thesis\MessageBus\Internal\SetupSubscription;
-use Thesis\MessageBus\Internal\TransactionalRuntime;
-use Thesis\MessageBus\Metadata\AttributeCommandRouter;
 use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
 use Thesis\MessageBus\Metadata\AttributeMessageTypeResolver;
 use Thesis\MessageBus\Metadata\ClassBasedMessageTypeResolver;
-use Thesis\MessageBus\Metadata\CommandRouter;
-use Thesis\MessageBus\Metadata\CommandRouters;
+use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\InvalidMetadata;
-use Thesis\MessageBus\Metadata\MapCommandRouter;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
 use Thesis\MessageBus\Metadata\MessageTypeResolver;
 use Thesis\MessageBus\Metadata\MessageTypeResolvers;
 use Thesis\MessageBus\Persistence\Connection;
-use Thesis\MessageBus\Processing\Deduplicator;
-use Thesis\MessageBus\Processing\OutboxStorage;
-use Thesis\MessageBus\Recoverability\LinearRetryPolicy;
-use Thesis\MessageBus\Recoverability\RecoverabilityPolicies;
-use Thesis\MessageBus\Recoverability\RecoverabilityPolicy;
-use Thesis\MessageBus\Recoverability\UnrecoverableErrorPolicy;
+use Thesis\MessageBus\Routing\AttributeCommandRouter;
+use Thesis\MessageBus\Routing\CannotRouteCommand;
+use Thesis\MessageBus\Routing\CommandRouter;
+use Thesis\MessageBus\Routing\CommandRouters;
+use Thesis\MessageBus\Routing\MapCommandRouter;
 use Thesis\MessageBus\Serialization\Deserializer;
 use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
 use Thesis\MessageBus\Serialization\MessageSerializationFailed;
@@ -98,17 +99,16 @@ final readonly class Endpoint
         ?TimeSpan $outboxTriggerTtl = null,
         ?TimeSpan $outboxTriggerRetryInterval = null,
     ): self {
-        $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
-        $messageMetadataRegistry = new MessageMetadataRegistry(
+        $messageMetadataFactory = new MessageMetadataFactory(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: $typeResolver,
+            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+        );
+        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
+            messageMetadataFactory: $messageMetadataFactory,
             commandRouter: new CommandRouters([
                 ...$commandRouters,
                 new MapCommandRouter(array_fill_keys($handlerRegistry->messageClasses, $name)),
             ]),
-        );
-        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
-            messageMetadataRegistry: $messageMetadataRegistry,
             serializer: $serializer,
             idGenerator: $idGenerator,
         );
@@ -122,7 +122,7 @@ final readonly class Endpoint
             ),
             inboundMessageFactory: InboundMessageFactory::fromClasses(
                 knownClasses: $handlerRegistry->messageClasses,
-                typeResolver: $typeResolver,
+                messageMetadataFactory: $messageMetadataFactory,
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
@@ -171,9 +171,9 @@ final readonly class Endpoint
                 static fn() => $transport->createQueue($deadLetterQueue),
                 new SetupSubscription(
                     endpoint: $name,
-                    messageClasses: $handlerRegistry->messageClasses,
-                    messageMetadataRegistry: $messageMetadataRegistry,
+                    messageMetadataFactory: $messageMetadataFactory,
                     subscriptionConfigurator: $transport,
+                    messageClasses: $handlerRegistry->messageClasses,
                 ),
                 static fn() => $outboxStorage->setup($name),
             ],
@@ -211,17 +211,16 @@ final readonly class Endpoint
         IdGenerator $idGenerator = new UuidV7Generator(),
         ClockInterface $clock = new WallClock(),
     ): self {
-        $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
-        $messageMetadataRegistry = new MessageMetadataRegistry(
+        $messageMetadataFactory = new MessageMetadataFactory(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: $typeResolver,
+            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+        );
+        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
+            messageMetadataFactory: $messageMetadataFactory,
             commandRouter: new CommandRouters([
                 ...$commandRouters,
                 new MapCommandRouter(array_fill_keys($handlerRegistry->messageClasses, $name)),
             ]),
-        );
-        $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
-            messageMetadataRegistry: $messageMetadataRegistry,
             serializer: $serializer,
             idGenerator: $idGenerator,
         );
@@ -235,7 +234,7 @@ final readonly class Endpoint
             ),
             inboundMessageFactory: InboundMessageFactory::fromClasses(
                 knownClasses: $handlerRegistry->messageClasses,
-                typeResolver: $typeResolver,
+                messageMetadataFactory: $messageMetadataFactory,
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
@@ -280,9 +279,9 @@ final readonly class Endpoint
                 static fn() => $transport->createQueue($deadLetterQueue),
                 new SetupSubscription(
                     endpoint: $name,
-                    messageClasses: $handlerRegistry->messageClasses,
-                    messageMetadataRegistry: $messageMetadataRegistry,
+                    messageMetadataFactory: $messageMetadataFactory,
                     subscriptionConfigurator: $transport,
+                    messageClasses: $handlerRegistry->messageClasses,
                 ),
                 static fn() => $deduplicator->setup($name),
             ],
@@ -313,7 +312,8 @@ final readonly class Endpoint
     /**
      * @param ?non-empty-string $endpoint
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     public function send(
         object $command,
@@ -334,7 +334,7 @@ final readonly class Endpoint
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     public function publish(
         object $event,
@@ -352,6 +352,9 @@ final readonly class Endpoint
 
     /**
      * @no-named-arguments
+     *
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     public function dispatch(Send|Publish $intent): void
     {

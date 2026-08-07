@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Internal;
 
+use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
+use Thesis\MessageBus\Metadata\MessageKind;
 use Thesis\MessageBus\Transport\SubscriptionConfigurator;
 
 /**
@@ -17,9 +19,9 @@ final readonly class SetupSubscription
      */
     public function __construct(
         private string $endpoint,
-        private array $messageClasses,
-        private MessageMetadataRegistry $messageMetadataRegistry,
+        private MessageMetadataFactory $messageMetadataFactory,
         private SubscriptionConfigurator $subscriptionConfigurator,
+        private array $messageClasses,
     ) {}
 
     public function __invoke(): void
@@ -27,15 +29,16 @@ final readonly class SetupSubscription
         $eventTypes = [];
 
         foreach ($this->messageClasses as $messageClass) {
-            $metadata = $this->messageMetadataRegistry->forClass($messageClass);
+            $metadata = $this->messageMetadataFactory->forClass($messageClass);
 
-            if ($metadata->isEvent) {
+            if ($metadata->kind === MessageKind::Event) {
                 $eventTypes[] = $metadata->type;
             }
         }
 
-        $eventTypes = array_values(array_unique($eventTypes));
-
-        $this->subscriptionConfigurator->subscribe($this->endpoint, $eventTypes);
+        $this->subscriptionConfigurator->subscribe(
+            queue: $this->endpoint,
+            messageTypes: array_values(array_unique($eventTypes)),
+        );
     }
 }

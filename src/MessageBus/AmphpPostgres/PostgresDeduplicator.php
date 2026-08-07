@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\AmphpPostgres;
 
 use Amp\Postgres\PostgresLink;
-use Thesis\MessageBus\Processing\Deduplicator;
-use Thesis\MessageBus\Processing\ProcessingId;
+use Thesis\MessageBus\Consumption\Deduplicator;
+use Thesis\MessageBus\Consumption\ProcessingId;
 
 /**
  * @api

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Identification;
 
-use Thesis\MessageBus\Internal\RandomBuffer;
+use Thesis\MessageBus\Identification\Internal\RandomBuffer;
 
 /**
  * @api

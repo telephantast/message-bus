@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Headers;
+use Thesis\MessageBus\Handling\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
-use Thesis\MessageBus\Internal\MessageMetadataRegistry;
-use Thesis\MessageBus\Internal\OutboundEnvelopeFactory;
-use Thesis\MessageBus\Metadata\AttributeCommandRouter;
 use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
 use Thesis\MessageBus\Metadata\AttributeMessageTypeResolver;
 use Thesis\MessageBus\Metadata\ClassBasedMessageTypeResolver;
-use Thesis\MessageBus\Metadata\CommandRouter;
-use Thesis\MessageBus\Metadata\CommandRouters;
+use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
 use Thesis\MessageBus\Metadata\MessageTypeResolver;
 use Thesis\MessageBus\Metadata\MessageTypeResolvers;
+use Thesis\MessageBus\Routing\AttributeCommandRouter;
+use Thesis\MessageBus\Routing\CannotRouteCommand;
+use Thesis\MessageBus\Routing\CommandRouter;
+use Thesis\MessageBus\Routing\CommandRouters;
 use Thesis\MessageBus\Serialization\Serializer;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\TransportOptions;
@@ -48,11 +49,11 @@ final readonly class Entrypoint
             name: $name,
             dispatcher: $dispatcher,
             outboundEnvelopeFactory: new OutboundEnvelopeFactory(
-                messageMetadataRegistry: new MessageMetadataRegistry(
+                messageMetadataFactory: new MessageMetadataFactory(
                     classifier: new MessageClassifiers($messageClassifiers),
                     typeResolver: new MessageTypeResolvers($messageTypeResolvers),
-                    commandRouter: new CommandRouters($commandRouters),
                 ),
+                commandRouter: new CommandRouters($commandRouters),
                 serializer: $serializer,
                 idGenerator: $idGenerator,
             ),
@@ -71,7 +72,8 @@ final readonly class Entrypoint
     /**
      * @param ?non-empty-string $endpoint
      *
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     public function send(
         object $command,
@@ -92,7 +94,7 @@ final readonly class Entrypoint
     }
 
     /**
-     * @throws InvalidOutboundMessage
+     * @throws InvalidIntent
      */
     public function publish(
         object $event,
@@ -110,6 +112,9 @@ final readonly class Entrypoint
 
     /**
      * @no-named-arguments
+     *
+     * @throws InvalidIntent
+     * @throws CannotRouteCommand
      */
     public function dispatch(Send|Publish $intent): void
     {

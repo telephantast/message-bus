@@ -11,7 +11,7 @@ use Thesis\Headers;
  */
 final readonly class ReplyTo
 {
-    public static function fromRequestHeaders(Headers $headers): self
+    public static function fromHeaders(Headers $headers): self
     {
         return new self(
             destinationEndpoint: $headers->find(REPLY_TO_ENDPOINT) ?? $headers->get(ORIGIN_ENDPOINT),
