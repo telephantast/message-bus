@@ -69,7 +69,7 @@ final readonly class OutboundEnvelopeFactory
             address: $send->destinationEndpoint
                 ?? $metadata->destinationEndpoint
                 ?? throw new InvalidOutboundMessage(\sprintf(
-                    'Command "%s" has no destination endpoint. Pass destination explicitly or configure SendTo.',
+                    'Command "%s" has no destination endpoint. Pass destination explicitly, add #[Destination] attribute or build endpoint with a custom CommandRouter.',
                     $send->message::class,
                 )),
             payload: $serializedMessage->payload,
