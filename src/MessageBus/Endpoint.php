@@ -33,8 +33,10 @@ use Thesis\MessageBus\Metadata\ClassBasedMessageTypeResolver;
 use Thesis\MessageBus\Metadata\CommandRouter;
 use Thesis\MessageBus\Metadata\CommandRouters;
 use Thesis\MessageBus\Metadata\InvalidMetadata;
+use Thesis\MessageBus\Metadata\MapCommandRouter;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
+use Thesis\MessageBus\Metadata\MessageKind;
 use Thesis\MessageBus\Metadata\MessageTypeResolver;
 use Thesis\MessageBus\Metadata\MessageTypeResolvers;
 use Thesis\MessageBus\Persistence\Connection;
@@ -98,10 +100,18 @@ final readonly class Endpoint
         ?TimeSpan $outboxTriggerRetryInterval = null,
     ): self {
         $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
+        $classifier = new MessageClassifiers($messageClassifiers);
         $messageMetadataRegistry = new MessageMetadataRegistry(
             classifier: new MessageClassifiers($messageClassifiers),
             typeResolver: $typeResolver,
-            commandRouter: new CommandRouters($commandRouters),
+            commandRouter: new CommandRouters([
+                ...$commandRouters,
+                self::localCommandsRouter(
+                    endpoint: $name,
+                    classifier: $classifier,
+                    messageClasses: $handlerRegistry->messageClasses,
+                ),
+            ]),
         );
         $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
             messageMetadataRegistry: $messageMetadataRegistry,
@@ -208,10 +218,18 @@ final readonly class Endpoint
         ClockInterface $clock = new WallClock(),
     ): self {
         $typeResolver = new MessageTypeResolvers($messageTypeResolvers);
+        $classifier = new MessageClassifiers($messageClassifiers);
         $messageMetadataRegistry = new MessageMetadataRegistry(
             classifier: new MessageClassifiers($messageClassifiers),
             typeResolver: $typeResolver,
-            commandRouter: new CommandRouters($commandRouters),
+            commandRouter: new CommandRouters([
+                ...$commandRouters,
+                self::localCommandsRouter(
+                    endpoint: $name,
+                    classifier: $classifier,
+                    messageClasses: $handlerRegistry->messageClasses,
+                ),
+            ]),
         );
         $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
             messageMetadataRegistry: $messageMetadataRegistry,
@@ -280,6 +298,26 @@ final readonly class Endpoint
                 static fn() => $deduplicator->setup($name),
             ],
         );
+    }
+
+    /**
+     * @param non-empty-string $endpoint
+     * @param list<class-string> $messageClasses
+     */
+    private static function localCommandsRouter(
+        string $endpoint,
+        MessageClassifier $classifier,
+        array $messageClasses,
+    ): MapCommandRouter {
+        $map = [];
+
+        foreach ($messageClasses as $messageClass) {
+            if ($classifier->kindOf($messageClass) === MessageKind::Command) {
+                $map[$messageClass] = $endpoint;
+            }
+        }
+
+        return new MapCommandRouter($map);
     }
 
     /**

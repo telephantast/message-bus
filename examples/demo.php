@@ -24,7 +24,6 @@ use function Amp\trapSignal;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 #[Command]
-#[Destination('registration')]
 final readonly class Register
 {
     public function __construct(
