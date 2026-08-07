@@ -12,7 +12,7 @@ final readonly class AttributeMessageClassifier implements MessageClassifier
     public function kindOf(string $messageClass): ?MessageKind
     {
         $attributes = new \ReflectionClass($messageClass)->getAttributes(
-            name: MessageAttribute::class,
+            name: Message::class,
             flags: \ReflectionAttribute::IS_INSTANCEOF,
         );
 

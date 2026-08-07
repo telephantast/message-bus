@@ -12,7 +12,7 @@ final readonly class AttributeMessageTypeResolver implements MessageTypeResolver
     public function typeOf(string $messageClass): ?string
     {
         $attributes = new \ReflectionClass($messageClass)->getAttributes(
-            name: MessageAttribute::class,
+            name: Message::class,
             flags: \ReflectionAttribute::IS_INSTANCEOF,
         );
 

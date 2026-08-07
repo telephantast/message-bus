@@ -8,7 +8,7 @@ namespace Thesis\MessageBus\Metadata;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-final class Reply extends MessageAttribute
+final class Reply extends Message
 {
     public MessageKind $kind { get => MessageKind::Reply; }
 }

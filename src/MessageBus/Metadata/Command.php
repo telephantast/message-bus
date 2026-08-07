@@ -8,7 +8,7 @@ namespace Thesis\MessageBus\Metadata;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-final class Command extends MessageAttribute
+final class Command extends Message
 {
     public MessageKind $kind { get => MessageKind::Command; }
 }

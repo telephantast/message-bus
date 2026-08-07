@@ -6,8 +6,10 @@ namespace Thesis\MessageBus\Metadata;
 
 /**
  * @api
+ *
+ * @phpstan-sealed Command|Event|Reply
  */
-abstract class MessageAttribute
+abstract class Message
 {
     abstract public MessageKind $kind { get; }
 
