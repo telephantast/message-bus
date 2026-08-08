@@ -25,10 +25,10 @@ final readonly class LinearRetryPolicy implements RecoverabilityPolicy
         $this->delayedRetryTimeIncrease = $delayedRetryInterval ?? TimeSpan::fromSeconds(5);
     }
 
-    public function onFailure(FailureContext $context): ?Retry
+    public function onFailure(FailureContext $context): null|Action|Retry
     {
         if ($context->immediateRetryCount < $this->immediateRetries) {
-            return Retry::immediately();
+            return Action::RetryImmediately;
         }
 
         if ($context->delayedRetryCount < $this->delayedRetries) {

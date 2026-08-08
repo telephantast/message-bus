@@ -19,10 +19,10 @@ final readonly class RecoverabilityPolicies implements RecoverabilityPolicy
     public function onFailure(FailureContext $context): null|Retry|Action
     {
         foreach ($this->policies as $policy) {
-            $decision = $policy->onFailure($context);
+            $action = $policy->onFailure($context);
 
-            if ($decision !== null) {
-                return $decision;
+            if ($action !== null) {
+                return $action;
             }
         }
 

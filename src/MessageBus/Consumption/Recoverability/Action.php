@@ -9,6 +9,8 @@ namespace Thesis\MessageBus\Consumption\Recoverability;
  */
 enum Action
 {
+    case RetryImmediately;
+
     /**
      * Send the failed message to the configured dead-letter queue for later inspection or manual recovery.
      */

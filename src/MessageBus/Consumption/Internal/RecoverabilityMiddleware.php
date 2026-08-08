@@ -68,18 +68,18 @@ final readonly class RecoverabilityMiddleware implements ConsumerMiddleware
 
                 $action = $this->policy->onFailure($context);
 
+                if ($action === Action::RetryImmediately) {
+                    $this->log(
+                        level: LogLevel::WARNING,
+                        message: 'Message handling failed; retrying immediately.',
+                        envelope: $envelope,
+                        failureContext: $context,
+                    );
+
+                    continue;
+                }
+
                 if ($action instanceof Retry) {
-                    if ($action->delay->isNegativeOrZero()) {
-                        $this->log(
-                            level: LogLevel::WARNING,
-                            message: 'Message handling failed; retrying immediately.',
-                            envelope: $envelope,
-                            failureContext: $context,
-                        );
-
-                        continue;
-                    }
-
                     return $this->retry($envelope, $context, $action->delay);
                 }
 

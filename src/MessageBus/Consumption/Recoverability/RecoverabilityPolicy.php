@@ -10,7 +10,7 @@ namespace Thesis\MessageBus\Consumption\Recoverability;
 interface RecoverabilityPolicy
 {
     /**
-     * @return Retry|Action|null null when this policy does not apply to the failure
+     * @return null|Action|Retry null when this policy does not apply to the failure
      */
-    public function onFailure(FailureContext $context): null|Retry|Action;
+    public function onFailure(FailureContext $context): null|Action|Retry;
 }

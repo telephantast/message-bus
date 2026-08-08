@@ -11,14 +11,6 @@ use Thesis\Time\TimeSpan;
  */
 final readonly class Retry
 {
-    public static function immediately(): self
-    {
-        /** @var self */
-        static $retry = new self(new TimeSpan(0));
-
-        return $retry;
-    }
-
     public function __construct(
         public TimeSpan $delay,
     ) {}
