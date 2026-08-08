@@ -9,4 +9,4 @@ use Thesis\MessageBus\MessageBusException;
 /**
  * @api
  */
-final class MessageDeserializationFailed extends \RuntimeException implements MessageBusException {}
+final class DeserializationFailed extends \RuntimeException implements MessageBusException {}

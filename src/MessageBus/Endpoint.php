@@ -38,10 +38,10 @@ use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
 use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
+use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Protocol\Deserializer;
 use Thesis\MessageBus\Protocol\InvalidType;
-use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
-use Thesis\MessageBus\Protocol\MessageSerializationFailed;
+use Thesis\MessageBus\Protocol\SerializationFailed;
 use Thesis\MessageBus\Protocol\Serializer;
 use Thesis\MessageBus\Protocol\TypeResolver;
 use Thesis\MessageBus\Protocol\TypeResolvers;
@@ -146,8 +146,8 @@ final readonly class Endpoint
                     new RecoverabilityMiddleware(
                         policy: new RecoverabilityPolicies([
                             new UnrecoverableErrorPolicy([
-                                MessageSerializationFailed::class,
-                                MessageDeserializationFailed::class,
+                                SerializationFailed::class,
+                                DeserializationFailed::class,
                                 InvalidType::class,
                                 InvalidKind::class,
                                 NoHandler::class,
@@ -255,8 +255,8 @@ final readonly class Endpoint
                     new RecoverabilityMiddleware(
                         policy: new RecoverabilityPolicies([
                             new UnrecoverableErrorPolicy([
-                                MessageSerializationFailed::class,
-                                MessageDeserializationFailed::class,
+                                SerializationFailed::class,
+                                DeserializationFailed::class,
                                 InvalidType::class,
                                 InvalidKind::class,
                                 NoHandler::class,

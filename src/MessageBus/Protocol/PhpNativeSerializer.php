@@ -34,7 +34,7 @@ final readonly class PhpNativeSerializer implements Serializer, Deserializer
                 contentType: self::CONTENT_TYPE,
             );
         } catch (\Throwable $exception) {
-            throw new MessageSerializationFailed(
+            throw new SerializationFailed(
                 message: \sprintf('Failed to serialize "%s": %s', $message::class, $exception->getMessage()),
                 previous: $exception,
             );
@@ -46,14 +46,14 @@ final readonly class PhpNativeSerializer implements Serializer, Deserializer
         try {
             $message = exceptionally(fn() => unserialize($serializedMessage->payload, $this->unserializeOptions));
         } catch (\Throwable $exception) {
-            throw new MessageDeserializationFailed(
+            throw new DeserializationFailed(
                 message: 'Failed to unserialize message payload',
                 previous: $exception,
             );
         }
 
         if (!$message instanceof $messageClass) {
-            throw new MessageDeserializationFailed(\sprintf(
+            throw new DeserializationFailed(\sprintf(
                 'Serialized payload did not produce an instance of "%s".',
                 $messageClass,
             ));

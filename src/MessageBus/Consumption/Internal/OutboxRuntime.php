@@ -14,7 +14,7 @@ use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Persistence\Internal\RuntimeTransactionScope;
-use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
+use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\Disposition;
@@ -247,11 +247,11 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         try {
             $payload = json_decode($envelope->payload, associative: true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $exception) {
-            throw new MessageDeserializationFailed('Outbox trigger payload is not valid JSON.', previous: $exception);
+            throw new DeserializationFailed('Outbox trigger payload is not valid JSON.', previous: $exception);
         }
 
         if (!(\is_array($payload) && \is_string($messageId = $payload['message_id'] ?? null) && $messageId !== '')) {
-            throw new MessageDeserializationFailed('Outbox trigger payload must contain a non-empty "message_id".');
+            throw new DeserializationFailed('Outbox trigger payload must contain a non-empty "message_id".');
         }
 
         $id = new ProcessingId(

@@ -13,7 +13,7 @@ interface Deserializer
      * @template T of object
      * @param class-string<T> $messageClass
      * @return T
-     * @throws MessageDeserializationFailed
+     * @throws DeserializationFailed
      */
     public function deserialize(SerializedMessage $serializedMessage, string $messageClass): object;
 }

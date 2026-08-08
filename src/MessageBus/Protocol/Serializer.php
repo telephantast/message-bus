@@ -10,7 +10,7 @@ namespace Thesis\MessageBus\Protocol;
 interface Serializer
 {
     /**
-     * @throws MessageSerializationFailed
+     * @throws SerializationFailed
      */
     public function serialize(object $message): SerializedMessage;
 }

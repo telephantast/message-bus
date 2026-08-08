@@ -12,6 +12,7 @@ use Revolt\EventLoop;
 use Thesis\Headers;
 use Thesis\Headers\BoolHeader;
 use Thesis\MessageBus\Pgmq\Internal\PgmqConsumer;
+use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
@@ -259,7 +260,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         $rawHeaders = json_decode($message->headers ?? '{}', associative: true, flags: JSON_THROW_ON_ERROR);
 
         if (!\is_array($rawHeaders) || !array_all($rawHeaders, static fn(mixed $value) => \is_string($value))) {
-            throw new \UnexpectedValueException('PGMQ message headers must be a JSON object with string values.');
+            throw new DeserializationFailed('PGMQ message headers must be a JSON object with string values.');
         }
 
         $payload = $message->value;

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Consumption\Internal;
 
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
+use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Protocol\Deserializer;
 use Thesis\MessageBus\Protocol\InvalidType;
-use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
 use Thesis\MessageBus\Protocol\SerializedMessage;
 use Thesis\MessageBus\Transport\InboundEnvelope;
 use const Thesis\MessageBus\Protocol\CONTENT_ENCODING;
@@ -76,6 +76,6 @@ final readonly class InboundMessageFactory
     private function resolveClass(string $type): string
     {
         return $this->typeMap[$type]
-            ?? throw new MessageDeserializationFailed(\sprintf('Unknown message type "%s"', $type));
+            ?? throw new DeserializationFailed(\sprintf('Unknown message type "%s"', $type));
     }
 }
