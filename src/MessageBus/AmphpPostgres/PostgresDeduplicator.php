@@ -20,8 +20,16 @@ final class PostgresDeduplicator implements Deduplicator
      */
     public function __construct(
         private readonly PostgresLink $pg,
-        private readonly string $table = 'message_bus_processed_message',
+        private readonly string $table = 'processed_message',
+        private readonly string $schema = 'thesis_message_bus',
     ) {}
+
+    /**
+     * @phpstan-ignore property.uninitialized
+     */
+    private string $escapedSchema {
+        get => $this->escapedSchema ??= $this->pg->quoteIdentifier($this->schema);
+    }
 
     /**
      * @phpstan-ignore property.uninitialized
@@ -34,7 +42,12 @@ final class PostgresDeduplicator implements Deduplicator
     {
         $this->pg->query(
             <<<SQL
-                create table if not exists {$this->escapedTable} (
+                create schema if not exists {$this->escapedSchema}
+                SQL,
+        );
+        $this->pg->query(
+            <<<SQL
+                create table if not exists {$this->escapedSchema}.{$this->escapedTable} (
                     endpoint text not null,
                     message_id text not null,
                     handled_at timestamptz not null default now(),
@@ -49,7 +62,7 @@ final class PostgresDeduplicator implements Deduplicator
         $result = $this->pg->execute(
             <<<SQL
                 select 1
-                from {$this->escapedTable}
+                from {$this->escapedSchema}.{$this->escapedTable}
                 where endpoint = :endpoint and message_id = :message_id
                 SQL,
             [
@@ -70,7 +83,7 @@ final class PostgresDeduplicator implements Deduplicator
     {
         $result = $transaction->execute(
             <<<SQL
-                insert into {$this->escapedTable} (endpoint, message_id)
+                insert into {$this->escapedSchema}.{$this->escapedTable} (endpoint, message_id)
                 values (:endpoint, :message_id)
                 on conflict do nothing
                 returning 1
