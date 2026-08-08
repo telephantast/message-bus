@@ -34,8 +34,6 @@ use const Thesis\MessageBus\Protocol\RETRY_COUNT;
  */
 final readonly class RecoverabilityMiddleware implements ConsumerMiddleware
 {
-    private const int MAX_IMMEDIATE_RETRIES = 10;
-
     /**
      * @param non-empty-string $deadLetterQueue
      */
@@ -49,9 +47,7 @@ final readonly class RecoverabilityMiddleware implements ConsumerMiddleware
 
     public function process(string $endpoint, InboundEnvelope $envelope, ConsumerHandler $handler): Disposition
     {
-        $context = null;
-
-        for ($immediateRetryCount = 0; $immediateRetryCount < self::MAX_IMMEDIATE_RETRIES; ++$immediateRetryCount) {
+        for ($immediateRetryCount = 0;; ++$immediateRetryCount) {
             try {
                 return $handler->handle($envelope);
             } catch (\Throwable $error) {
@@ -89,17 +85,6 @@ final readonly class RecoverabilityMiddleware implements ConsumerMiddleware
                 };
             }
         }
-
-        \assert($context !== null);
-
-        $this->log(
-            level: LogLevel::ERROR,
-            message: 'Invalid retry policy with 10 immediate retries.',
-            envelope: $envelope,
-            failureContext: $context,
-        );
-
-        return $this->bury($envelope, $context);
     }
 
     private function retry(InboundEnvelope $envelope, FailureContext $context, TimeSpan $delay): Disposition
