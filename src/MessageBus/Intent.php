@@ -6,6 +6,7 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers;
 use Thesis\MessageBus\Transport\TransportOptions;
+use const Thesis\MessageBus\Protocol\CREATED_AT;
 
 /**
  * @api

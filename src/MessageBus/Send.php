@@ -18,11 +18,11 @@ final class Send extends Intent
 {
     /**
      * @param T $command
-     * @param ?non-empty-string $destinationEndpoint
+     * @param ?non-empty-string $destination Endpoint name
      */
     public function __construct(
         object $command,
-        public private(set) ?string $destinationEndpoint = null,
+        public private(set) ?string $destination = null,
         Headers $headers = new Headers(),
         public private(set) TimeSpan $delay = new TimeSpan(0),
         ?TransportOptions $transportOptions = null,
@@ -37,10 +37,10 @@ final class Send extends Intent
     /**
      * @param ?non-empty-string $endpoint
      */
-    public function withDestinationEndpoint(?string $endpoint): static
+    public function withDestination(?string $endpoint): static
     {
         $intent = clone $this;
-        $intent->destinationEndpoint = $endpoint;
+        $intent->destination = $endpoint;
 
         return $intent;
     }

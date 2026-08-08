@@ -18,6 +18,7 @@ use Thesis\MessageBus\Consumption\Internal\InboundMessageFactory;
 use Thesis\MessageBus\Consumption\Internal\OutboxRuntime;
 use Thesis\MessageBus\Consumption\Internal\RecoverabilityMiddleware;
 use Thesis\MessageBus\Consumption\Internal\RequeueOnUnhandledFailureMiddleware;
+use Thesis\MessageBus\Consumption\Internal\SetupSubscription;
 use Thesis\MessageBus\Consumption\Internal\TransactionalRuntime;
 use Thesis\MessageBus\Consumption\OutboxStorage;
 use Thesis\MessageBus\Consumption\Recoverability\LinearRetryPolicy;
@@ -30,26 +31,24 @@ use Thesis\MessageBus\Handling\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Handling\NoHandler;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
-use Thesis\MessageBus\Internal\SetupSubscription;
-use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
-use Thesis\MessageBus\Metadata\AttributeMessageTypeResolver;
-use Thesis\MessageBus\Metadata\ClassBasedMessageTypeResolver;
+use Thesis\MessageBus\Metadata\AttributeConvention;
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
-use Thesis\MessageBus\Metadata\InvalidMetadata;
+use Thesis\MessageBus\Metadata\InvalidKind;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
-use Thesis\MessageBus\Metadata\MessageTypeResolver;
-use Thesis\MessageBus\Metadata\MessageTypeResolvers;
 use Thesis\MessageBus\Persistence\Connection;
-use Thesis\MessageBus\Routing\AttributeCommandRouter;
+use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
+use Thesis\MessageBus\Protocol\Deserializer;
+use Thesis\MessageBus\Protocol\InvalidType;
+use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
+use Thesis\MessageBus\Protocol\MessageSerializationFailed;
+use Thesis\MessageBus\Protocol\Serializer;
+use Thesis\MessageBus\Protocol\TypeResolver;
+use Thesis\MessageBus\Protocol\TypeResolvers;
 use Thesis\MessageBus\Routing\CannotRouteCommand;
 use Thesis\MessageBus\Routing\CommandRouter;
 use Thesis\MessageBus\Routing\CommandRouters;
 use Thesis\MessageBus\Routing\MapCommandRouter;
-use Thesis\MessageBus\Serialization\Deserializer;
-use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
-use Thesis\MessageBus\Serialization\MessageSerializationFailed;
-use Thesis\MessageBus\Serialization\Serializer;
 use Thesis\MessageBus\Transport\Consumer;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
@@ -75,7 +74,7 @@ final readonly class Endpoint
      * @param OutboxStorage<STx> $outboxStorage
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
-     * @param list<MessageTypeResolver> $messageTypeResolvers
+     * @param list<TypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
      * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
@@ -88,9 +87,9 @@ final readonly class Endpoint
         OutboxStorage $outboxStorage,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
-        array $commandRouters = [new AttributeCommandRouter()],
-        array $messageClassifiers = [new AttributeMessageClassifier()],
-        array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
+        array $commandRouters = [new AttributeConvention()],
+        array $messageClassifiers = [new AttributeConvention()],
+        array $messageTypeResolvers = [new AttributeConvention(), new ClassBasedTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
         string $deadLetterQueue = self::DLQ,
         array $consumerMiddleware = [],
@@ -101,7 +100,7 @@ final readonly class Endpoint
     ): self {
         $messageMetadataFactory = new MessageMetadataFactory(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+            typeResolver: new TypeResolvers($messageTypeResolvers),
         );
         $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
             messageMetadataFactory: $messageMetadataFactory,
@@ -149,7 +148,8 @@ final readonly class Endpoint
                             new UnrecoverableErrorPolicy([
                                 MessageSerializationFailed::class,
                                 MessageDeserializationFailed::class,
-                                InvalidMetadata::class,
+                                InvalidType::class,
+                                InvalidKind::class,
                                 NoHandler::class,
                                 HeaderException::class,
                             ]),
@@ -189,7 +189,7 @@ final readonly class Endpoint
      * @param Deduplicator<STx> $deduplicator
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
-     * @param list<MessageTypeResolver> $messageTypeResolvers
+     * @param list<TypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
      * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
@@ -202,9 +202,9 @@ final readonly class Endpoint
         Deduplicator $deduplicator,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
-        array $commandRouters = [new AttributeCommandRouter()],
-        array $messageClassifiers = [new AttributeMessageClassifier()],
-        array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
+        array $commandRouters = [new AttributeConvention()],
+        array $messageClassifiers = [new AttributeConvention()],
+        array $messageTypeResolvers = [new AttributeConvention(), new ClassBasedTypeResolver()],
         array $recoverabilityPolicies = [new LinearRetryPolicy()],
         string $deadLetterQueue = self::DLQ,
         array $consumerMiddleware = [],
@@ -213,7 +213,7 @@ final readonly class Endpoint
     ): self {
         $messageMetadataFactory = new MessageMetadataFactory(
             classifier: new MessageClassifiers($messageClassifiers),
-            typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+            typeResolver: new TypeResolvers($messageTypeResolvers),
         );
         $outboundEnvelopeFactory = new OutboundEnvelopeFactory(
             messageMetadataFactory: $messageMetadataFactory,
@@ -257,7 +257,8 @@ final readonly class Endpoint
                             new UnrecoverableErrorPolicy([
                                 MessageSerializationFailed::class,
                                 MessageDeserializationFailed::class,
-                                InvalidMetadata::class,
+                                InvalidType::class,
+                                InvalidKind::class,
                                 NoHandler::class,
                                 HeaderException::class,
                             ]),
@@ -325,7 +326,7 @@ final readonly class Endpoint
         $this->dispatch(
             new Send(
                 command: $command,
-                destinationEndpoint: $endpoint,
+                destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
                 transportOptions: $transportOptions,

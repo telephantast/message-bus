@@ -15,7 +15,7 @@ use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
 use Thesis\MessageBus\Transport\TransactionalDispatcher;
-use const Thesis\MessageBus\MESSAGE_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_ID;
 
 /**
  * @internal

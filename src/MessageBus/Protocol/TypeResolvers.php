@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Metadata;
+namespace Thesis\MessageBus\Protocol;
 
 /**
  * @api
  */
-final readonly class MessageTypeResolvers implements MessageTypeResolver
+final readonly class TypeResolvers implements TypeResolver
 {
     /**
-     * @param list<MessageTypeResolver> $resolvers
+     * @param list<TypeResolver> $resolvers
      */
     public function __construct(
         private array $resolvers,

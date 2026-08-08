@@ -14,7 +14,7 @@ use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Persistence\Connection;
 use Thesis\MessageBus\Persistence\Internal\RuntimeTransactionScope;
-use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
+use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\Disposition;
@@ -22,14 +22,14 @@ use Thesis\MessageBus\Transport\InboundEnvelope;
 use Thesis\MessageBus\Transport\Operation;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 use Thesis\Time\TimeSpan;
-use const Thesis\MessageBus\CAUSE_ID;
-use const Thesis\MessageBus\CONTENT_TYPE;
-use const Thesis\MessageBus\CONVERSATION_ID;
-use const Thesis\MessageBus\CREATED_AT;
-use const Thesis\MessageBus\EXPIRES_AT;
-use const Thesis\MessageBus\MESSAGE_ID;
-use const Thesis\MessageBus\MESSAGE_TYPE;
-use const Thesis\MessageBus\ORIGIN_ENDPOINT;
+use const Thesis\MessageBus\Protocol\CAUSE_ID;
+use const Thesis\MessageBus\Protocol\CONTENT_TYPE;
+use const Thesis\MessageBus\Protocol\CONVERSATION_ID;
+use const Thesis\MessageBus\Protocol\CREATED_AT;
+use const Thesis\MessageBus\Protocol\EXPIRES_AT;
+use const Thesis\MessageBus\Protocol\MESSAGE_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_TYPE;
+use const Thesis\MessageBus\Protocol\ORIGIN_ENDPOINT;
 
 /**
  * The trigger is intentionally dispatched before the transaction is committed:

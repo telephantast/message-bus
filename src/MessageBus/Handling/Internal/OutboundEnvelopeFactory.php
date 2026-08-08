@@ -9,24 +9,24 @@ use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\InvalidIntent;
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\MessageKind;
+use Thesis\MessageBus\Protocol\Serializer;
 use Thesis\MessageBus\Publish;
 use Thesis\MessageBus\Reply;
 use Thesis\MessageBus\ReplyTo;
 use Thesis\MessageBus\Routing\CannotRouteCommand;
 use Thesis\MessageBus\Routing\CommandRouter;
 use Thesis\MessageBus\Send;
-use Thesis\MessageBus\Serialization\Serializer;
 use Thesis\MessageBus\Transport\Operation;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 use Thesis\Time\TimeSpan;
-use const Thesis\MessageBus\CAUSE_ID;
-use const Thesis\MessageBus\CONTENT_ENCODING;
-use const Thesis\MessageBus\CONTENT_TYPE;
-use const Thesis\MessageBus\CONVERSATION_ID;
-use const Thesis\MessageBus\CORRELATION_ID;
-use const Thesis\MessageBus\MESSAGE_ID;
-use const Thesis\MessageBus\MESSAGE_TYPE;
-use const Thesis\MessageBus\ORIGIN_ENDPOINT;
+use const Thesis\MessageBus\Protocol\CAUSE_ID;
+use const Thesis\MessageBus\Protocol\CONTENT_ENCODING;
+use const Thesis\MessageBus\Protocol\CONTENT_TYPE;
+use const Thesis\MessageBus\Protocol\CONVERSATION_ID;
+use const Thesis\MessageBus\Protocol\CORRELATION_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_TYPE;
+use const Thesis\MessageBus\Protocol\ORIGIN_ENDPOINT;
 
 /**
  * @internal
@@ -62,7 +62,7 @@ final class OutboundEnvelopeFactory
             }
 
             $operation = Operation::Send;
-            $address = $intent->destinationEndpoint ?? $this->routeCommand($class);
+            $address = $intent->destination ?? $this->routeCommand($class);
             $delay = $intent->delay;
         } elseif ($intent instanceof Publish) {
             if ($metadata->kind !== MessageKind::Event) {
@@ -86,7 +86,7 @@ final class OutboundEnvelopeFactory
 
             $to = $intent->to ?? ReplyTo::fromHeaders($causeHeaders);
             $operation = Operation::Send;
-            $address = $to->destinationEndpoint;
+            $address = $to->destination;
             $headers = $headers
                 ->withDefault(CONVERSATION_ID, $to->conversationId)
                 ->withDefault(CORRELATION_ID, $to->correlationId);
@@ -162,7 +162,7 @@ final class OutboundEnvelopeFactory
     public function routeCommand(string $commandClass): string
     {
         return $this->commandEndpoints[$commandClass]
-            ??= $this->commandRouter->route($commandClass)
+            ??= $this->commandRouter->destinationFor($commandClass)
             ?? throw new CannotRouteCommand($commandClass);
     }
 }

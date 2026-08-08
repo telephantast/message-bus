@@ -43,7 +43,7 @@
             "Thesis\\": "src/"
         },
         "files": [
-            "src/MessageBus/headers.php"
+            "src/MessageBus/Protocol/headers.php"
         ]
     },
     "autoload-dev": {

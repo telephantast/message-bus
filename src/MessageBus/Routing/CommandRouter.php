@@ -15,5 +15,5 @@ interface CommandRouter
      * @param class-string $commandClass
      * @return non-empty-string|null destination endpoint name, or null when this router has no route for the command
      */
-    public function route(string $commandClass): ?string;
+    public function destinationFor(string $commandClass): ?string;
 }

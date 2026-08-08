@@ -8,19 +8,17 @@ use Thesis\Headers;
 use Thesis\MessageBus\Handling\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Identification\UuidV7Generator;
-use Thesis\MessageBus\Metadata\AttributeMessageClassifier;
-use Thesis\MessageBus\Metadata\AttributeMessageTypeResolver;
-use Thesis\MessageBus\Metadata\ClassBasedMessageTypeResolver;
+use Thesis\MessageBus\Metadata\AttributeConvention;
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
-use Thesis\MessageBus\Metadata\MessageTypeResolver;
-use Thesis\MessageBus\Metadata\MessageTypeResolvers;
-use Thesis\MessageBus\Routing\AttributeCommandRouter;
+use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
+use Thesis\MessageBus\Protocol\Serializer;
+use Thesis\MessageBus\Protocol\TypeResolver;
+use Thesis\MessageBus\Protocol\TypeResolvers;
 use Thesis\MessageBus\Routing\CannotRouteCommand;
 use Thesis\MessageBus\Routing\CommandRouter;
 use Thesis\MessageBus\Routing\CommandRouters;
-use Thesis\MessageBus\Serialization\Serializer;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\TransportOptions;
 use Thesis\Time\TimeSpan;
@@ -34,15 +32,15 @@ final readonly class Entrypoint
      * @param non-empty-string $name
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
-     * @param list<MessageTypeResolver> $messageTypeResolvers
+     * @param list<TypeResolver> $messageTypeResolvers
      */
     public static function build(
         string $name,
         Dispatcher $dispatcher,
         Serializer $serializer,
-        array $commandRouters = [new AttributeCommandRouter()],
-        array $messageClassifiers = [new AttributeMessageClassifier()],
-        array $messageTypeResolvers = [new AttributeMessageTypeResolver(), new ClassBasedMessageTypeResolver()],
+        array $commandRouters = [new AttributeConvention()],
+        array $messageClassifiers = [new AttributeConvention()],
+        array $messageTypeResolvers = [new AttributeConvention(), new ClassBasedTypeResolver()],
         IdGenerator $idGenerator = new UuidV7Generator(),
     ): self {
         return new self(
@@ -51,7 +49,7 @@ final readonly class Entrypoint
             outboundEnvelopeFactory: new OutboundEnvelopeFactory(
                 messageMetadataFactory: new MessageMetadataFactory(
                     classifier: new MessageClassifiers($messageClassifiers),
-                    typeResolver: new MessageTypeResolvers($messageTypeResolvers),
+                    typeResolver: new TypeResolvers($messageTypeResolvers),
                 ),
                 commandRouter: new CommandRouters($commandRouters),
                 serializer: $serializer,
@@ -85,7 +83,7 @@ final readonly class Entrypoint
         $this->dispatch(
             new Send(
                 command: $command,
-                destinationEndpoint: $endpoint,
+                destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
                 transportOptions: $transportOptions,

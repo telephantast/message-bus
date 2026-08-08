@@ -16,7 +16,7 @@ abstract class Message
     /**
      * @param ?non-empty-string $type
      */
-    final public function __construct(
+    public function __construct(
         public readonly ?string $type = null,
     ) {}
 }

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Metadata;
+namespace Thesis\MessageBus\Protocol;
 
 /**
  * @api
  */
-interface MessageTypeResolver
+interface TypeResolver
 {
     /**
      * @param class-string $messageClass

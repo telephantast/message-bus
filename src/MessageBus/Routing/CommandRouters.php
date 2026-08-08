@@ -16,10 +16,10 @@ final readonly class CommandRouters implements CommandRouter
         private array $routers,
     ) {}
 
-    public function route(string $commandClass): ?string
+    public function destinationFor(string $commandClass): ?string
     {
         foreach ($this->routers as $router) {
-            $destination = $router->route($commandClass);
+            $destination = $router->destinationFor($commandClass);
 
             if ($destination !== null) {
                 return $destination;

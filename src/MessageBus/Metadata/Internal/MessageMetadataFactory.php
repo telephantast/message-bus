@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Thesis\MessageBus\Metadata\Internal;
 
-use Thesis\MessageBus\Metadata\InvalidMetadata;
+use Thesis\MessageBus\Metadata\InvalidKind;
 use Thesis\MessageBus\Metadata\MessageClassifier;
-use Thesis\MessageBus\Metadata\MessageTypeResolver;
+use Thesis\MessageBus\Protocol\InvalidType;
+use Thesis\MessageBus\Protocol\TypeResolver;
 
 /**
  * @internal
@@ -15,7 +16,7 @@ final class MessageMetadataFactory
 {
     public function __construct(
         private readonly MessageClassifier $classifier,
-        private readonly MessageTypeResolver $typeResolver,
+        private readonly TypeResolver $typeResolver,
     ) {}
 
     /**
@@ -30,12 +31,12 @@ final class MessageMetadataFactory
     {
         return $this->metadata[$messageClass] ??= new MessageMetadata(
             kind: $this->classifier->kindOf($messageClass)
-                ?? throw new InvalidMetadata(\sprintf(
-                    'Message class "%s" must be marked as #[Command], #[Event], or #[Reply].',
+                ?? throw new InvalidKind(\sprintf(
+                    'Message class "%s" does not have a kind.',
                     $messageClass,
                 )),
             type: $this->typeResolver->typeOf($messageClass)
-                ?? throw new InvalidMetadata(\sprintf(
+                ?? throw new InvalidType(\sprintf(
                     'Message class "%s" must have a message type.',
                     $messageClass,
                 )),

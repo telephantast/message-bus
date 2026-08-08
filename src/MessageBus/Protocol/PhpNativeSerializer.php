@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Serialization;
+namespace Thesis\MessageBus\Protocol;
 
 use function Thesis\exceptionally;
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Metadata;
+namespace Thesis\MessageBus\Protocol;
 
 /**
  * @api
  */
-final readonly class ClassBasedMessageTypeResolver implements MessageTypeResolver
+final readonly class ClassBasedTypeResolver implements TypeResolver
 {
     /**
      * @param non-empty-string $namespaceSeparator

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus;
+namespace Thesis\MessageBus\Protocol;
 
 use Thesis\Headers\IntHeader;
 use Thesis\Headers\NonEmptyStringHeader;

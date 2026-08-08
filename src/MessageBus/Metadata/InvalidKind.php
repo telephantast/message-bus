@@ -9,4 +9,4 @@ use Thesis\MessageBus\MessageBusException;
 /**
  * @api
  */
-final class InvalidMetadata extends \LogicException implements MessageBusException {}
+final class InvalidKind extends \LogicException implements MessageBusException {}

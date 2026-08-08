@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Consumption\Internal;
 
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
-use Thesis\MessageBus\Metadata\InvalidMetadata;
-use Thesis\MessageBus\Serialization\Deserializer;
-use Thesis\MessageBus\Serialization\MessageDeserializationFailed;
-use Thesis\MessageBus\Serialization\SerializedMessage;
+use Thesis\MessageBus\Protocol\Deserializer;
+use Thesis\MessageBus\Protocol\InvalidType;
+use Thesis\MessageBus\Protocol\MessageDeserializationFailed;
+use Thesis\MessageBus\Protocol\SerializedMessage;
 use Thesis\MessageBus\Transport\InboundEnvelope;
-use const Thesis\MessageBus\CONTENT_ENCODING;
-use const Thesis\MessageBus\CONTENT_TYPE;
-use const Thesis\MessageBus\MESSAGE_TYPE;
+use const Thesis\MessageBus\Protocol\CONTENT_ENCODING;
+use const Thesis\MessageBus\Protocol\CONTENT_TYPE;
+use const Thesis\MessageBus\Protocol\MESSAGE_TYPE;
 
 /**
  * @internal
@@ -33,7 +33,7 @@ final readonly class InboundMessageFactory
             $type = $messageMetadataFactory->forClass($messageClass)->type;
 
             if (isset($typeMap[$type])) {
-                throw new InvalidMetadata(\sprintf(
+                throw new InvalidType(\sprintf(
                     'Message type "%s" is used by both "%s" and "%s".',
                     $type,
                     $typeMap[$type],

@@ -20,14 +20,14 @@ use Thesis\MessageBus\Transport\InboundEnvelope;
 use Thesis\MessageBus\Transport\Operation;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 use Thesis\Time\TimeSpan;
-use const Thesis\MessageBus\ERROR_CLASS;
-use const Thesis\MessageBus\ERROR_FILE;
-use const Thesis\MessageBus\ERROR_LINE;
-use const Thesis\MessageBus\FAILURE_ENDPOINT;
-use const Thesis\MessageBus\FIRST_FAILED_AT;
-use const Thesis\MessageBus\MESSAGE_ID;
-use const Thesis\MessageBus\MESSAGE_TYPE;
-use const Thesis\MessageBus\RETRY_COUNT;
+use const Thesis\MessageBus\Protocol\ERROR_CLASS;
+use const Thesis\MessageBus\Protocol\ERROR_FILE;
+use const Thesis\MessageBus\Protocol\ERROR_LINE;
+use const Thesis\MessageBus\Protocol\FAILURE_ENDPOINT;
+use const Thesis\MessageBus\Protocol\FIRST_FAILED_AT;
+use const Thesis\MessageBus\Protocol\MESSAGE_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_TYPE;
+use const Thesis\MessageBus\Protocol\RETRY_COUNT;
 
 /**
  * @internal

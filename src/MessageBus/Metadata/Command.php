@@ -11,4 +11,15 @@ namespace Thesis\MessageBus\Metadata;
 final class Command extends Message
 {
     public MessageKind $kind { get => MessageKind::Command; }
+
+    /**
+     * @param ?non-empty-string $type
+     * @param ?non-empty-string $destination Endpoint name
+     */
+    public function __construct(
+        ?string $type = null,
+        public readonly ?string $destination = null,
+    ) {
+        parent::__construct($type);
+    }
 }

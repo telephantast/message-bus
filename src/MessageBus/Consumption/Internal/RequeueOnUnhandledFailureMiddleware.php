@@ -9,9 +9,9 @@ use Thesis\MessageBus\Consumption\ConsumerMiddleware;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
-use const Thesis\MessageBus\MESSAGE_ID;
-use const Thesis\MessageBus\MESSAGE_TYPE;
-use const Thesis\MessageBus\RETRY_COUNT;
+use const Thesis\MessageBus\Protocol\MESSAGE_ID;
+use const Thesis\MessageBus\Protocol\MESSAGE_TYPE;
+use const Thesis\MessageBus\Protocol\RETRY_COUNT;
 
 /**
  * @internal

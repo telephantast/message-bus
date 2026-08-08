@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Internal;
+namespace Thesis\MessageBus\Consumption\Internal;
 
 use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\MessageKind;

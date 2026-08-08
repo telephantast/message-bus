@@ -16,7 +16,7 @@ final readonly class MapCommandRouter implements CommandRouter
         private array $map,
     ) {}
 
-    public function route(string $commandClass): ?string
+    public function destinationFor(string $commandClass): ?string
     {
         return $this->map[$commandClass] ?? null;
     }

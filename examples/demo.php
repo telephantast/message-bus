@@ -15,7 +15,7 @@ use Thesis\MessageBus\Metadata\Command;
 use Thesis\MessageBus\Metadata\Event;
 use Thesis\MessageBus\Metadata\Reply;
 use Thesis\MessageBus\Pgmq\PgmqTransport;
-use Thesis\MessageBus\Serialization\PhpNativeSerializer;
+use Thesis\MessageBus\Protocol\PhpNativeSerializer;
 use function Amp\async;
 use function Amp\Future\awaitFirst;
 use function Amp\trapSignal;

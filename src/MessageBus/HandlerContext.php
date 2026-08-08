@@ -44,7 +44,7 @@ abstract class HandlerContext
         $this->dispatch(
             new Send(
                 command: $command,
-                destinationEndpoint: $endpoint,
+                destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
                 transportOptions: $transportOptions,
@@ -112,7 +112,7 @@ abstract class HandlerContext
         $this->dispatchImmediately(
             new Send(
                 command: $command,
-                destinationEndpoint: $endpoint,
+                destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
                 transportOptions: $transportOptions,
