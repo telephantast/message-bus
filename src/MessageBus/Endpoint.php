@@ -284,7 +284,7 @@ final readonly class Endpoint
                     subscriptionConfigurator: $transport,
                     messageClasses: $handlerRegistry->messageClasses,
                 ),
-                static fn() => $deduplicator->setup($name),
+                $deduplicator->setup(...),
             ],
         );
     }

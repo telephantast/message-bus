@@ -11,10 +11,7 @@ namespace Thesis\MessageBus\Consumption;
  */
 interface Deduplicator
 {
-    /**
-     * @param non-empty-string $endpoint
-     */
-    public function setup(string $endpoint): void;
+    public function setup(): void;
 
     public function isHandled(ProcessingId $id): bool;
 
