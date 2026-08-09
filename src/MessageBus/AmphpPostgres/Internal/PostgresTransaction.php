@@ -15,9 +15,7 @@ use Thesis\MessageBus\Persistence\Transaction;
  */
 final class PostgresTransaction implements Transaction
 {
-    public PostgresLink $handle {
-        get => $this->transaction;
-    }
+    public PostgresLink $handle { get => $this->transaction; }
 
     public function __construct(
         private readonly AmpPostgresTransaction $transaction,

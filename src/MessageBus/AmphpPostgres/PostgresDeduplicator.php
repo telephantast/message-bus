@@ -19,7 +19,7 @@ final class PostgresDeduplicator implements Deduplicator
      * @param non-empty-string $table
      */
     public function __construct(
-        private readonly PostgresLink $pg,
+        private readonly PostgresLink $postgres,
         private readonly string $table = 'processed_message',
         private readonly string $schema = 'thesis_message_bus',
     ) {}
@@ -28,24 +28,24 @@ final class PostgresDeduplicator implements Deduplicator
      * @phpstan-ignore property.uninitialized
      */
     private string $escapedSchema {
-        get => $this->escapedSchema ??= $this->pg->quoteIdentifier($this->schema);
+        get => $this->escapedSchema ??= $this->postgres->quoteIdentifier($this->schema);
     }
 
     /**
      * @phpstan-ignore property.uninitialized
      */
     private string $escapedTable {
-        get => $this->escapedTable ??= $this->pg->quoteIdentifier($this->table);
+        get => $this->escapedTable ??= $this->postgres->quoteIdentifier($this->table);
     }
 
     public function setup(string $endpoint): void
     {
-        $this->pg->query(
+        $this->postgres->query(
             <<<SQL
                 create schema if not exists {$this->escapedSchema}
                 SQL,
         );
-        $this->pg->query(
+        $this->postgres->query(
             <<<SQL
                 create table if not exists {$this->escapedSchema}.{$this->escapedTable} (
                     endpoint text not null,
@@ -59,7 +59,7 @@ final class PostgresDeduplicator implements Deduplicator
 
     public function isHandled(ProcessingId $id): bool
     {
-        $result = $this->pg->execute(
+        $result = $this->postgres->execute(
             <<<SQL
                 select 1
                 from {$this->escapedSchema}.{$this->escapedTable}
@@ -76,7 +76,7 @@ final class PostgresDeduplicator implements Deduplicator
 
     public function markHandled(ProcessingId $id): bool
     {
-        return $this->markHandledInTransaction($this->pg, $id);
+        return $this->markHandledInTransaction($this->postgres, $id);
     }
 
     public function markHandledInTransaction(object $transaction, ProcessingId $id): bool

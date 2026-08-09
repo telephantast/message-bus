@@ -44,7 +44,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
      * @param positive-int $batchSize
      */
     public function __construct(
-        private PostgresConnection $pg,
+        private PostgresConnection $postgres,
         private int $batchSize = 10,
         ?TimeSpan $visibilityTimeout = null,
         ?TimeSpan $pollInterval = null,
@@ -57,11 +57,11 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
     public function createQueue(string $name): void
     {
-        Pgmq\createExtension($this->pg);
-        Pgmq\createQueue($this->pg, $name);
+        Pgmq\createExtension($this->postgres);
+        Pgmq\createQueue($this->postgres, $name);
 
-        $this->pg->query('create schema if not exists thesis_message_bus;');
-        $this->pg->query(
+        $this->postgres->query('create schema if not exists thesis_message_bus;');
+        $this->postgres->query(
             <<<'SQL'
                 create or replace function thesis_message_bus.pgmq_dispatch_v1(
                     operations text[],
@@ -96,22 +96,22 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
         $boundEventTypes = [];
 
         /** @var array{pattern: non-empty-string} $row */
-        foreach ($this->pg->execute('select pattern from pgmq.list_topic_bindings(?)', [$queue]) as $row) {
+        foreach ($this->postgres->execute('select pattern from pgmq.list_topic_bindings(?)', [$queue]) as $row) {
             $boundEventTypes[] = $row['pattern'];
         }
 
         foreach (array_diff($messageTypes, $boundEventTypes) as $eventType) {
-            Pgmq\bindTopic($this->pg, $eventType, $queue);
+            Pgmq\bindTopic($this->postgres, $eventType, $queue);
         }
 
         foreach (array_diff($boundEventTypes, $messageTypes) as $eventType) {
-            Pgmq\unbindTopic($this->pg, $eventType, $queue);
+            Pgmq\unbindTopic($this->postgres, $eventType, $queue);
         }
     }
 
     public function dispatch(array $envelopes): void
     {
-        $this->dispatchInTransaction($this->pg, $envelopes);
+        $this->dispatchInTransaction($this->postgres, $envelopes);
     }
 
     public function dispatchInTransaction(object $transaction, array $envelopes): void
@@ -172,7 +172,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
 
     public function startConsumer(string $queue, ConsumerHandler $handler): PgmqConsumer
     {
-        $queue = Pgmq\findQueue($this->pg, $queue);
+        $queue = Pgmq\findQueue($this->postgres, $queue);
 
         /** @var DeferredFuture<void> $completion */
         $completion = new DeferredFuture();
@@ -189,7 +189,7 @@ final readonly class PgmqTransport implements TransactionalDispatcher, Receiver,
             $timeoutWatcher,
             new ChannelWatcher(
                 $polls,
-                $this->pg->listen($queue->enableNotifyInsert()),
+                $this->postgres->listen($queue->enableNotifyInsert()),
                 $timeoutWatcher,
             ),
         ]);
