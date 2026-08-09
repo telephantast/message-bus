@@ -6,7 +6,7 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Postgres\PostgresLink;
 use Revolt\EventLoop;
-use Thesis\MessageBus\AmphpPostgres\PostgresConnection;
+use Thesis\MessageBus\AmphpPostgres\PostgresTransactionScopeFactory;
 use Thesis\MessageBus\AmphpPostgres\PostgresDeduplicator;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\HandlerContext;
@@ -85,7 +85,7 @@ $endpoint = Endpoint::transactional(
         ->with(Registered::class, App::registered(...))
         ->with(RegistrationAccepted::class, App::accepted(...)),
     transport: $transport,
-    connection: new PostgresConnection($pg),
+    transactionScopeFactory: new PostgresTransactionScopeFactory($pg),
     deduplicator: $deduplicator,
     serializer: new PhpNativeSerializer(),
 );

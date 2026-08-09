@@ -9,8 +9,7 @@ use Thesis\Headers;
 use Thesis\MessageBus\Consumption\Deduplicator;
 use Thesis\MessageBus\Consumption\ProcessingId;
 use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
-use Thesis\MessageBus\Persistence\Connection;
-use Thesis\MessageBus\Persistence\Internal\RuntimeTransactionScope;
+use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Disposition;
 use Thesis\MessageBus\Transport\InboundEnvelope;
@@ -27,7 +26,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
     /**
      * @param non-empty-string $endpoint
      * @param TransactionalDispatcher<Tx> $dispatcher
-     * @param Connection<Tx> $connection
+     * @param TransactionScopeFactory<Tx> $transactionScopeFactory
      * @param Deduplicator<Tx> $deduplicator
      * @param HandlerExecutor<Tx> $handlerExecutor
      */
@@ -36,7 +35,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
         private HandlerExecutor $handlerExecutor,
         private InboundMessageFactory $inboundMessageFactory,
         private TransactionalDispatcher $dispatcher,
-        private Connection $connection,
+        private TransactionScopeFactory $transactionScopeFactory,
         private Deduplicator $deduplicator,
         private LoggerInterface $logger,
     ) {}
@@ -49,25 +48,25 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             return;
         }
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             if ($outboundEnvelopes !== []) {
                 match ($txScope->hasBegun) {
-                    true => $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes),
+                    true => $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes),
                     false => $this->dispatcher->dispatch($outboundEnvelopes),
                 };
             }
 
             $txScope->commit();
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
     }
 
@@ -87,13 +86,13 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             return;
         }
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             if ($outboundEnvelopes !== []) {
@@ -101,7 +100,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->handle, $id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
                 false => $this->deduplicator->markHandled($id),
             };
 
@@ -115,12 +114,12 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             if ($outboundEnvelopes !== []) {
-                $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes);
+                $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
             }
 
             $txScope->commit();
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
     }
 
@@ -142,13 +141,13 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
 
         $message = $this->inboundMessageFactory->build($envelope);
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $envelope->headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             if ($outboundEnvelopes !== []) {
@@ -156,7 +155,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->handle, $id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
                 false => $this->deduplicator->markHandled($id),
             };
 
@@ -170,14 +169,14 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             if ($outboundEnvelopes !== []) {
-                $this->dispatcher->dispatchInTransaction($txScope->handle, $outboundEnvelopes);
+                $this->dispatcher->dispatchInTransaction($txScope->transaction, $outboundEnvelopes);
             }
 
             $txScope->commit();
 
             return Disposition::Ack;
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
     }
 }

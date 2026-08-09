@@ -36,7 +36,7 @@ use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\InvalidKind;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
-use Thesis\MessageBus\Persistence\Connection;
+use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
 use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Protocol\Deserializer;
@@ -70,7 +70,7 @@ final readonly class Endpoint
      * @template STx of object
      * @param non-empty-string $name
      * @param HandlerRegistry<STx> $handlerRegistry
-     * @param Connection<STx> $connection
+     * @param TransactionScopeFactory<STx> $transactionScopeFactory
      * @param OutboxStorage<STx> $outboxStorage
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
@@ -83,7 +83,7 @@ final readonly class Endpoint
         string $name,
         HandlerRegistry $handlerRegistry,
         Dispatcher&Receiver&SubscriptionConfigurator $transport,
-        Connection $connection,
+        TransactionScopeFactory $transactionScopeFactory,
         OutboxStorage $outboxStorage,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
@@ -125,7 +125,7 @@ final readonly class Endpoint
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
-            connection: $connection,
+            transactionScopeFactory: $transactionScopeFactory,
             outboxStorage: $outboxStorage,
             logger: $logger,
             idGenerator: $idGenerator,
@@ -185,7 +185,7 @@ final readonly class Endpoint
      * @param non-empty-string $name
      * @param HandlerRegistry<STx> $handlerRegistry
      * @param TransactionalDispatcher<STx>&Receiver&SubscriptionConfigurator $transport
-     * @param Connection<STx> $connection
+     * @param TransactionScopeFactory<STx> $transactionScopeFactory
      * @param Deduplicator<STx> $deduplicator
      * @param list<CommandRouter> $commandRouters
      * @param list<MessageClassifier> $messageClassifiers
@@ -198,7 +198,7 @@ final readonly class Endpoint
         string $name,
         HandlerRegistry $handlerRegistry,
         TransactionalDispatcher&Receiver&SubscriptionConfigurator $transport,
-        Connection $connection,
+        TransactionScopeFactory $transactionScopeFactory,
         Deduplicator $deduplicator,
         Serializer&Deserializer $serializer,
         LoggerInterface $logger = new NullLogger(),
@@ -238,7 +238,7 @@ final readonly class Endpoint
                 deserializer: $serializer,
             ),
             dispatcher: $transport,
-            connection: $connection,
+            transactionScopeFactory: $transactionScopeFactory,
             deduplicator: $deduplicator,
             logger: $logger,
         );

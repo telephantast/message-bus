@@ -18,9 +18,9 @@ final class HandlerPipeline
     /**
      * @template ST of object
      * @template STx of object
-     * @param callable(ST, HandlerContext, TransactionScope<STx>): void $handler
+     * @param callable(ST, HandlerContext, STx): void $handler
      * @param iterable<HandlerMiddleware<STx>> $middleware
-     * @return callable(ST, HandlerContext, TransactionScope<STx>): void
+     * @return callable(ST, HandlerContext, STx): void
      */
     public static function wrap(callable $handler, iterable $middleware): callable
     {
@@ -30,13 +30,8 @@ final class HandlerPipeline
             return $handler;
         }
 
-        return static function (object $message, HandlerContext $context, TransactionScope $txScope) use ($handler, $middleware): void {
-            /**
-             * @var ST $message
-             * @var TransactionScope<STx> $txScope
-             */
-            new self($handler, $middleware, $message, $context, $txScope)->continue();
-        };
+        /** @phpstan-ignore argument.type */
+        return static fn(object $msg, HandlerContext $ctx, object $tx) => new self($handler, $middleware, $msg, $ctx, $tx)->continue();
     }
 
     /**
@@ -47,17 +42,17 @@ final class HandlerPipeline
     private bool $closed = false;
 
     /**
-     * @param callable(T, HandlerContext, TransactionScope<Tx>): void $handler
+     * @param callable(T, HandlerContext, Tx): void $handler
      * @param non-empty-list<HandlerMiddleware<Tx>> $middleware
      * @param T $message
-     * @param TransactionScope<Tx> $txScope
+     * @param Tx $transaction
      */
     private function __construct(
         private readonly mixed $handler,
         private readonly array $middleware,
         private object $message,
         private readonly HandlerContext $context,
-        private readonly TransactionScope $txScope,
+        private readonly object $transaction,
     ) {}
 
     /**
@@ -89,13 +84,13 @@ final class HandlerPipeline
             if ($middleware !== null) {
                 ++$this->middlewareOffset;
 
-                $middleware->process($this->message, $this->context, $this->txScope, $this);
+                $middleware->process($this->message, $this->context, $this->transaction, $this);
 
                 /** @phpstan-ignore return.type */
                 return null;
             }
 
-            ($this->handler)($this->message, $this->context, $this->txScope);
+            ($this->handler)($this->message, $this->context, $this->transaction);
 
             /** @phpstan-ignore return.type */
             return null;

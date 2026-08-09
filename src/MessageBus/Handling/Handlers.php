@@ -33,14 +33,14 @@ final class Handlers implements HandlerRegistry
     }
 
     /**
-     * @var array<class-string, callable(object, HandlerContext, TransactionScope<Tx>): void>
+     * @var array<class-string, callable(object, HandlerContext, Tx): void>
      */
     private array $handlers = [];
 
     /**
      * @template T of object
      * @param class-string<T> $messageClass
-     * @param callable(T, HandlerContext, TransactionScope<Tx>): void $handler
+     * @param callable(T, HandlerContext, Tx): void $handler
      * @return self<Tx>
      */
     public function with(string $messageClass, callable $handler): self

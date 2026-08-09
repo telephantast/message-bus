@@ -12,8 +12,8 @@ use Thesis\MessageBus\Consumption\OutboxStorage;
 use Thesis\MessageBus\Consumption\ProcessingId;
 use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
 use Thesis\MessageBus\Identification\IdGenerator;
-use Thesis\MessageBus\Persistence\Connection;
-use Thesis\MessageBus\Persistence\Internal\RuntimeTransactionScope;
+use Thesis\MessageBus\Persistence\TransactionScope;
+use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Transport\ConsumerHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
@@ -55,7 +55,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
     /**
      * @param non-empty-string $endpoint
-     * @param Connection<Tx> $connection
+     * @param TransactionScopeFactory<Tx> $transactionScopeFactory
      * @param OutboxStorage<Tx> $outboxStorage
      * @param HandlerExecutor<Tx> $handlerExecutor
      */
@@ -64,7 +64,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         private HandlerExecutor $handlerExecutor,
         private InboundMessageFactory $inboundMessageFactory,
         private Dispatcher $dispatcher,
-        private Connection $connection,
+        private TransactionScopeFactory $transactionScopeFactory,
         private OutboxStorage $outboxStorage,
         private LoggerInterface $logger,
         private IdGenerator $idGenerator,
@@ -84,13 +84,13 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             return;
         }
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             if ($outboundEnvelopes !== []) {
@@ -111,7 +111,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
             $txScope->commit();
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
     }
 
@@ -133,13 +133,13 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             return;
         }
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             $outbox = new Outbox($outboundEnvelopes);
@@ -163,7 +163,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
             $txScope->commit();
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
     }
 
@@ -212,13 +212,13 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
         $message = $this->inboundMessageFactory->build($envelope);
 
-        $txScope = new RuntimeTransactionScope($this->connection);
+        $txScope = $this->transactionScopeFactory->create();
 
         try {
             $outboundEnvelopes = $this->handlerExecutor->execute(
                 message: $message,
                 headers: $envelope->headers,
-                txScope: $txScope,
+                transaction: $txScope->transaction,
             );
 
             $outbox = new Outbox($outboundEnvelopes);
@@ -234,7 +234,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
             $txScope->commit();
         } finally {
-            $txScope->close();
+            $txScope->rollback();
         }
 
         $this->dispatchOutbox($id, $outbox);
@@ -293,12 +293,12 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
     }
 
     /**
-     * @param RuntimeTransactionScope<Tx> $txScope
+     * @param TransactionScope<Tx> $txScope
      */
-    private function storeOutbox(RuntimeTransactionScope $txScope, ProcessingId $id, Outbox $outbox): bool
+    private function storeOutbox(TransactionScope $txScope, ProcessingId $id, Outbox $outbox): bool
     {
         if ($txScope->hasBegun) {
-            return $this->outboxStorage->storeInTransaction($txScope->handle, $id, $outbox);
+            return $this->outboxStorage->storeInTransaction($txScope->transaction, $id, $outbox);
         }
 
         return $this->outboxStorage->store($id, $outbox);

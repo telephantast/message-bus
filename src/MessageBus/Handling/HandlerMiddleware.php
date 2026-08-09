@@ -16,8 +16,8 @@ interface HandlerMiddleware
     /**
      * @template T of object
      * @param T $message
-     * @param TransactionScope<Tx> $txScope
+     * @param Tx $transaction
      * @param HandlerPipeline<T, Tx> $pipeline
      */
-    public function process(object $message, HandlerContext $context, TransactionScope $txScope, HandlerPipeline $pipeline): void;
+    public function process(object $message, HandlerContext $context, object $transaction, HandlerPipeline $pipeline): void;
 }
