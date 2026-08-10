@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\AmphpPostgres\Internal;
+namespace Thesis\MessageBus\AmpPostgres\Internal;
 
 use Amp\Postgres\PostgresConnection;
 use Amp\Postgres\PostgresLink;

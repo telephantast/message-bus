@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\AmphpPostgres;
+namespace Thesis\MessageBus\AmpPostgres;
 
 use Amp\Postgres\PostgresLink;
 use Thesis\MessageBus\Consumption\Deduplicator;

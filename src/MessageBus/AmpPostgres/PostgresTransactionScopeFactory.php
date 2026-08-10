@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\AmphpPostgres;
+namespace Thesis\MessageBus\AmpPostgres;
 
 use Amp\Postgres\PostgresConnection;
 use Amp\Postgres\PostgresLink;
-use Thesis\MessageBus\AmphpPostgres\Internal\PostgresTransactionScope;
+use Thesis\MessageBus\AmpPostgres\Internal\PostgresTransactionScope;
 use Thesis\MessageBus\Persistence\TransactionScope;
 use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 
