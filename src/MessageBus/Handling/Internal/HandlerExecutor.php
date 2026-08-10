@@ -34,8 +34,11 @@ final readonly class HandlerExecutor
      */
     public function execute(object $message, Headers $headers, object $transaction): array
     {
-        $handler = $this->handlerRegistry->handlerFor($message::class)
-            ?? throw new NoHandler($message::class);
+        $handlers = $this->handlerRegistry->handlersFor($message::class);
+
+        if ($handlers === []) {
+            throw new NoHandler($message::class);
+        }
 
         $context = new RuntimeHandlerContext(
             endpoint: $this->endpoint,
@@ -45,7 +48,9 @@ final readonly class HandlerExecutor
         );
 
         try {
-            $handler($message, $context, $transaction);
+            foreach ($handlers as $handler) {
+                $handler($message, $context, $transaction);
+            }
         } finally {
             $context->disableDispatch();
         }

@@ -33,7 +33,7 @@ final class Handlers implements HandlerRegistry
     }
 
     /**
-     * @var array<class-string, callable(object, HandlerContext, Tx): void>
+     * @var array<class-string, non-empty-list<callable(object, HandlerContext, Tx): void>>
      */
     private array $handlers = [];
 
@@ -47,13 +47,13 @@ final class Handlers implements HandlerRegistry
     {
         $copy = clone $this;
         /** @phpstan-ignore assign.propertyType */
-        $copy->handlers[$messageClass] = $handler;
+        $copy->handlers[$messageClass][] = $handler;
 
         return $copy;
     }
 
-    public function handlerFor(string $messageClass): ?callable
+    public function handlersFor(string $messageClass): array
     {
-        return $this->handlers[$messageClass] ?? null;
+        return $this->handlers[$messageClass] ?? [];
     }
 }

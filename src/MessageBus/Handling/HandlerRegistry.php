@@ -21,7 +21,7 @@ interface HandlerRegistry
     /**
      * @template T of object
      * @param class-string<T> $messageClass
-     * @return ?callable(T, HandlerContext, Tx): void null when no handler is registered for the message class
+     * @return list<callable(T, HandlerContext, Tx): void>
      */
-    public function handlerFor(string $messageClass): ?callable;
+    public function handlersFor(string $messageClass): array;
 }
