@@ -73,7 +73,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
     {
         $messageId = $headers->get(MESSAGE_ID);
 
-        if ($this->deduplicator->isHandled($messageId)) {
+        if ($this->deduplicator->isHandled($this->endpoint, $messageId)) {
             $this->logger->debug('Message already handled; skipping.', [
                 'endpoint' => $this->endpoint,
                 'message_id' => $messageId,
@@ -96,8 +96,8 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $messageId),
-                false => $this->deduplicator->markHandled($messageId),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $this->endpoint, $messageId),
+                false => $this->deduplicator->markHandled($this->endpoint, $messageId),
             };
 
             if (!$marked) {
@@ -123,7 +123,7 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
     {
         $messageId = $envelope->headers->get(MESSAGE_ID);
 
-        if ($this->deduplicator->isHandled($messageId)) {
+        if ($this->deduplicator->isHandled($this->endpoint, $messageId)) {
             $this->logger->debug('Message already handled; skipping.', [
                 'endpoint' => $this->endpoint,
                 'message_id' => $messageId,
@@ -148,8 +148,8 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $messageId),
-                false => $this->deduplicator->markHandled($messageId),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $this->endpoint, $messageId),
+                false => $this->deduplicator->markHandled($this->endpoint, $messageId),
             };
 
             if (!$marked) {

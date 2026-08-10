@@ -115,7 +115,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
     {
         $messageId = $headers->get(MESSAGE_ID);
 
-        $outbox = $this->outboxStorage->find($messageId);
+        $outbox = $this->outboxStorage->find($this->endpoint, $messageId);
 
         if ($outbox !== null) {
             $this->logger->debug('Outbox already exists; skipping.', [
@@ -195,7 +195,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
         $messageId = $headers->get(MESSAGE_ID);
 
-        $outbox = $this->outboxStorage->find($messageId);
+        $outbox = $this->outboxStorage->find($this->endpoint, $messageId);
 
         if ($outbox !== null) {
             $this->dispatchOutbox($messageId, $outbox);
@@ -247,7 +247,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             throw new DeserializationFailed('Outbox trigger payload must contain a non-empty "message_id".');
         }
 
-        $outbox = $this->outboxStorage->find($messageId);
+        $outbox = $this->outboxStorage->find($this->endpoint, $messageId);
 
         if ($outbox !== null) {
             $this->dispatchOutbox($messageId, $outbox);
@@ -287,10 +287,10 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
     private function storeOutbox(TransactionScope $txScope, string $messageId, Outbox $outbox): bool
     {
         if ($txScope->hasBegun) {
-            return $this->outboxStorage->storeInTransaction($txScope->transaction, $messageId, $outbox);
+            return $this->outboxStorage->storeInTransaction($txScope->transaction, $this->endpoint, $messageId, $outbox);
         }
 
-        return $this->outboxStorage->store($messageId, $outbox);
+        return $this->outboxStorage->store($this->endpoint, $messageId, $outbox);
     }
 
     /**
@@ -303,6 +303,6 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         }
 
         $this->dispatcher->dispatch($outbox->envelopes);
-        $this->outboxStorage->markDispatched($messageId);
+        $this->outboxStorage->markDispatched($this->endpoint, $messageId);
     }
 }

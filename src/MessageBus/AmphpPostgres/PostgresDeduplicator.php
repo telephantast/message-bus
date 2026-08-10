@@ -8,13 +8,6 @@ use Amp\Postgres\PostgresLink;
 use Thesis\MessageBus\Consumption\Deduplicator;
 
 /**
- * PostgreSQL deduplicator for one endpoint.
- *
- * Pass an endpoint-specific schema/table pair. Reusing the same schema/table
- * pair for multiple endpoints can incorrectly deduplicate published events,
- * because the same event message id is delivered to multiple endpoints by
- * design.
- *
  * @api
  *
  * @implements Deduplicator<PostgresLink>
@@ -27,8 +20,8 @@ final class PostgresDeduplicator implements Deduplicator
      */
     public function __construct(
         private readonly PostgresLink $postgres,
-        private readonly string $table,
-        private readonly string $schema = 'public',
+        private readonly string $schema = 'thesis_message_bus',
+        private readonly string $table = 'processed_message',
     ) {}
 
     /**
@@ -55,23 +48,25 @@ final class PostgresDeduplicator implements Deduplicator
         $this->postgres->query(
             <<<SQL
                 create table if not exists {$this->escapedSchema}.{$this->escapedTable} (
+                    endpoint text not null,
                     message_id text not null,
                     handled_at timestamptz not null default now(),
-                    primary key (message_id)
+                    primary key (message_id, endpoint)
                 )
                 SQL,
         );
     }
 
-    public function isHandled(string $messageId): bool
+    public function isHandled(string $endpoint, string $messageId): bool
     {
         $result = $this->postgres->execute(
             <<<SQL
                 select 1
                 from {$this->escapedSchema}.{$this->escapedTable}
-                where message_id = :message_id
+                where endpoint = :endpoint and message_id = :message_id
                 SQL,
             [
+                'endpoint' => $endpoint,
                 'message_id' => $messageId,
             ],
         );
@@ -79,21 +74,22 @@ final class PostgresDeduplicator implements Deduplicator
         return $result->fetchRow() !== null;
     }
 
-    public function markHandled(string $messageId): bool
+    public function markHandled(string $endpoint, string $messageId): bool
     {
-        return $this->markHandledInTransaction($this->postgres, $messageId);
+        return $this->markHandledInTransaction($this->postgres, $endpoint, $messageId);
     }
 
-    public function markHandledInTransaction(object $transaction, string $messageId): bool
+    public function markHandledInTransaction(object $transaction, string $endpoint, string $messageId): bool
     {
         $result = $transaction->execute(
             <<<SQL
-                insert into {$this->escapedSchema}.{$this->escapedTable} (message_id)
-                values (:message_id)
+                insert into {$this->escapedSchema}.{$this->escapedTable} (endpoint, message_id)
+                values (:endpoint, :message_id)
                 on conflict do nothing
                 returning 1
                 SQL,
             [
+                'endpoint' => $endpoint,
                 'message_id' => $messageId,
             ],
         );
