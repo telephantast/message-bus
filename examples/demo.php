@@ -84,11 +84,7 @@ $endpoint = Endpoint::transactional(
         ->with(RegistrationAccepted::class, App::accepted(...)),
     transport: new PgmqTransport($postgres),
     transactionScopeFactory: new PostgresTransactionScopeFactory($postgres),
-    deduplicator: new PostgresDeduplicator(
-        postgres: $postgres,
-        table: 'processed_message',
-        schema: 'registration',
-    ),
+    deduplicator: new PostgresDeduplicator($postgres),
     serializer: new PhpNativeSerializer(),
 );
 
