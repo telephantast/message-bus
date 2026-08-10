@@ -7,7 +7,6 @@ namespace Thesis\MessageBus\Consumption\Internal;
 use Psr\Log\LoggerInterface;
 use Thesis\Headers;
 use Thesis\MessageBus\Consumption\Deduplicator;
-use Thesis\MessageBus\Consumption\ProcessingId;
 use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
 use Thesis\MessageBus\Persistence\TransactionScopeFactory;
 use Thesis\MessageBus\Transport\ConsumerHandler;
@@ -72,15 +71,12 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
 
     private function handleMessageIdempotently(object $message, Headers $headers): void
     {
-        $id = new ProcessingId(
-            endpoint: $this->endpoint,
-            messageId: $headers->get(MESSAGE_ID),
-        );
+        $messageId = $headers->get(MESSAGE_ID);
 
-        if ($this->deduplicator->isHandled($id)) {
+        if ($this->deduplicator->isHandled($messageId)) {
             $this->logger->debug('Message already handled; skipping.', [
-                'endpoint' => $id->endpoint,
-                'message_id' => $id->messageId,
+                'endpoint' => $this->endpoint,
+                'message_id' => $messageId,
             ]);
 
             return;
@@ -100,14 +96,14 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
-                false => $this->deduplicator->markHandled($id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $messageId),
+                false => $this->deduplicator->markHandled($messageId),
             };
 
             if (!$marked) {
                 $this->logger->debug('Message was handled concurrently; skipping.', [
-                    'endpoint' => $id->endpoint,
-                    'message_id' => $id->messageId,
+                    'endpoint' => $this->endpoint,
+                    'message_id' => $messageId,
                 ]);
 
                 return;
@@ -125,15 +121,12 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
 
     public function handle(InboundEnvelope $envelope): Disposition
     {
-        $id = new ProcessingId(
-            endpoint: $this->endpoint,
-            messageId: $envelope->headers->get(MESSAGE_ID),
-        );
+        $messageId = $envelope->headers->get(MESSAGE_ID);
 
-        if ($this->deduplicator->isHandled($id)) {
+        if ($this->deduplicator->isHandled($messageId)) {
             $this->logger->debug('Message already handled; skipping.', [
-                'endpoint' => $id->endpoint,
-                'message_id' => $id->messageId,
+                'endpoint' => $this->endpoint,
+                'message_id' => $messageId,
             ]);
 
             return Disposition::Ack;
@@ -155,14 +148,14 @@ final readonly class TransactionalRuntime implements ImmediateMessageHandler, Co
             }
 
             $marked = match ($txScope->hasBegun) {
-                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $id),
-                false => $this->deduplicator->markHandled($id),
+                true => $this->deduplicator->markHandledInTransaction($txScope->transaction, $messageId),
+                false => $this->deduplicator->markHandled($messageId),
             };
 
             if (!$marked) {
                 $this->logger->debug('Message was handled concurrently; skipping.', [
-                    'endpoint' => $id->endpoint,
-                    'message_id' => $id->messageId,
+                    'endpoint' => $this->endpoint,
+                    'message_id' => $messageId,
                 ]);
 
                 return Disposition::Ack;

@@ -175,7 +175,7 @@ final readonly class Endpoint
                     subscriptionConfigurator: $transport,
                     messageClasses: $handlerRegistry->messageClasses,
                 ),
-                static fn() => $outboxStorage->setup($name),
+                $outboxStorage->setup(...),
             ],
         );
     }

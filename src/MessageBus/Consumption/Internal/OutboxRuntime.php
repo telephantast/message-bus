@@ -9,7 +9,6 @@ use Psr\Log\LoggerInterface;
 use Thesis\Headers;
 use Thesis\MessageBus\Consumption\Outbox;
 use Thesis\MessageBus\Consumption\OutboxStorage;
-use Thesis\MessageBus\Consumption\ProcessingId;
 use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
 use Thesis\MessageBus\Identification\IdGenerator;
 use Thesis\MessageBus\Persistence\TransactionScope;
@@ -94,19 +93,16 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             );
 
             if ($outboundEnvelopes !== []) {
-                $id = new ProcessingId(
-                    endpoint: $this->endpoint,
-                    messageId: $this->idGenerator->generateId(),
-                );
+                $messageId = $this->idGenerator->generateId();
 
                 // because failed trigger dispatch should rollback storeOutbox()
                 $txScope->begin();
 
-                if (!$this->storeOutbox($txScope, $id, new Outbox($outboundEnvelopes))) {
-                    throw new \LogicException('Outbox record could not be stored for a random processing id.');
+                if (!$this->storeOutbox($txScope, $messageId, new Outbox($outboundEnvelopes))) {
+                    throw new \LogicException('Outbox record could not be stored for a random message id.');
                 }
 
-                $this->dispatchTrigger($id);
+                $this->dispatchTrigger($messageId);
             }
 
             $txScope->commit();
@@ -117,17 +113,14 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
     private function handleMessageIdempotently(object $message, Headers $headers): void
     {
-        $id = new ProcessingId(
-            endpoint: $this->endpoint,
-            messageId: $headers->get(MESSAGE_ID),
-        );
+        $messageId = $headers->get(MESSAGE_ID);
 
-        $outbox = $this->outboxStorage->find($id);
+        $outbox = $this->outboxStorage->find($messageId);
 
         if ($outbox !== null) {
             $this->logger->debug('Outbox already exists; skipping.', [
-                'endpoint' => $id->endpoint,
-                'message_id' => $id->messageId,
+                'endpoint' => $this->endpoint,
+                'message_id' => $messageId,
             ]);
 
             return;
@@ -148,17 +141,17 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
                 $txScope->begin();
             }
 
-            if (!$this->storeOutbox($txScope, $id, $outbox)) {
+            if (!$this->storeOutbox($txScope, $messageId, $outbox)) {
                 $this->logger->debug('Outbox record was stored concurrently; skipping.', [
-                    'endpoint' => $id->endpoint,
-                    'message_id' => $id->messageId,
+                    'endpoint' => $this->endpoint,
+                    'message_id' => $messageId,
                 ]);
 
                 return;
             }
 
             if ($outboundEnvelopes !== []) {
-                $this->dispatchTrigger($id);
+                $this->dispatchTrigger($messageId);
             }
 
             $txScope->commit();
@@ -167,22 +160,25 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         }
     }
 
-    private function dispatchTrigger(ProcessingId $id): void
+    /**
+     * @param non-empty-string $messageId
+     */
+    private function dispatchTrigger(string $messageId): void
     {
         $now = $this->clock->now();
 
         $this->dispatcher->dispatch([
             new OutboundEnvelope(
                 operation: Operation::Send,
-                address: $id->endpoint,
-                payload: json_encode(['message_id' => $id->messageId], JSON_THROW_ON_ERROR),
+                address: $this->endpoint,
+                payload: json_encode(['message_id' => $messageId], JSON_THROW_ON_ERROR),
                 headers: new Headers()
                     ->with(CONTENT_TYPE, 'application/json')
                     ->with(MESSAGE_TYPE, self::TRIGGER_TYPE)
-                    ->with(ORIGIN_ENDPOINT, $id->endpoint)
+                    ->with(ORIGIN_ENDPOINT, $this->endpoint)
                     ->with(MESSAGE_ID, $this->idGenerator->generateId())
-                    ->with(CAUSE_ID, $id->messageId)
-                    ->with(CONVERSATION_ID, $id->messageId)
+                    ->with(CAUSE_ID, $messageId)
+                    ->with(CONVERSATION_ID, $messageId)
                     ->with(CREATED_AT, $now)
                     ->with(EXPIRES_AT, $now->modify("{$this->triggerTtl->toMicroseconds()} microseconds")),
             ),
@@ -197,15 +193,12 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             return $this->handleTrigger($envelope);
         }
 
-        $id = new ProcessingId(
-            endpoint: $this->endpoint,
-            messageId: $headers->get(MESSAGE_ID),
-        );
+        $messageId = $headers->get(MESSAGE_ID);
 
-        $outbox = $this->outboxStorage->find($id);
+        $outbox = $this->outboxStorage->find($messageId);
 
         if ($outbox !== null) {
-            $this->dispatchOutbox($id, $outbox);
+            $this->dispatchOutbox($messageId, $outbox);
 
             return Disposition::Ack;
         }
@@ -223,10 +216,10 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
             $outbox = new Outbox($outboundEnvelopes);
 
-            if (!$this->storeOutbox($txScope, $id, $outbox)) {
+            if (!$this->storeOutbox($txScope, $messageId, $outbox)) {
                 $this->logger->debug('Outbox record was stored concurrently; skipping.', [
-                    'endpoint' => $id->endpoint,
-                    'message_id' => $id->messageId,
+                    'endpoint' => $this->endpoint,
+                    'message_id' => $messageId,
                 ]);
 
                 return Disposition::Ack;
@@ -237,7 +230,7 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             $txScope->rollback();
         }
 
-        $this->dispatchOutbox($id, $outbox);
+        $this->dispatchOutbox($messageId, $outbox);
 
         return Disposition::Ack;
     }
@@ -254,15 +247,10 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
             throw new DeserializationFailed('Outbox trigger payload must contain a non-empty "message_id".');
         }
 
-        $id = new ProcessingId(
-            endpoint: $this->endpoint,
-            messageId: $messageId,
-        );
-
-        $outbox = $this->outboxStorage->find($id);
+        $outbox = $this->outboxStorage->find($messageId);
 
         if ($outbox !== null) {
-            $this->dispatchOutbox($id, $outbox);
+            $this->dispatchOutbox($messageId, $outbox);
 
             return Disposition::Ack;
         }
@@ -275,8 +263,8 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
         }
 
         $this->logger->debug('Outbox trigger arrived before outbox record is visible.', [
-            'endpoint' => $id->endpoint,
-            'message_id' => $id->messageId,
+            'endpoint' => $this->endpoint,
+            'message_id' => $messageId,
         ]);
 
         $this->dispatcher->dispatch([
@@ -294,23 +282,27 @@ final readonly class OutboxRuntime implements ImmediateMessageHandler, ConsumerH
 
     /**
      * @param TransactionScope<Tx> $txScope
+     * @param non-empty-string $messageId
      */
-    private function storeOutbox(TransactionScope $txScope, ProcessingId $id, Outbox $outbox): bool
+    private function storeOutbox(TransactionScope $txScope, string $messageId, Outbox $outbox): bool
     {
         if ($txScope->hasBegun) {
-            return $this->outboxStorage->storeInTransaction($txScope->transaction, $id, $outbox);
+            return $this->outboxStorage->storeInTransaction($txScope->transaction, $messageId, $outbox);
         }
 
-        return $this->outboxStorage->store($id, $outbox);
+        return $this->outboxStorage->store($messageId, $outbox);
     }
 
-    private function dispatchOutbox(ProcessingId $id, Outbox $outbox): void
+    /**
+     * @param non-empty-string $messageId
+     */
+    private function dispatchOutbox(string $messageId, Outbox $outbox): void
     {
         if ($outbox->dispatched || $outbox->envelopes === []) {
             return;
         }
 
         $this->dispatcher->dispatch($outbox->envelopes);
-        $this->outboxStorage->markDispatched($id);
+        $this->outboxStorage->markDispatched($messageId);
     }
 }

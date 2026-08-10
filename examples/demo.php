@@ -6,8 +6,8 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Postgres\PostgresLink;
 use Revolt\EventLoop;
-use Thesis\MessageBus\AmphpPostgres\PostgresTransactionScopeFactory;
 use Thesis\MessageBus\AmphpPostgres\PostgresDeduplicator;
+use Thesis\MessageBus\AmphpPostgres\PostgresTransactionScopeFactory;
 use Thesis\MessageBus\Endpoint;
 use Thesis\MessageBus\HandlerContext;
 use Thesis\MessageBus\Handling\Handlers;
@@ -68,15 +68,13 @@ final readonly class App
     }
 }
 
-$pg = new PostgresConnectionPool(
+$postgres = new PostgresConnectionPool(
     new PostgresConfig(
         host: '0.0.0.0',
         user: 'thesis',
         database: 'thesis',
     ),
 );
-$transport = new PgmqTransport($pg);
-$deduplicator = new PostgresDeduplicator($pg);
 
 $endpoint = Endpoint::transactional(
     name: 'registration',
@@ -84,9 +82,13 @@ $endpoint = Endpoint::transactional(
         ->with(Register::class, App::register(...))
         ->with(Registered::class, App::registered(...))
         ->with(RegistrationAccepted::class, App::accepted(...)),
-    transport: $transport,
-    transactionScopeFactory: new PostgresTransactionScopeFactory($pg),
-    deduplicator: $deduplicator,
+    transport: new PgmqTransport($postgres),
+    transactionScopeFactory: new PostgresTransactionScopeFactory($postgres),
+    deduplicator: new PostgresDeduplicator(
+        postgres: $postgres,
+        table: 'processed_message',
+        schema: 'registration',
+    ),
     serializer: new PhpNativeSerializer(),
 );
 
