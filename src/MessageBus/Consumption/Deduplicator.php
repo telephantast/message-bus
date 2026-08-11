@@ -36,4 +36,11 @@ interface Deduplicator
      * @param non-empty-string $messageId
      */
     public function markHandledInTransaction(object $transaction, string $endpoint, string $messageId): bool;
+
+    /**
+     * Deletes deduplication records handled before the given time.
+     *
+     * @return int number of deleted records
+     */
+    public function purgeHandledBefore(\DateTimeImmutable $handledBefore): int;
 }

@@ -15,6 +15,7 @@ use Thesis\MessageBus\Consumption\Internal\ConsumerMiddlewareStack;
 use Thesis\MessageBus\Consumption\Internal\DiscardExpiredMessagesMiddleware;
 use Thesis\MessageBus\Consumption\Internal\ImmediateMessageHandler;
 use Thesis\MessageBus\Consumption\Internal\InboundMessageFactory;
+use Thesis\MessageBus\Consumption\Internal\MessageRetention;
 use Thesis\MessageBus\Consumption\Internal\OutboxRuntime;
 use Thesis\MessageBus\Consumption\Internal\RecoverabilityMiddleware;
 use Thesis\MessageBus\Consumption\Internal\RequeueOnUnhandledFailureMiddleware;
@@ -166,6 +167,12 @@ final readonly class Endpoint
             outboundEnvelopeFactory: $outboundEnvelopeFactory,
             dispatcher: $transport,
             receiver: $transport,
+            retention: new MessageRetention(
+                endpoint: $name,
+                purger: $outboxStorage->purgeDispatchedBefore(...),
+                logger: $logger,
+                clock: $clock,
+            ),
             setups: [
                 static fn() => $transport->createQueue($name),
                 static fn() => $transport->createQueue($deadLetterQueue),
@@ -275,6 +282,12 @@ final readonly class Endpoint
             outboundEnvelopeFactory: $outboundEnvelopeFactory,
             dispatcher: $transport,
             receiver: $transport,
+            retention: new MessageRetention(
+                endpoint: $name,
+                purger: $deduplicator->purgeHandledBefore(...),
+                logger: $logger,
+                clock: $clock,
+            ),
             setups: [
                 static fn() => $transport->createQueue($name),
                 static fn() => $transport->createQueue($deadLetterQueue),
@@ -300,6 +313,7 @@ final readonly class Endpoint
         private OutboundEnvelopeFactory $outboundEnvelopeFactory,
         private Dispatcher $dispatcher,
         private Receiver $receiver,
+        private MessageRetention $retention,
         private array $setups,
     ) {}
 
@@ -381,5 +395,20 @@ final readonly class Endpoint
             queue: $this->name,
             handler: $this->consumerHandler,
         );
+    }
+
+    public function purgeRetainedMessages(?TimeSpan $retentionPeriod = null): int
+    {
+        return $this->retention->purge($retentionPeriod);
+    }
+
+    /**
+     * Starts periodic retention cleanup.
+     *
+     * @return \Closure(): void a stop callback
+     */
+    public function startRetentionPurger(?TimeSpan $retentionPeriod = null, ?TimeSpan $purgeInterval = null): \Closure
+    {
+        return $this->retention->startPurger($retentionPeriod, $purgeInterval);
     }
 }

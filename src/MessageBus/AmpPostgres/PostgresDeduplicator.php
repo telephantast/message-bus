@@ -96,4 +96,20 @@ final class PostgresDeduplicator implements Deduplicator
 
         return $result->fetchRow() !== null;
     }
+
+    public function purgeHandledBefore(\DateTimeImmutable $handledBefore): int
+    {
+        return $this
+            ->postgres
+            ->execute(
+                <<<SQL
+                    delete from {$this->escapedSchema}.{$this->escapedTable}
+                    where handled_at < ?
+                    SQL,
+                [
+                    $handledBefore->format('Y-m-d H:i:s.uP'),
+                ],
+            )
+            ->getRowCount() ?? 0;
+    }
 }

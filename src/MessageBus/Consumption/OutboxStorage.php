@@ -51,4 +51,11 @@ interface OutboxStorage
      * @param non-empty-string $messageId
      */
     public function markDispatched(string $endpoint, string $messageId): void;
+
+    /**
+     * Deletes dispatched outbox records before the given time.
+     *
+     * @return int number of deleted records
+     */
+    public function purgeDispatchedBefore(\DateTimeImmutable $dispatchedBefore): int;
 }
