@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Thesis\MessageBus\Identification;
+namespace Thesis\MessageBus\Testing;
+
+use Thesis\MessageBus\Identification\IdGenerator;
 
 /**
  * @api
- *
- * For testing purposes only.
  */
-final class IncrementGenerator implements IdGenerator
+final class SequentialIdGenerator implements IdGenerator
 {
     public function __construct(
         private int $id = 1,
