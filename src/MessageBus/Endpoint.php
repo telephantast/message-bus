@@ -74,8 +74,8 @@ final readonly class Endpoint
      * @param TransactionScopeFactory<STx> $transactionScopeFactory
      * @param OutboxStorage<STx> $outboxStorage
      * @param list<CommandRouter> $commandRouters
-     * @param list<MessageClassifier> $messageClassifiers
-     * @param list<TypeResolver> $messageTypeResolvers
+     * @param non-empty-list<MessageClassifier> $messageClassifiers
+     * @param non-empty-list<TypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
      * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
@@ -195,8 +195,8 @@ final readonly class Endpoint
      * @param TransactionScopeFactory<STx> $transactionScopeFactory
      * @param Deduplicator<STx> $deduplicator
      * @param list<CommandRouter> $commandRouters
-     * @param list<MessageClassifier> $messageClassifiers
-     * @param list<TypeResolver> $messageTypeResolvers
+     * @param non-empty-list<MessageClassifier> $messageClassifiers
+     * @param non-empty-list<TypeResolver> $messageTypeResolvers
      * @param list<RecoverabilityPolicy> $recoverabilityPolicies
      * @param non-empty-string $deadLetterQueue
      * @param list<ConsumerMiddleware> $consumerMiddleware
