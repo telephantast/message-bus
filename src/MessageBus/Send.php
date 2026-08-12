@@ -25,11 +25,13 @@ final class Send extends Intent
         public private(set) ?string $destination = null,
         Headers $headers = new Headers(),
         public private(set) TimeSpan $delay = new TimeSpan(0),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ) {
         parent::__construct(
             message: $command,
             headers: $headers,
+            ttl: $ttl,
             transportOptions: $transportOptions,
         );
     }

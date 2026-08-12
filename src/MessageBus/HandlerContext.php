@@ -39,6 +39,7 @@ abstract class HandlerContext
         ?string $endpoint = null,
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -47,6 +48,7 @@ abstract class HandlerContext
                 destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -58,12 +60,14 @@ abstract class HandlerContext
     final public function publish(
         object $event,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
             new Publish(
                 event: $event,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -76,6 +80,7 @@ abstract class HandlerContext
         object $reply,
         ?ReplyTo $to = null,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -83,6 +88,7 @@ abstract class HandlerContext
                 reply: $reply,
                 to: $to,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -107,6 +113,7 @@ abstract class HandlerContext
         ?string $endpoint = null,
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatchImmediately(
@@ -115,6 +122,7 @@ abstract class HandlerContext
                 destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -126,12 +134,14 @@ abstract class HandlerContext
     final public function publishImmediately(
         object $event,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatchImmediately(
             new Publish(
                 event: $event,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -144,6 +154,7 @@ abstract class HandlerContext
         object $reply,
         ?ReplyTo $to = null,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatchImmediately(
@@ -151,6 +162,7 @@ abstract class HandlerContext
                 reply: $reply,
                 to: $to,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );

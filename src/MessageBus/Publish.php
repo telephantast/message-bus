@@ -6,6 +6,7 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers;
 use Thesis\MessageBus\Transport\TransportOptions;
+use Thesis\Time\TimeSpan;
 
 /**
  * @api
@@ -21,11 +22,13 @@ final class Publish extends Intent
     public function __construct(
         object $event,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ) {
         parent::__construct(
             message: $event,
             headers: $headers,
+            ttl: $ttl,
             transportOptions: $transportOptions,
         );
     }

@@ -6,6 +6,7 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers;
 use Thesis\MessageBus\Transport\TransportOptions;
+use Thesis\Time\TimeSpan;
 
 /**
  * @api
@@ -22,11 +23,13 @@ final class Reply extends Intent
         object $reply,
         public readonly ?ReplyTo $to = null,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ) {
         parent::__construct(
             message: $reply,
             headers: $headers,
+            ttl: $ttl,
             transportOptions: $transportOptions,
         );
     }

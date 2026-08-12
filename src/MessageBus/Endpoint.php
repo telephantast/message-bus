@@ -342,6 +342,7 @@ final readonly class Endpoint
         ?string $endpoint = null,
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -350,6 +351,7 @@ final readonly class Endpoint
                 destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -361,12 +363,14 @@ final readonly class Endpoint
     public function publish(
         object $event,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
             new Publish(
                 event: $event,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );

@@ -78,6 +78,7 @@ final readonly class Entrypoint
         ?string $endpoint = null,
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -86,6 +87,7 @@ final readonly class Entrypoint
                 destination: $endpoint,
                 headers: $headers,
                 delay: $delay,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
@@ -97,12 +99,14 @@ final readonly class Entrypoint
     public function publish(
         object $event,
         Headers $headers = new Headers(),
+        ?TimeSpan $ttl = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
             new Publish(
                 event: $event,
                 headers: $headers,
+                ttl: $ttl,
                 transportOptions: $transportOptions,
             ),
         );
