@@ -33,7 +33,7 @@ final class Handlers implements HandlerRegistry
     }
 
     /**
-     * @var array<class-string, non-empty-list<array{?non-empty-string, callable(object, HandlerContext, Tx): void}>>
+     * @var array<class-string, non-empty-array<string, callable(object, HandlerContext, Tx): void>>
      */
     private array $handlers = [];
 
@@ -41,59 +41,37 @@ final class Handlers implements HandlerRegistry
      * @template T of object
      * @param class-string<T> $messageClass
      * @param callable(T, HandlerContext, Tx): void $handler
-     * @param ?non-empty-string $qualifier
      * @return self<Tx>
      */
-    public function with(string $messageClass, callable $handler, ?string $qualifier = null): self
+    public function with(string $messageClass, callable $handler, string $qualifier = ''): self
     {
-        if ($qualifier !== null) {
-            foreach ($this->handlers[$messageClass] ?? [] as [$existingQualifier]) {
-                if ($existingQualifier === $qualifier) {
-                    throw new \LogicException(\sprintf(
-                        'Handler qualifier "%s" is already registered for message "%s".',
-                        $qualifier,
-                        $messageClass,
-                    ));
-                }
-            }
+        if (isset($this->handlers[$messageClass][$qualifier])) {
+            throw new \LogicException(\sprintf(
+                'Handler qualifier "%s" is already registered for message "%s".',
+                $qualifier,
+                $messageClass,
+            ));
         }
 
         $copy = clone $this;
         /** @phpstan-ignore assign.propertyType */
-        $copy->handlers[$messageClass][] = [$qualifier, $handler];
+        $copy->handlers[$messageClass][$qualifier] = $handler;
 
         return $copy;
     }
 
-    public function handlerFor(string $messageClass, ?string $qualifier = null): ?callable
+    public function findHandlers(string $messageClass, ?string $qualifier = null): array
     {
-        $qualifierAndHandlers = $this->handlers[$messageClass] ?? [];
+        $handlers = $this->handlers[$messageClass] ?? [];
 
-        if ($qualifierAndHandlers === []) {
-            return null;
+        if ($qualifier === null) {
+            return array_values($handlers);
         }
 
-        if ($qualifier !== null) {
-            foreach ($qualifierAndHandlers as [$handlerQualifier, $handler]) {
-                if ($handlerQualifier === $qualifier) {
-                    return $handler;
-                }
-            }
-
-            return null;
+        if (isset($handlers[$qualifier])) {
+            return [$handlers[$qualifier]];
         }
 
-        $handlers = array_column($qualifierAndHandlers, 1);
-
-        if (\count($handlers) === 1) {
-            return $handlers[0];
-        }
-
-        return static function (object $msg, HandlerContext $ctx, object $tx) use ($handlers): void {
-            foreach ($handlers as $handler) {
-                /** @phpstan-ignore argument.type */
-                $handler($msg, $ctx, $tx);
-            }
-        };
+        return [];
     }
 }

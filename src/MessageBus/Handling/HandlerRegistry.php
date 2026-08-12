@@ -22,7 +22,7 @@ interface HandlerRegistry
      * @template T of object
      * @param class-string<T> $messageClass
      * @param ?non-empty-string $qualifier
-     * @return ?callable(T, HandlerContext, Tx): void
+     * @return list<callable(T, HandlerContext, Tx): void>
      */
-    public function handlerFor(string $messageClass, ?string $qualifier = null): ?callable;
+    public function findHandlers(string $messageClass, ?string $qualifier = null): array;
 }

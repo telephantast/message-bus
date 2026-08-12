@@ -35,13 +35,21 @@ final readonly class HandlerRouter
      */
     public function handlerFor(string $messageClass, Headers $headers): callable
     {
-        return $this
-            ->handlerRegistry
-            ->handlerFor(
-                messageClass: $messageClass,
-                qualifier: $this->resolveHandlerQualifier($messageClass, $headers),
-            )
-            ?? throw new NoHandler($messageClass);
+        $handlers = $this->handlerRegistry->findHandlers(
+            messageClass: $messageClass,
+            qualifier: $this->resolveHandlerQualifier($messageClass, $headers),
+        );
+
+        if ($handlers === []) {
+            throw new NoHandler($messageClass);
+        }
+
+        if (\count($handlers) > 1) {
+            // todo exception
+            throw new \LogicException();
+        }
+
+        return $handlers[0];
     }
 
     /**
