@@ -6,7 +6,6 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Postgres\PostgresLink;
 use Revolt\EventLoop;
-use Thesis\Headers;
 use Thesis\MessageBus\AmpPostgres\PostgresDeduplicator;
 use Thesis\MessageBus\AmpPostgres\PostgresTransactionScopeFactory;
 use Thesis\MessageBus\Endpoint;
@@ -21,7 +20,6 @@ use Thesis\MessageBus\Protocol\RoutedCorrelationId;
 use function Amp\async;
 use function Amp\Future\awaitFirst;
 use function Amp\trapSignal;
-use const Thesis\MessageBus\Protocol\CORRELATION_ID;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -80,7 +78,7 @@ final class App
 
         $context->send(
             command: new GetName($event->id),
-            headers: new Headers()->with(CORRELATION_ID, new RoutedCorrelationId('name1', 'x')),
+            correlationId: new RoutedCorrelationId('name1'),
         );
     }
 

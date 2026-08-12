@@ -43,6 +43,7 @@ use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
 use Thesis\MessageBus\Protocol\DeserializationFailed;
 use Thesis\MessageBus\Protocol\Deserializer;
 use Thesis\MessageBus\Protocol\InvalidType;
+use Thesis\MessageBus\Protocol\RoutedCorrelationId;
 use Thesis\MessageBus\Protocol\SerializationFailed;
 use Thesis\MessageBus\Protocol\Serializer;
 use Thesis\MessageBus\Protocol\TypeResolver;
@@ -333,6 +334,7 @@ final readonly class Endpoint
 
     /**
      * @param ?non-empty-string $endpoint
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
      *
      * @throws InvalidIntent
      * @throws CannotRouteCommand
@@ -343,6 +345,7 @@ final readonly class Endpoint
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -352,18 +355,22 @@ final readonly class Endpoint
                 headers: $headers,
                 delay: $delay,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );
     }
 
     /**
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
+     *
      * @throws InvalidIntent
      */
     public function publish(
         object $event,
         Headers $headers = new Headers(),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -371,6 +378,7 @@ final readonly class Endpoint
                 event: $event,
                 headers: $headers,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );

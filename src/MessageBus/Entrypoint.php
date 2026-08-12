@@ -13,6 +13,7 @@ use Thesis\MessageBus\Metadata\Internal\MessageMetadataFactory;
 use Thesis\MessageBus\Metadata\MessageClassifier;
 use Thesis\MessageBus\Metadata\MessageClassifiers;
 use Thesis\MessageBus\Protocol\ClassBasedTypeResolver;
+use Thesis\MessageBus\Protocol\RoutedCorrelationId;
 use Thesis\MessageBus\Protocol\Serializer;
 use Thesis\MessageBus\Protocol\TypeResolver;
 use Thesis\MessageBus\Protocol\TypeResolvers;
@@ -69,6 +70,7 @@ final readonly class Entrypoint
 
     /**
      * @param ?non-empty-string $endpoint
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
      *
      * @throws InvalidIntent
      * @throws CannotRouteCommand
@@ -79,6 +81,7 @@ final readonly class Entrypoint
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -88,18 +91,22 @@ final readonly class Entrypoint
                 headers: $headers,
                 delay: $delay,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );
     }
 
     /**
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
+     *
      * @throws InvalidIntent
      */
     public function publish(
         object $event,
         Headers $headers = new Headers(),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -107,6 +114,7 @@ final readonly class Entrypoint
                 event: $event,
                 headers: $headers,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );

@@ -18,7 +18,7 @@ use const Thesis\MessageBus\Protocol\EXPIRES_AT;
  */
 abstract class Intent
 {
-    public private(set) Headers $headers;
+    public protected(set) Headers $headers;
 
     /**
      * @param T $message

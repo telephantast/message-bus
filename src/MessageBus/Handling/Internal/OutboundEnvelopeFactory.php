@@ -87,9 +87,11 @@ final class OutboundEnvelopeFactory
             $to = $intent->to ?? ReplyTo::fromHeaders($causeHeaders);
             $operation = Operation::Send;
             $address = $to->destination;
-            $headers = $headers
-                ->withDefault(CONVERSATION_ID, $to->conversationId)
-                ->withDefault(CORRELATION_ID, $to->correlationId);
+            $headers = $headers->withDefault(CONVERSATION_ID, $to->conversationId);
+
+            if ($to->correlationId !== null) {
+                $headers = $headers->withDefault(CORRELATION_ID, $to->correlationId);
+            }
         }
 
         $serializedMessage = $this->serializer->serialize($intent->message);

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Thesis\MessageBus;
 
 use Thesis\Headers;
+use Thesis\MessageBus\Protocol\RoutedCorrelationId;
 use Thesis\MessageBus\Routing\CannotRouteCommand;
 use Thesis\MessageBus\Transport\TransportOptions;
 use Thesis\Time\TimeSpan;
+use const Thesis\MessageBus\Protocol\CORRELATION_ID;
 
 /**
  * @api
@@ -29,7 +31,23 @@ abstract class HandlerContext
     }
 
     /**
+     * @var ?non-empty-string
+     */
+    final public ?string $correlationId {
+        get {
+            $correlationId = $this->headers->find(CORRELATION_ID);
+
+            if ($correlationId instanceof RoutedCorrelationId) {
+                return $correlationId->id;
+            }
+
+            return $correlationId;
+        }
+    }
+
+    /**
      * @param ?non-empty-string $endpoint
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
      *
      * @throws InvalidIntent
      * @throws CannotRouteCommand
@@ -40,6 +58,7 @@ abstract class HandlerContext
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -49,18 +68,22 @@ abstract class HandlerContext
                 headers: $headers,
                 delay: $delay,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );
     }
 
     /**
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
+     *
      * @throws InvalidIntent
      */
     final public function publish(
         object $event,
         Headers $headers = new Headers(),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatch(
@@ -68,6 +91,7 @@ abstract class HandlerContext
                 event: $event,
                 headers: $headers,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );
@@ -104,6 +128,7 @@ abstract class HandlerContext
 
     /**
      * @param ?non-empty-string $endpoint
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
      *
      * @throws InvalidIntent
      * @throws CannotRouteCommand
@@ -114,6 +139,7 @@ abstract class HandlerContext
         Headers $headers = new Headers(),
         TimeSpan $delay = new TimeSpan(0),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatchImmediately(
@@ -123,18 +149,22 @@ abstract class HandlerContext
                 headers: $headers,
                 delay: $delay,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );
     }
 
     /**
+     * @param non-empty-string|RoutedCorrelationId|null $correlationId
+     *
      * @throws InvalidIntent
      */
     final public function publishImmediately(
         object $event,
         Headers $headers = new Headers(),
         ?TimeSpan $ttl = null,
+        null|string|RoutedCorrelationId $correlationId = null,
         ?TransportOptions $transportOptions = null,
     ): void {
         $this->dispatchImmediately(
@@ -142,6 +172,7 @@ abstract class HandlerContext
                 event: $event,
                 headers: $headers,
                 ttl: $ttl,
+                correlationId: $correlationId,
                 transportOptions: $transportOptions,
             ),
         );

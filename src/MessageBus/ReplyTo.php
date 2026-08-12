@@ -20,19 +20,19 @@ final readonly class ReplyTo
     {
         return new self(
             destination: $headers->find(REPLY_TO_ENDPOINT) ?? $headers->get(ORIGIN_ENDPOINT),
-            correlationId: $headers->find(RAW_CORRELATION_ID) ?? $headers->get(MESSAGE_ID),
+            correlationId: $headers->find(RAW_CORRELATION_ID),
             conversationId: $headers->find(CONVERSATION_ID) ?? $headers->get(MESSAGE_ID),
         );
     }
 
     /**
      * @param non-empty-string $destination Endpoint name
-     * @param non-empty-string $correlationId
+     * @param ?non-empty-string $correlationId
      * @param non-empty-string $conversationId
      */
     public function __construct(
         public string $destination,
-        public string $correlationId,
+        public ?string $correlationId,
         public string $conversationId,
     ) {}
 }

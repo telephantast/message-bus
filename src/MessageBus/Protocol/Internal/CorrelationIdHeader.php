@@ -55,12 +55,12 @@ final class CorrelationIdHeader implements Header
 
         if (\is_array($value)
             && \count($value) === 2
-            && isset($value['hq']) && \is_string($handlerQualifier = $value['hq']) && $handlerQualifier !== ''
-            && isset($value['id']) && \is_string($id = $value['id']) && $id !== ''
+            && \array_key_exists('hq', $value) && \is_string($value['hq']) && $value['hq'] !== ''
+            && \array_key_exists('id', $value) && ($value['id'] === null || \is_string($value['id'])) && $value['id'] !== ''
         ) {
             return new RoutedCorrelationId(
-                handlerQualifier: $handlerQualifier,
-                id: $id,
+                handlerQualifier: $value['hq'],
+                id: $value['id'],
             );
         }
 

@@ -11,10 +11,10 @@ final class RoutedCorrelationId
 {
     /**
      * @param non-empty-string $handlerQualifier
-     * @param non-empty-string $id
+     * @param ?non-empty-string $id
      */
     public function __construct(
         public string $handlerQualifier,
-        public string $id,
+        public ?string $id = null,
     ) {}
 }
