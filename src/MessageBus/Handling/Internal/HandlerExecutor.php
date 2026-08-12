@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Thesis\MessageBus\Handling\Internal;
 
 use Thesis\Headers;
-use Thesis\MessageBus\Handling\HandlerRegistry;
-use Thesis\MessageBus\Handling\NoHandler;
 use Thesis\MessageBus\Transport\Dispatcher;
 use Thesis\MessageBus\Transport\OutboundEnvelope;
 
@@ -19,11 +17,11 @@ final readonly class HandlerExecutor
 {
     /**
      * @param non-empty-string $endpoint
-     * @param HandlerRegistry<Tx> $handlerRegistry
+     * @param HandlerRouter<Tx> $router
      */
     public function __construct(
         private string $endpoint,
-        private HandlerRegistry $handlerRegistry,
+        private HandlerRouter $router,
         private OutboundEnvelopeFactory $outboundEnvelopeFactory,
         private Dispatcher $dispatcher,
     ) {}
@@ -34,11 +32,7 @@ final readonly class HandlerExecutor
      */
     public function execute(object $message, Headers $headers, object $transaction): array
     {
-        $handlers = $this->handlerRegistry->handlersFor($message::class);
-
-        if ($handlers === []) {
-            throw new NoHandler($message::class);
-        }
+        $handler = $this->router->handlerFor($message::class, $headers);
 
         $context = new RuntimeHandlerContext(
             endpoint: $this->endpoint,
@@ -48,9 +42,7 @@ final readonly class HandlerExecutor
         );
 
         try {
-            foreach ($handlers as $handler) {
-                $handler($message, $context, $transaction);
-            }
+            $handler($message, $context, $transaction);
         } finally {
             $context->disableDispatch();
         }

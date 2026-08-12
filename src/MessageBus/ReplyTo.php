@@ -6,9 +6,9 @@ namespace Thesis\MessageBus;
 
 use Thesis\Headers;
 use const Thesis\MessageBus\Protocol\CONVERSATION_ID;
-use const Thesis\MessageBus\Protocol\CORRELATION_ID;
 use const Thesis\MessageBus\Protocol\MESSAGE_ID;
 use const Thesis\MessageBus\Protocol\ORIGIN_ENDPOINT;
+use const Thesis\MessageBus\Protocol\RAW_CORRELATION_ID;
 use const Thesis\MessageBus\Protocol\REPLY_TO_ENDPOINT;
 
 /**
@@ -20,7 +20,7 @@ final readonly class ReplyTo
     {
         return new self(
             destination: $headers->find(REPLY_TO_ENDPOINT) ?? $headers->get(ORIGIN_ENDPOINT),
-            correlationId: $headers->find(CORRELATION_ID) ?? $headers->get(MESSAGE_ID),
+            correlationId: $headers->find(RAW_CORRELATION_ID) ?? $headers->get(MESSAGE_ID),
             conversationId: $headers->find(CONVERSATION_ID) ?? $headers->get(MESSAGE_ID),
         );
     }

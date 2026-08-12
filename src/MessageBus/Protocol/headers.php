@@ -8,6 +8,7 @@ use Thesis\Headers\IntHeader;
 use Thesis\Headers\NonEmptyStringHeader;
 use Thesis\Headers\StringHeader;
 use Thesis\Headers\TimeHeader;
+use Thesis\MessageBus\Protocol\Internal\CorrelationIdHeader;
 
 /** @api */
 const MESSAGE_TYPE = new NonEmptyStringHeader('thesis-message-type');
@@ -23,7 +24,9 @@ const CONVERSATION_ID = new NonEmptyStringHeader('thesis-conversation-id');
 /** @api */
 const CAUSE_ID = new NonEmptyStringHeader('thesis-cause-id');
 /** @api */
-const CORRELATION_ID = new NonEmptyStringHeader('thesis-correlation-id');
+const CORRELATION_ID = new CorrelationIdHeader();
+/** @api */
+const RAW_CORRELATION_ID = new NonEmptyStringHeader(CorrelationIdHeader::NAME);
 
 /** @api */
 const ORIGIN_ENDPOINT = new NonEmptyStringHeader('thesis-origin-endpoint');
@@ -32,6 +35,8 @@ const REPLY_TO_ENDPOINT = new NonEmptyStringHeader('thesis-reply-to-endpoint');
 
 /** @api */
 const CREATED_AT = new TimeHeader('thesis-created-at');
+/** @api */
+const EXPIRES_AT = new TimeHeader('thesis-expires-at');
 
 /** @api */
 const FIRST_FAILED_AT = new TimeHeader('thesis-first-failed-at');
@@ -45,6 +50,3 @@ const ERROR_CLASS = new NonEmptyStringHeader('thesis-error-class');
 const ERROR_FILE = new StringHeader('thesis-error-file');
 /** @api */
 const ERROR_LINE = new IntHeader('thesis-error-line');
-
-/** @api */
-const EXPIRES_AT = new TimeHeader('thesis-expires-at');

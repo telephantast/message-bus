@@ -21,7 +21,8 @@ interface HandlerRegistry
     /**
      * @template T of object
      * @param class-string<T> $messageClass
-     * @return list<callable(T, HandlerContext, Tx): void>
+     * @param ?non-empty-string $qualifier
+     * @return ?callable(T, HandlerContext, Tx): void
      */
-    public function handlersFor(string $messageClass): array;
+    public function handlerFor(string $messageClass, ?string $qualifier = null): ?callable;
 }

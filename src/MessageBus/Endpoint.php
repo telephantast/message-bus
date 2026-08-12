@@ -28,6 +28,7 @@ use Thesis\MessageBus\Consumption\Recoverability\RecoverabilityPolicy;
 use Thesis\MessageBus\Consumption\Recoverability\UnrecoverableErrorPolicy;
 use Thesis\MessageBus\Handling\HandlerRegistry;
 use Thesis\MessageBus\Handling\Internal\HandlerExecutor;
+use Thesis\MessageBus\Handling\Internal\HandlerRouter;
 use Thesis\MessageBus\Handling\Internal\OutboundEnvelopeFactory;
 use Thesis\MessageBus\Handling\NoHandler;
 use Thesis\MessageBus\Identification\IdGenerator;
@@ -116,7 +117,10 @@ final readonly class Endpoint
             endpoint: $name,
             handlerExecutor: new HandlerExecutor(
                 endpoint: $name,
-                handlerRegistry: $handlerRegistry,
+                router: new HandlerRouter(
+                    handlerRegistry: $handlerRegistry,
+                    messageMetadataFactory: $messageMetadataFactory,
+                ),
                 outboundEnvelopeFactory: $outboundEnvelopeFactory,
                 dispatcher: $transport,
             ),
@@ -235,7 +239,10 @@ final readonly class Endpoint
             endpoint: $name,
             handlerExecutor: new HandlerExecutor(
                 endpoint: $name,
-                handlerRegistry: $handlerRegistry,
+                router: new HandlerRouter(
+                    handlerRegistry: $handlerRegistry,
+                    messageMetadataFactory: $messageMetadataFactory,
+                ),
                 outboundEnvelopeFactory: $outboundEnvelopeFactory,
                 dispatcher: $transport,
             ),
